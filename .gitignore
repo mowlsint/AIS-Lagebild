@@ -1,0 +1,17 @@
+# generated outputs
+exports/
+logs/
+logs_old/
+logs_v4/
+
+# python cache
+__pycache__/
+*.pyc
+
+# OS/editor junk
+Thumbs.db
+.DS_Store
+
+# optional: personal docs
+story.odt
+story.pdf

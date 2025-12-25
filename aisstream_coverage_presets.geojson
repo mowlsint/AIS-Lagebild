@@ -1,0 +1,59 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "AISstream Coverage (Nordsee, preset northsea)",
+        "preset": "northsea",
+        "style": {
+          "color": "#ff0000",
+          "weight": 3,
+          "opacity": 1,
+          "fill": false,
+          "dashArray": "6,6"
+        },
+        "description": "Crawl-Abdeckung (BBox) aus PRESETS['northsea'] — technische Systemgrenze, keine See-/Rechtsgrenze."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-6.0, 50.0],
+            [10.5, 50.0],
+            [10.5, 62.0],
+            [-6.0, 62.0],
+            [-6.0, 50.0]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "AISstream Coverage (Südliche Ostsee, preset southbaltic)",
+        "preset": "southbaltic",
+        "style": {
+          "color": "#ff0000",
+          "weight": 3,
+          "opacity": 1,
+          "fill": false,
+          "dashArray": "6,6"
+        },
+        "description": "Crawl-Abdeckung (BBox) aus PRESETS['southbaltic'] — technische Systemgrenze, keine See-/Rechtsgrenze."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [8.5, 53.3],
+            [20.5, 53.3],
+            [20.5, 56.2],
+            [8.5, 56.2],
+            [8.5, 53.3]
+          ]
+        ]
+      }
+    }
+  ]
+}

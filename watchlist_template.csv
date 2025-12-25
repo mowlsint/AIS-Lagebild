@@ -1,0 +1,4 @@
+category,name,imo,mmsi,sanctioned,sanctions,note
+shadow_fleet,BEISPIEL_TANKER_A,9164512,273415140,true,EU; UK (OFSI),aus deiner Shadow-Fleet-Liste
+shadow_fleet,BEISPIEL_TANKER_B,9252400,629009388,true,EU; USA,aus deiner Shadow-Fleet-Liste
+russian_flagged,BEISPIEL_RU_FLAG_C,0000000,000000000,false,,russisch geflaggt (Quelle/Logik bei dir)

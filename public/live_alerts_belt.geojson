@@ -1,1 +1,1 @@
-﻿{"type":"FeatureCollection","features":[]}
+{"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"camera_name": "Storebaelt-EastPylon", "bridge": "Storebælt", "side": "unknown", "timestamp_utc": "2025-12-26T11:48:26Z", "snapshot_url": "https://raw.githubusercontent.com/mowlsint/AIS-Lagebild/main/public/alerts/storebaelt/2025-12-26/20251226_114826_Storebaelt-EastPylon.jpg"}, "geometry": {"type": "Point", "coordinates": [11.035, 55.3385]}}]}

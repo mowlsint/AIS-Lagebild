@@ -130,7 +130,7 @@ def main():
     ap.add_argument("--tz", default="UTC")
     ap.add_argument("--shadowfleet", default="watchlist_shadowfleet.csv")
     ap.add_argument("--outdir", default="exports")
-    ap.add_argument("--lookback-days", type=int, default=14)
+    ap.add_argument("--lookback-days", type=int, default=10)
     args = ap.parse_args()
 
     d = datetime.strptime(args.date, "%Y-%m-%d").date()
@@ -219,9 +219,21 @@ def main():
             continue
 
         counts[layer] += 1
-        label = best_label(mmsi, pts_sorted)
-        name = label if not label.startswith("MMSI ") else ""
+        base_label = best_label(mmsi, pts_sorted)
+
+        # Priorität im Label: Schattenflotte > Aus Russland > sonst
+        if layer == "shadowfleet":
+            label = f"🕶️ Schattenflotte – {base_label}"
+        elif layer == "russia_routes":
+            label = f"🇷🇺 Aus Russland – {base_label}"
+        else:
+            label = base_label
+
+        # "name" bleibt der reine Schiffsname (ohne Prefix), damit du ihn separat nutzen kannst
+        name = base_label if not base_label.startswith("MMSI ") else ""
+
         shiptype = (first.get("shiptype") or last.get("shiptype") or "").strip()
+        
 
         props = {
             "layer": layer,

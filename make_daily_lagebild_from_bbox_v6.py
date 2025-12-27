@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 r"""
-make_daily_lagebild_from_bbox_v6.py (RESTORED)
+make_daily_lagebild_from_bbox_v6.py (UPDATED)
 
 Daily exporter with 3 layers:
-1) shadowfleet (GUR match)
+1) shadowfleet (watchlist match: MMSI/IMO + NAME fallback)
 2) russia_routes (to/from Russia, heuristic)
 3) ru_mid273 (MMSI MID=273 excluding 1+2)
 
 Run:
-  python make_daily_lagebild_from_bbox_v6.py --in "logs_v4\bbox_*.jsonl" --date 2025-12-20 --tz UTC --shadowfleet watchlist_shadowfleet.csv --outdir exports --lookback-days 14
+  python make_daily_lagebild_from_bbox_v6.py --in "logs_v4\bbox_*.jsonl" --date 2025-12-20 --tz UTC --shadowfleet watchlist_shadowfleet.csv --outdir exports --lookback-days 10
 """
 
 from __future__ import annotations
@@ -44,7 +44,13 @@ RU_PORT_BOXES = {
     "Dudinka": (86.00, 69.30, 86.50, 69.50),
 }
 
-RU_DEST_RE = re.compile(r"\b(RU|RUSSIA|RUS|PRIMORSK|UST[- ]?LUGA|ST\s*PETERSBURG|PETERSBURG|KALININGRAD|BALTIYSK|MURMANSK|ARKHANGELSK|SABETTA|DUDINKA)\b", re.I)
+RU_DEST_RE = re.compile(
+    r"\b(RU|RUSSIA|RUS|PRIMORSK|UST[- ]?LUGA|ST\s*PETERSBURG|PETERSBURG|KALININGRAD|BALTIYSK|MURMANSK|ARKHANGELSK|SABETTA|DUDINKA)\b",
+    re.I
+)
+
+NON_ALNUM = re.compile(r"[^A-Z0-9]+", re.I)
+WS_RE = re.compile(r"\s+")
 
 def parse_iso_z(ts: str) -> datetime:
     if ts.endswith("Z"):
@@ -96,17 +102,55 @@ def local_day_bounds_to_utc(d: date, tz_name: str):
         print("[daily] Fix: python -m pip install tzdata")
         return start_local.astimezone(timezone.utc), end_local.astimezone(timezone.utc), f"LOCAL({local_tz})"
 
-def load_shadowfleet_ids(path: str) -> Tuple[Set[str], Set[str]]:
+def norm_name(s: str) -> str:
+    """
+    Normalize vessel names for matching:
+    - uppercase
+    - remove punctuation
+    - collapse whitespace
+    """
+    s = (s or "").strip().upper()
+    if not s:
+        return ""
+    s = NON_ALNUM.sub(" ", s)
+    s = WS_RE.sub(" ", s).strip()
+    return s
+
+def load_shadowfleet_ids(path: str) -> Tuple[Set[str], Set[str], Set[str]]:
+    """
+    Reads a CSV and extracts:
+      - MMSI (9 digits) from 'mmsi'
+      - IMO (7 digits) from 'imo'
+      - NAME fallback from 'name' (and a few common variants)
+    Returns sets (shadow_mmsi, shadow_imo, shadow_names_norm)
+    """
     shadow_mmsi: Set[str] = set()
     shadow_imo: Set[str] = set()
+    shadow_names: Set[str] = set()
+
     with open(path, newline="", encoding="utf-8", errors="ignore") as f:
         r = csv.DictReader(f)
         for row in r:
             mmsi = digits_only((row.get("mmsi") or "").strip())
             imo = digits_only((row.get("imo") or "").strip())
-            if is_mmsi(mmsi): shadow_mmsi.add(mmsi)
-            if is_imo(imo): shadow_imo.add(imo)
-    return shadow_mmsi, shadow_imo
+
+            # Try common name columns
+            name = (
+                (row.get("name") or "")
+                or (row.get("vessel_name") or "")
+                or (row.get("ship_name") or "")
+                or (row.get("Vessel name") or "")
+            ).strip()
+
+            if is_mmsi(mmsi):
+                shadow_mmsi.add(mmsi)
+            if is_imo(imo):
+                shadow_imo.add(imo)
+            nn = norm_name(name)
+            if nn:
+                shadow_names.add(nn)
+
+    return shadow_mmsi, shadow_imo, shadow_names
 
 def best_label(mmsi: str, pts_sorted: List[Dict]) -> str:
     for p in (pts_sorted[0], pts_sorted[-1]):
@@ -130,14 +174,14 @@ def main():
     ap.add_argument("--tz", default="UTC")
     ap.add_argument("--shadowfleet", default="watchlist_shadowfleet.csv")
     ap.add_argument("--outdir", default="exports")
-    ap.add_argument("--lookback-days", type=int, default=10)
+    ap.add_argument("--lookback-days", type=int, default=14)
     args = ap.parse_args()
 
     d = datetime.strptime(args.date, "%Y-%m-%d").date()
     day_start_utc, day_end_utc, tz_used = local_day_bounds_to_utc(d, args.tz)
     lookback_start_utc = day_start_utc - timedelta(days=max(0, args.lookback_days))
 
-    shadow_mmsi, shadow_imo = load_shadowfleet_ids(args.shadowfleet)
+    shadow_mmsi, shadow_imo, shadow_names = load_shadowfleet_ids(args.shadowfleet)
 
     files = sorted(glob.glob(args.in_glob))
     if not files:
@@ -177,9 +221,11 @@ def main():
                 except Exception:
                     continue
 
+                # Lookback for "from Russia" based on RU port boxes
                 if lookback_start_utc <= dt < day_end_utc and ru_port_hit(lat, lon):
                     from_russia_seen.add(mmsi)
 
+                # Track points for the selected day within main area
                 if day_start_utc <= dt < day_end_utc and in_main_area(lat, lon):
                     day_tracks[mmsi].append({
                         "ts_utc": ts, "lat": lat, "lon": lon,
@@ -202,8 +248,17 @@ def main():
         imo = (first.get("imo") or last.get("imo") or "").strip()
         dest = (last.get("destination") or first.get("destination") or "").strip()
 
-        is_shadow = (mmsi in shadow_mmsi) or (imo in shadow_imo if is_imo(imo) else False)
+        vessel_name = (first.get("name") or last.get("name") or "").strip()
+        vessel_name_norm = norm_name(vessel_name)
 
+        # Shadowfleet match: MMSI/IMO primary + NAME fallback
+        is_shadow = (
+            (mmsi in shadow_mmsi)
+            or (imo in shadow_imo if is_imo(imo) else False)
+            or (vessel_name_norm in shadow_names if vessel_name_norm else False)
+        )
+
+        # Decide layer with strict priority: shadowfleet > russia_routes > ru_mid273
         layer = None
         if is_shadow:
             layer = "shadowfleet"
@@ -219,9 +274,10 @@ def main():
             continue
 
         counts[layer] += 1
+
         base_label = best_label(mmsi, pts_sorted)
 
-        # Priorität im Label: Schattenflotte > Aus Russland > sonst
+        # Label prefix priority: shadowfleet > russia_routes
         if layer == "shadowfleet":
             label = f"🕶️ Schattenflotte – {base_label}"
         elif layer == "russia_routes":
@@ -229,11 +285,9 @@ def main():
         else:
             label = base_label
 
-        # "name" bleibt der reine Schiffsname (ohne Prefix), damit du ihn separat nutzen kannst
+        # Keep "name" as pure vessel name (no prefix)
         name = base_label if not base_label.startswith("MMSI ") else ""
-
         shiptype = (first.get("shiptype") or last.get("shiptype") or "").strip()
-        
 
         props = {
             "layer": layer,
@@ -248,6 +302,14 @@ def main():
             "eta": (last.get("eta") or first.get("eta") or "").strip(),
             "from_russia_lookback": (mmsi in from_russia_seen),
             "to_russia_destination_match": bool(dest and RU_DEST_RE.search(dest)),
+            "shadowfleet_match": bool(is_shadow),
+            "shadowfleet_match_via": (
+                "mmsi" if (mmsi in shadow_mmsi)
+                else "imo" if (is_imo(imo) and imo in shadow_imo)
+                else "name" if (vessel_name_norm and vessel_name_norm in shadow_names)
+                else ""
+            ),
+            "vessel_name_norm": vessel_name_norm,
         }
 
         features.extend(build_track_and_last(pts_sorted, props))
@@ -257,7 +319,7 @@ def main():
     out_fp.write_text(json.dumps({"type":"FeatureCollection","features":features}, ensure_ascii=False), encoding="utf-8")
 
     tracks = sum(1 for f in features if f.get("properties",{}).get("feature")=="track")
-    print(f"[daily] wrote tracks={tracks} counts={counts} -> {out_fp}")
+    print(f"[daily] wrote tracks={tracks} counts={counts} tz={tz_used} lookback_days={args.lookback_days} -> {out_fp}")
 
 if __name__ == "__main__":
     main()

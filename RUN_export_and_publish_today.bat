@@ -1,4 +1,6 @@
 @echo off
+cd /d "C:\Users\User\Documents\WSP\GIS-Analyse\AIS-Lagebild_repo" || exit /b 1
+@echo off
 setlocal enabledelayedexpansion
 
 REM === CONFIG ===

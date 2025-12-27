@@ -1,3 +1,10 @@
+_tmp_cam/
+logs_belts/
+snapshots/
+public/alerts/**/*.jpg
+*.log
+test.jpg
+
 live_alerts_*.geojson
 exports/
 logs*/

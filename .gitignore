@@ -20,3 +20,5 @@ Thumbs.db
 # optional: personal docs
 story.odt
 story.pdf
+
+public/alerts/storebaelt/*.jpg

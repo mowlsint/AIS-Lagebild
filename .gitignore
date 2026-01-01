@@ -29,3 +29,7 @@ story.odt
 story.pdf
 
 public/alerts/storebaelt/*.jpg
+
+# local secrets
+task_pwd.txt
+

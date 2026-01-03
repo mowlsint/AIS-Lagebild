@@ -1,173 +1,97 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
-REM =========================================================
-REM  RUN_export_and_publish_today_v2.bat (FIXED)
-REM  - Exports GeoJSON from logs_v4\bbox_*.jsonl (flat sampler output)
-REM  - Picks newest bbox_YYYY-MM-DD.jsonl day automatically
-REM  - ALWAYS refreshes live_*.geojson from the dated outputs
-REM  - Commits + pushes ONLY if there are changes
-REM =========================================================
+REM ============================================================
+REM RUN_export_and_publish_today_v3.bat  (FAST INPUT: last 10 days)
+REM - Copies only the last N days of logs into a temp folder
+REM - Runs make_daily_4_geojson_layers_v3.py on that reduced set
+REM - Publishes dated + live GeoJSONs to /public
+REM ============================================================
 
-REM === CONFIG =================================================
+REM ---- CONFIG: adjust to your paths ----
 set "DATA_ROOT=C:\Users\User\Documents\WSP\GIS-Analyse\AIS-Lagebild"
 set "REPO_ROOT=C:\Users\User\Documents\WSP\GIS-Analyse\AIS-Lagebild_repo"
 set "REPO_PUBLIC=%REPO_ROOT%\public"
+set "LOG_DIR=%DATA_ROOT%\logs_v4"
 
+REM Python executable (set explicitly if needed)
 set "PY=python"
-set "GIT=git"
 
-REM Script for flat logs_v4 (ts_utc/mmsi/lat/lon)
+REM Scripts / inputs
 set "SCRIPT=%DATA_ROOT%\make_daily_4_geojson_layers_v3.py"
-
-REM Input logs
-set "IN_GLOB=%DATA_ROOT%\logs_v4\bbox_*.jsonl"
-
-REM Shadowfleet watchlist
 set "SHADOW_CSV=%DATA_ROOT%\watchlist_shadowfleet.csv"
 set "PRESANCTION_CSV=%DATA_ROOT%\watchlist_pre_sanction_kse.csv"
 
-REM =========================================================
-REM  0) SANITY CHECKS
-REM =========================================================
-if not exist "%REPO_ROOT%\" (
-  echo ERROR: REPO_ROOT not found: "%REPO_ROOT%"
+REM How many days of logs to include (inclusive, e.g. 10 = today + previous 9 days)
+set "DAYS_BACK=10"
+
+REM Track and RU-lookback logic inside the python script
+REM (Script defaults: --lookback-days 10, --track-days 3)
+set "LOOKBACK_DAYS=10"
+set "TRACK_DAYS=3"
+
+REM ---- Resolve TODAY (UTC date, matching your ts_utc=Z logging) ----
+for /f %%i in ('powershell -NoProfile -Command "(Get-Date).ToUniversalTime().ToString(''yyyy-MM-dd'')"') do set "TODAY=%%i"
+
+echo [%date% %time%] Using data day (UTC): %TODAY%
+echo [%date% %time%] Preparing last %DAYS_BACK% days of input logs...
+
+REM ---- Prepare temp folder with only recent logs ----
+set "TMP_IN=%REPO_ROOT%\tmp_in_recent"
+if not exist "%TMP_IN%" mkdir "%TMP_IN%"
+
+REM Clean temp folder
+del /q "%TMP_IN%\bbox_*.jsonl" >nul 2>&1
+
+REM Copy only bbox_YYYY-MM-DD.jsonl where date >= (UTC today - (DAYS_BACK-1))
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$ErrorActionPreference='Stop';" ^
+  "$logDir = '%LOG_DIR%';" ^
+  "$tmpIn  = '%TMP_IN%';" ^
+  "$daysBack = [int]'%DAYS_BACK%';" ^
+  "$start = (Get-Date).ToUniversalTime().Date.AddDays(-($daysBack-1));" ^
+  "Get-ChildItem -Path $logDir -Filter 'bbox_*.jsonl' |" ^
+  "Where-Object { $_.BaseName -match '^bbox_(\d{4}-\d{2}-\d{2})$' -and ([datetime]$Matches[1]) -ge $start } |" ^
+  "ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $tmpIn $_.Name) -Force }" ^
+  >nul 2>&1
+
+REM Count copied files
+for /f %%i in ('powershell -NoProfile -Command "(Get-ChildItem -Path ''%TMP_IN%'' -Filter ''bbox_*.jsonl'' | Measure-Object).Count"') do set "COPIED=%%i"
+echo [%date% %time%] Copied recent log files: %COPIED%
+
+if "%COPIED%"=="0" (
+  echo ERROR: No recent bbox_*.jsonl files found for last %DAYS_BACK% days in: %LOG_DIR%
   exit /b 1
 )
-if not exist "%REPO_PUBLIC%\" (
-  echo ERROR: REPO_PUBLIC not found: "%REPO_PUBLIC%"
-  exit /b 1
-)
-if not exist "%SCRIPT%" (
-  echo ERROR: Python script not found: "%SCRIPT%"
-  exit /b 1
-)
-if not exist "%SHADOW_CSV%" (
-  echo ERROR: Shadowfleet CSV not found: "%SHADOW_CSV%"
-  exit /b 1
-)
 
-REM =========================================================
-REM  1) SET TODAY = newest bbox_YYYY-MM-DD.jsonl found (CMD-only)
-REM =========================================================
-set "TODAY="
-set "LATEST="
+REM Use reduced input glob
+set "IN_GLOB=%TMP_IN%\bbox_*.jsonl"
 
-for /f "delims=" %%F in ('dir /b /o-d "%DATA_ROOT%\logs_v4\bbox_*.jsonl" 2^>nul') do (
-  set "LATEST=%%~nF"
-  goto :got_latest
-)
+REM ---- Ensure output dir exists ----
+if not exist "%REPO_PUBLIC%" mkdir "%REPO_PUBLIC%"
 
-:got_latest
-if not defined LATEST (
-  echo ERROR: No bbox_*.jsonl files found in "%DATA_ROOT%\logs_v4"
-  exit /b 1
-)
-
-REM LATEST looks like bbox_2026-01-03
-set "TODAY=%LATEST:bbox_=%"
-
-echo [%date% %time%] Using data day: %TODAY%
-
-REM =========================================================
-REM  2) GENERATE LAYERS (writes dated outputs into repo/public)
-REM =========================================================
 echo [%date% %time%] Running python export...
-"%PY%" "%SCRIPT%" --in "%IN_GLOB%" --date "%TODAY%" --shadowfleet "%SHADOW_CSV%" --presanction "%PRESANCTION_CSV%" --outdir "%REPO_PUBLIC%"
+"%PY%" "%SCRIPT%" --in "%IN_GLOB%" --date "%TODAY%" --shadowfleet "%SHADOW_CSV%" --presanction "%PRESANCTION_CSV%" --outdir "%REPO_PUBLIC%" --lookback-days %LOOKBACK_DAYS% --track-days %TRACK_DAYS%
 if errorlevel 1 (
   echo ERROR: Python export failed.
   exit /b 1
 )
 
-REM =========================================================
-REM  3) ALWAYS REFRESH LIVE FILES FROM THE DATED OUTPUTS
-REM     (prevents stale 45-byte empty live_* files)
-REM =========================================================
+REM ---- Publish live aliases from today's dated files ----
 set "DATED_SHADOW=%REPO_PUBLIC%\lagebild_%TODAY%_shadowfleet.geojson"
-set "DATED_MID=%REPO_PUBLIC%\lagebild_%TODAY%_ru_mid273.geojson"
+set "DATED_MID273=%REPO_PUBLIC%\lagebild_%TODAY%_ru_mid273.geojson"
 set "DATED_FROMRU=%REPO_PUBLIC%\lagebild_%TODAY%_from_russia_ports_excluding_shadow_mid273.geojson"
 set "DATED_PRES=%REPO_PUBLIC%\lagebild_%TODAY%_pre_sanctioned.geojson"
 
-if not exist "%DATED_SHADOW%" (
-  echo ERROR: Missing dated shadowfleet output: "%DATED_SHADOW%"
-  exit /b 1
-)
-if not exist "%DATED_MID%" (
-  echo ERROR: Missing dated ru_mid273 output: "%DATED_MID%"
-  exit /b 1
-)
-if not exist "%DATED_FROMRU%" (
-  echo ERROR: Missing dated from_ru output: "%DATED_FROMRU%"
-  exit /b 1
-)
+if not exist "%DATED_SHADOW%" (echo ERROR: Missing %DATED_SHADOW% & exit /b 1)
+if not exist "%DATED_MID273%" (echo ERROR: Missing %DATED_MID273% & exit /b 1)
+if not exist "%DATED_FROMRU%" (echo ERROR: Missing %DATED_FROMRU% & exit /b 1)
+if not exist "%DATED_PRES%" (echo ERROR: Missing %DATED_PRES% & exit /b 1)
 
 copy /Y "%DATED_SHADOW%" "%REPO_PUBLIC%\live_shadowfleet.geojson" >nul
-copy /Y "%DATED_MID%" "%REPO_PUBLIC%\live_ru_mid273.geojson" >nul
+copy /Y "%DATED_MID273%" "%REPO_PUBLIC%\live_ru_mid273.geojson" >nul
 copy /Y "%DATED_FROMRU%" "%REPO_PUBLIC%\live_from_russia_ports_excl_shadow.geojson" >nul
 copy /Y "%DATED_PRES%" "%REPO_PUBLIC%\live_pre_sanctioned.geojson" >nul
 
-REM Verify live outputs exist now
-if not exist "%REPO_PUBLIC%\live_shadowfleet.geojson" (
-  echo ERROR: live_shadowfleet.geojson missing
-  exit /b 1
-)
-if not exist "%REPO_PUBLIC%\live_ru_mid273.geojson" (
-  echo ERROR: live_ru_mid273.geojson missing
-  exit /b 1
-)
-if not exist "%REPO_PUBLIC%\live_from_russia_ports_excl_shadow.geojson" (
-  echo ERROR: live_from_russia_ports_excl_shadow.geojson missing
-  exit /b 1
-)
-if not exist "%REPO_PUBLIC%\live_pre_sanctioned.geojson" (
-  echo ERROR: live_pre_sanctioned.geojson missing
-)
-
-REM =========================================================
-REM  4) GIT PUBLISH
-REM =========================================================
-echo [%date% %time%] Git publish...
-cd /d "%REPO_ROOT%" || exit /b 1
-
-REM Pull only if working tree is clean (avoid rebase error)
-%GIT% diff --quiet
-if errorlevel 1 (
-  echo WARN: Working tree not clean; skipping git pull --rebase.
-) else (
-  %GIT% pull --rebase
-  if errorlevel 1 (
-    echo ERROR: git pull --rebase failed.
-    exit /b 1
-  )
-)
-
-REM Stage ALL GeoJSON under public (Windows-safe; no ** glob)
-for /r "%REPO_PUBLIC%" %%F in (*.geojson) do (
-  %GIT% add -f "%%F"
-)
-
-echo --- staged files ---
-%GIT% diff --cached --name-only
-
-REM Nothing staged? Then nothing to do.
-%GIT% diff --cached --quiet
-if not errorlevel 1 (
-  echo [%date% %time%] No changes to commit.
-  exit /b 0
-)
-
-set "MSG=Automated publish: %TODAY% %TIME%"
-%GIT% commit -m "%MSG%"
-if errorlevel 1 (
-  echo ERROR: git commit failed.
-  exit /b 1
-)
-
-%GIT% push
-if errorlevel 1 (
-  echo ERROR: git push failed.
-  exit /b 1
-)
-
-echo [%date% %time%] Done.
+echo [%date% %time%] OK. GeoJSONs updated in: %REPO_PUBLIC%
 exit /b 0

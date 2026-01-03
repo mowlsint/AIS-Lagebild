@@ -240,7 +240,8 @@ def main() -> None:
     ap.add_argument("--shadowfleet", required=True, help="CSV containing shadowfleet MMSI/IMO")
     ap.add_argument("--presanction", required=True, help="CSV containing pre-sanctioned vessels (e.g. KSE list)")
     ap.add_argument("--outdir", required=True, help="Output directory (repo/public)")
-    ap.add_argument("--lookback-days", type=int, default=21, help="Lookback for RU-port heuristic")
+    ap.add_argument("--lookback-days", type=int, default=10, help="Lookback window for RU-port heuristic / from-Russia layer (days)")
+    ap.add_argument("--track-days", type=int, default=3, help="How many days of history to include in track LineStrings")
     ap.add_argument("--min-track-points", type=int, default=2, help="Min points for LineString")
     args = ap.parse_args()
 
@@ -254,7 +255,7 @@ def main() -> None:
 
     day_start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
     day_end = day_start + timedelta(days=1)
-    cutoff = day_start - timedelta(days=int(args.lookback_days))
+    cutoff = day_start - timedelta(days=int(max(args.lookback_days, args.track_days)))
 
     shadow_mmsi, shadow_imo = read_shadowfleet_csv(Path(args.shadowfleet))
     pres_meta_by_imo, pres_mmsi, pres_imo = read_presanction_csv(Path(args.presanction))
@@ -352,7 +353,7 @@ def main() -> None:
             "links": links,
             "vf_url": vf_url,
             "mst_url": mt_url,
-            "method": "v3_plus_presanction",
+            "method": "v3_plus_presanction_track3d_fromru10d",
             "ru_seen_in_lookback": ru_seen,
             "in_monitor_on_day": in_day_area,
         }
@@ -367,7 +368,16 @@ def main() -> None:
         track_props["display"] = ""
 
         p = mk_point_feature(last, base_props)
-        ls = mk_line_feature(pts_sorted, track_props, min_pts=int(args.min_track_points))
+
+        # Limit track history (LineStrings) to the last --track-days relative to day_end
+        track_cutoff = day_end - timedelta(days=int(args.track_days))
+        pts_track = []
+        for ev in pts_sorted:
+            dt_ev = parse_iso_z(ev.get("ts_utc"))
+            if dt_ev and dt_ev >= track_cutoff:
+                pts_track.append(ev)
+
+        ls = mk_line_feature(pts_track, track_props, min_pts=int(args.min_track_points))
 
         if shadow_hit:
             if ls:

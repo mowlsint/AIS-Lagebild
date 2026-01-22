@@ -399,6 +399,12 @@
               </select>
               <div class="small">Affects the X-axis (operational evidence) — reduces false positives for “AIS-only”.</div>
             </div>
+            <div class="form-group">
+  <label for="shipNotesPre">Free text / notes (optional)</label>
+  <textarea id="shipNotesPre" placeholder="e.g., sources, AIS anomalies, actions, assessment..."></textarea>
+  <div class="small">Will be stored with the vessel and exported (CSV/XLS). You can still edit later via the vessel modal.</div>
+</div>
+
           </div>
 
           <!-- STRUCTURE -->
@@ -1144,7 +1150,7 @@ Mapping:
       riskLevel,
       confidence,
       reasons,
-      notes: "",
+      notes: (document.getElementById('shipNotesPre')?.value ?? "").trim(),
       timestamp: new Date().toLocaleString('en-GB')
     };
 
@@ -1193,17 +1199,30 @@ Mapping:
     container.innerHTML = allShips.map(ship => `
       <div class="ship-item" style="cursor:pointer;" onclick="openShipModal('${ship.id}')">
         <div>
-          <strong>${escapeHtml(ship.name)}</strong><br>
-          <span class="meta">
-            ${escapeHtml(ship.type)} | L${ship.structure} | X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix}) | conf ${(ship.confidence ?? 0.6).toFixed(1)}
-          </span>
-          <div class="reasons">Reasons: ${(ship.reasons ?? []).map(escapeHtml).join(' · ')}</div>
-        </div>
-        <div class="ship-risk ${normalizeRiskClass(ship.riskLevel)}">
-          ${escapeHtml(ship.riskLevel)}
-        </div>
+          container.innerHTML = allShips.map(ship => {
+  const hasNote = (ship.notes ?? '').trim().length > 0;
+  const noteSafe = escapeHtml((ship.notes ?? '').trim());
+
+  return `
+    <div class="ship-item" style="cursor:pointer;" onclick="openShipModal('${ship.id}')">
+      <div style="flex:1; min-width:0;">
+        <strong>${escapeHtml(ship.name)}</strong>
+        ${hasNote ? `<span class="note-indicator">📝</span>` : ``}
+        <br>
+        <span class="meta">
+          ${escapeHtml(ship.type)} | L${ship.structure} | X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix}) | conf ${(ship.confidence ?? 0.6).toFixed(1)}
+        </span>
+        <div class="reasons">Reasons: ${(ship.reasons ?? []).map(escapeHtml).join(' · ')}</div>
+
+        ${hasNote ? `<div class="note-preview">${noteSafe.replace(/\r?\n/g,'<br>')}</div>` : ``}
       </div>
-    `).join('');
+
+      <div class="ship-risk ${normalizeRiskClass(ship.riskLevel)}">
+        ${escapeHtml(ship.riskLevel)}
+      </div>
+    </div>
+  `;
+}).join('');
   }
 
   // ==========
@@ -1230,9 +1249,11 @@ Mapping:
   // Form reset
   // ==========
   function resetForm() {
-    document.getElementById('assessmentForm').reset();
-    syncFlagCheckboxesFromSelect();
-  }
+  document.getElementById('assessmentForm').reset();
+  const pre = document.getElementById('shipNotesPre');
+  if (pre) pre.value = '';
+  syncFlagCheckboxesFromSelect();
+}
 
   // ==========
   // Modal logic

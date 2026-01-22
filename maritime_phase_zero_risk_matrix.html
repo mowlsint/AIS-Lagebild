@@ -23,30 +23,46 @@
     }
 
   .header{
-  position:relative; /* WICHTIG: damit das Logo absolut im Header sitzt */
   background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
   color:#fff;
   padding:30px;
+  position:relative;
   text-align:center;
 }
 
-/* Optional: hält den Textblock stabil mittig */
+/* Center content stays perfectly centered regardless of logo width */
 .header-content{
   max-width: 980px;
   margin: 0 auto;
 }
 
-/* Logo oben rechts, beeinflusst Layout NICHT */
+/* Logo top-right, bigger (4×), does NOT push content */
 .header-logo{
   position:absolute;
-  top:16px;
-  right:16px;
-  height:184px;   /* 4x groß */
-  width:auto;
-  border-radius:8px;
-  background:rgba(255,255,255,0.15);
-  padding:6px;
+  top:18px;
+  right:18px;
+  width:240px;         /* <- adjust if you want even bigger/smaller */
+  height:auto;
+  border-radius:10px;  /* optional */
+  box-shadow:0 8px 24px rgba(0,0,0,0.25); /* optional */
 }
+
+/* Prevent overlap on small screens */
+@media (max-width: 700px){
+  .header-logo{
+    position:static;
+    display:block;
+    margin:0 auto 14px auto;
+    width:220px;
+  }
+  .header{
+    padding:22px;
+  }
+}
+
+.header h1{ font-size:28px; margin-bottom:10px; }
+.header p{ font-size:14px; opacity:0.9; }
+
 
 /* Optional: falls das große Logo Text überdecken könnte */
 @media (min-width: 900px){
@@ -263,6 +279,7 @@
     </p>
   </div>
 </div>
+
 
 
     <div class="tabs">

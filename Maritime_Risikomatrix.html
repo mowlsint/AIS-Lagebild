@@ -1061,28 +1061,28 @@ Mapping:
       if (!shipName) { alert('Schiffsname eingeben!'); return; }
 
       const structure = calculateStructure();
-      const probability = calculateProbability();
-      const riskLevel = getRiskLevel(structure, probability);
-      const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
+const probabilityRaw = calculateProbability();
 
-      const ship = {
-        id: newId(),
-        name: shipName,
-        type: document.getElementById('shipType').options[document.getElementById('shipType').selectedIndex].text,
-        structure,
-        probability,
-        riskLevel,
-        confidence,
-        reasons: getTopReasonsFromCurrentForm(),
-        notes: "",
-        timestamp: new Date().toLocaleString('de-DE')
-      };
+// Matrix hat nur 0..4 (Spalte 4 steht für 4/5)
+const probabilityMatrix = (probabilityRaw >= 4) ? 4 : probabilityRaw;
 
-      allShips.push(ship);
-      updateMatrix();
-      updateShipsList();
-      resetForm();
-      document.getElementById('exportBtn').style.display = 'inline-block';
+const riskLevel = getRiskLevel(structure, probabilityRaw);
+
+const ship = {
+  name: shipName,
+  type: document.getElementById('shipType').options[document.getElementById('shipType').selectedIndex].text,
+  structure,
+  probabilityRaw,
+  probabilityMatrix,
+  riskLevel,
+  timestamp: new Date().toLocaleString('de-DE')
+};
+
+allShips.push(ship);
+updateMatrix();
+updateShipsList();
+resetForm();
+document.getElementById('exportBtn').style.display = 'inline-block';
     }
 
     // ==========
@@ -1090,14 +1090,14 @@ Mapping:
     // ==========
     function updateMatrix() {
       for (let s=1; s<=5; s++) {
-        for (let p=0; p<=5; p++) {
+        for (let p=0; p<=4; p++) {
           const cell = document.getElementById(`cell_${s}_${p}`);
           if (cell) cell.innerHTML = '';
         }
       }
 
       for (const ship of allShips) {
-        const cellId = `cell_${ship.structure}_${ship.probability}`;
+        const cellId = `cell_${ship.structure}_${ship.probabilityMatrix}`;
         const cell = document.getElementById(cellId);
         if (!cell) continue;
 
@@ -1126,7 +1126,7 @@ Mapping:
         <div class="ship-item" style="cursor:pointer;" onclick="openShipModal('${ship.id}')">
           <div>
             <strong>${escapeHtml(ship.name)}</strong><br>
-            <span class="meta">${escapeHtml(ship.type)} | L${ship.structure} | X${ship.probability} | conf ${(ship.confidence ?? 0.6).toFixed(1)}</span>
+            <span class="meta">${escapeHtml(ship.type)} | L${ship.structure} | X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix})</small> | conf ${(ship.confidence ?? 0.6).toFixed(1)}</span>
             <div class="reasons">Gründe: ${(ship.reasons ?? []).map(escapeHtml).join(' · ')}</div>
           </div>
           <div class="ship-risk ${normalizeRiskClass(ship.riskLevel)}">
@@ -1142,12 +1142,11 @@ Mapping:
     function exportAllShips() {
       if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
 
-      let csv = 'Schiffsname,Typ,Struktur (Y),Wahrscheinlichkeit (X),Risiko,Confidence,TopGruende,Notiz,Zeitstempel\n';
-      allShips.forEach(ship => {
-        const reasons = (ship.reasons ?? []).join(' | ');
-        const notes = (ship.notes ?? '').replace(/\r?\n/g,' ');
-        csv += `"${csvEscape(ship.name)}","${csvEscape(ship.type)}",${ship.structure},${ship.probability},"${csvEscape(ship.riskLevel)}",${ship.confidence ?? 0.6},"${csvEscape(reasons)}","${csvEscape(notes)}","${csvEscape(ship.timestamp)}"\n`;
-      });
+      let csv = 'Schiffsname,Typ,Struktur (Y),Operativ Raw (X),Operativ Matrix (X0-4),Risiko,Zeitstempel\n';
+allShips.forEach(ship => {
+  csv += `"${ship.name}","${ship.type}",${ship.structure},${ship.probabilityRaw},${ship.probabilityMatrix},"${ship.riskLevel}","${ship.timestamp}"\n`;
+});
+
 
       const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
       const link = document.createElement('a');

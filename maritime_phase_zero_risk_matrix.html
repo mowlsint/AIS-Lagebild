@@ -570,7 +570,14 @@
 
           <div class="button-group">
             <button type="button" class="btn-export" onclick="exportAllShipsCSV()" id="exportBtn" style="display:none;">📥 Export all as CSV</button>
-            <button type="button" class="btn-export" onclick="exportMatrixAndShipsExcel()" id="exportExcelBtn" style="display:none;">📗 Export matrix + list (Excel)</button>
+            <button type="button"
+        class="btn-export"
+        onclick="exportMatrixAndShipsExcelXml()"
+        id="exportExcelBtn"
+        style="display:none;">
+  📗 Export matrix + list (Excel)
+</button>
+
             <button type="button" class="btn-secondary" onclick="openSnapshotPrintView()" id="snapshotBtn" style="display:none;">🖨️ Snapshot / Print view</button>
           </div>
         </form>
@@ -1199,87 +1206,175 @@
     // ==========
     // Export Excel-compatible (.xls) with matrix + vessel list + notes
     // ==========
-    function exportMatrixAndShipsExcel(){
-      if (allShips.length === 0) { alert('No vessels captured!'); return; }
+    function exportMatrixAndShipsExcelXml() {
+  if (allShips.length === 0) { alert('No vessels captured!'); return; }
 
-      // Build a "static" matrix table (no badges-divs; just names)
-      const matrixGrid = {};
-      for (const ship of allShips){
-        const key = `${ship.structure}_${ship.probabilityMatrix}`;
-        matrixGrid[key] = matrixGrid[key] || [];
-        matrixGrid[key].push(ship.name);
+  // --- helpers ---
+  const xmlEscape = (s) => String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+
+  // Excel line breaks inside cells: use &#10; (LF)
+  const excelLineBreaks = (s) => xmlEscape(String(s ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n'))
+    .replace(/\n/g, '&#10;');
+
+  const today = new Date().toISOString().split('T')[0];
+  const stamp = new Date().toLocaleString('en-GB');
+
+  // --- Build matrix grid (names per cell) ---
+  const matrixGrid = {};
+  for (const ship of allShips) {
+    const key = `${ship.structure}_${ship.probabilityMatrix}`;
+    (matrixGrid[key] ||= []).push(ship.name);
+  }
+
+  const matrixCols = ["0 - None", "1 - Low", "2 - Moderate", "3 - Relevant", "4/5 - Critical"];
+
+  // Matrix sheet rows
+  const matrixRowsXml = [
+    // title row
+    rowXml([{ v: `Maritime Phase Zero Risk Matrix – Snapshot (${stamp})`, style: 'title', mergeAcross: 5 }]),
+    rowXml([{ v: 'Operational indicators (X-axis)', style: 'header', mergeAcross: 5 }]),
+    rowXml([{ v: 'Structure \\ Indicators', style: 'header' }, ...matrixCols.map(c => ({ v: c, style: 'header' }))]),
+    ...[1,2,3,4,5].map(s => {
+      const cells = [{ v: `L${s}`, style: 'subhead' }];
+      for (const p of [0,1,2,3,4]) {
+        const names = (matrixGrid[`${s}_${p}`] || []).join(', ');
+        cells.push({ v: names, style: 'cell' });
       }
+      return rowXml(cells);
+    })
+  ].join('');
 
-      const matrixHtml = `
-        <table border="1" cellspacing="0" cellpadding="6">
-          <tr>
-            <th colspan="6" style="background:#667eea;color:#fff;">Operational indicators (X-axis)</th>
-          </tr>
-          <tr>
-            <th style="background:#667eea;color:#fff;">Structure \\ Indicators</th>
-            <th style="background:#667eea;color:#fff;">0 - None</th>
-            <th style="background:#667eea;color:#fff;">1 - Low</th>
-            <th style="background:#667eea;color:#fff;">2 - Moderate</th>
-            <th style="background:#667eea;color:#fff;">3 - Relevant</th>
-            <th style="background:#667eea;color:#fff;">4/5 - Critical</th>
-          </tr>
-          ${[1,2,3,4,5].map(s => `
-            <tr>
-              <th style="background:#f0f4ff;">L${s}</th>
-              ${[0,1,2,3,4].map(p => {
-                const names = (matrixGrid[`${s}_${p}`] || []).map(escapeHtml).join(', ');
-                return `<td>${names}</td>`;
-              }).join('')}
-            </tr>
-          `).join('')}
-        </table>
-      `;
+  // Vessels sheet rows
+  const vesselHeader = [
+    "Name","Type","Y","X raw","X matrix","Risk","Confidence","Top reasons","Timestamp","Note"
+  ];
 
-      const listHtml = `
-        <table border="1" cellspacing="0" cellpadding="6" style="margin-top:14px;">
-          <tr>
-            <th colspan="10" style="background:#764ba2;color:#fff;">Captured vessels (including notes)</th>
-          </tr>
-          <tr style="background:#f0f0f0;">
-            <th>Name</th><th>Type</th><th>Y</th><th>X raw</th><th>X matrix</th><th>Risk</th><th>Confidence</th><th>Top reasons</th><th>Timestamp</th><th>Note</th>
-          </tr>
-          ${allShips.map(s => `
-            <tr>
-              <td>${escapeHtml(s.name)}</td>
-              <td>${escapeHtml(s.type)}</td>
-              <td>L${s.structure}</td>
-              <td>X${s.probabilityRaw}</td>
-              <td>${s.probabilityMatrix}</td>
-              <td>${escapeHtml(s.riskLevel)}</td>
-              <td>${Number(s.confidence ?? 0.6).toFixed(1)}</td>
-              <td>${escapeHtml((s.reasons ?? []).join(' · '))}</td>
-              <td>${escapeHtml(s.timestamp)}</td>
-              <td>${notesToHtml(s.notes)}</td>
-            </tr>
-          `).join('')}
-        </table>
-      `;
+  const vesselsRowsXml = [
+    rowXml([{ v: `Captured vessels (including notes) – ${stamp}`, style: 'title', mergeAcross: 9 }]),
+    rowXml(vesselHeader.map(h => ({ v: h, style: 'header' }))),
+    ...allShips.map(s => rowXml([
+      { v: s.name, style: 'cell' },
+      { v: s.type, style: 'cell' },
+      { v: `L${s.structure}`, style: 'cell' },
+      { v: `X${s.probabilityRaw}`, style: 'cell' },
+      { v: String(s.probabilityMatrix), style: 'cell' },
+      { v: s.riskLevel, style: 'cell' },
+      { v: Number(s.confidence ?? 0.6).toFixed(1), style: 'cell' },
+      { v: (s.reasons ?? []).join(' · '), style: 'cell' },
+      { v: s.timestamp, style: 'cell' },
+      { v: s.notes ?? '', style: 'wrap' } // keeps line breaks + wrap
+    ], true))
+  ].join('');
 
-      const html = `
-        <html>
-          <head>
-            <meta charset="utf-8">
-            <title>Maritime Phase Zero Risk Matrix Export</title>
-          </head>
-          <body>
-            <h2>Maritime Phase Zero Risk Matrix</h2>
-            <div>${matrixHtml}</div>
-            <div>${listHtml}</div>
-          </body>
-        </html>
-      `;
+  // --- SpreadsheetML document ---
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
 
-      const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `maritime_phase_zero_matrix_report_${new Date().toISOString().split('T')[0]}.xls`;
-      link.click();
-    }
+  <Styles>
+    <Style ss:ID="title">
+      <Font ss:Bold="1" ss:Size="14"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+    </Style>
+    <Style ss:ID="header">
+      <Font ss:Bold="1" ss:Color="#FFFFFF"/>
+      <Interior ss:Color="#667EEA" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="subhead">
+      <Font ss:Bold="1"/>
+      <Interior ss:Color="#F0F4FF" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="cell">
+      <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="wrap">
+      <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+  </Styles>
+
+  <Worksheet ss:Name="Matrix">
+    <Table>
+      <Column ss:Width="160"/>
+      <Column ss:Width="180"/><Column ss:Width="180"/><Column ss:Width="180"/><Column ss:Width="180"/><Column ss:Width="180"/>
+      ${matrixRowsXml}
+    </Table>
+  </Worksheet>
+
+  <Worksheet ss:Name="Vessels">
+    <Table>
+      <Column ss:Width="160"/><Column ss:Width="160"/><Column ss:Width="60"/>
+      <Column ss:Width="70"/><Column ss:Width="70"/><Column ss:Width="90"/>
+      <Column ss:Width="80"/><Column ss:Width="240"/><Column ss:Width="140"/><Column ss:Width="380"/>
+      ${vesselsRowsXml}
+    </Table>
+  </Worksheet>
+
+</Workbook>`;
+
+  // --- row builder (supports mergeAcross) ---
+  function rowXml(cells, treatLastAsNotes=false) {
+    const xmlCells = cells.map((c, idx) => {
+      const style = c.style ? ` ss:StyleID="${c.style}"` : '';
+      const merge = (typeof c.mergeAcross === 'number') ? ` ss:MergeAcross="${c.mergeAcross}"` : '';
+      const isNotes = (treatLastAsNotes && idx === cells.length - 1 && c.style === 'wrap');
+
+      // notes: preserve line breaks
+      const val = isNotes ? excelLineBreaks(c.v) : xmlEscape(c.v);
+      return `<Cell${style}${merge}><Data ss:Type="String">${val}</Data></Cell>`;
+    }).join('');
+
+    return `<Row>${xmlCells}</Row>`;
+  }
+
+  // Download as .xml (Excel opens it cleanly)
+  const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `maritime_phase_zero_matrix_report_${today}.xml`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
 
     // ==========
     // Snapshot / Print view (matrix + list + full notes)

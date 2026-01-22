@@ -140,9 +140,43 @@
     }
 
     .ships-list{
-      background:#f0f4ff; border-radius:10px; padding:15px; margin-top:20px;
-      max-height:320px; overflow-y:auto;
-    }
+  background:#f0f4ff; border-radius:10px; padding:15px; margin-top:20px;
+
+  /* höher machen: */
+  max-height:650px;
+
+  /* scrollbar nur wenn nötig */
+  overflow-y:auto;
+}
+
+/* Optional: wenn du willst, dass es GAR NICHT begrenzt wird:
+   -> max-height entfernen und overflow-y:visible setzen
+   (aber dann kann die Seite sehr lang werden)
+*/
+
+/* Notizvorschau unter "Captured vessels" (max 3 Zeilen) */
+.note-preview{
+  margin-top:6px;
+  padding:6px 8px;
+  border-radius:8px;
+  background:rgba(255,255,255,0.75);
+  border:1px dashed rgba(102,126,234,0.45);
+  color:#444;
+  font-size:11px;
+  line-height:1.35;
+
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+.note-indicator{
+  font-size:11px;
+  opacity:0.85;
+  margin-left:6px;
+}
+
     .ships-list h3{ color:#333; font-size:14px; margin-bottom:10px; }
     .ship-item{
       background:#fff; padding:8px; border-radius:5px; margin-bottom:8px;

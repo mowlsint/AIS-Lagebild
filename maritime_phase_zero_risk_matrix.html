@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-ancestors *">
+        content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data:; frame-ancestors *">
   <title>Maritime Phase Zero Risk Matrix</title>
 
   <style>
@@ -22,11 +22,13 @@
       overflow:hidden;
     }
 
-    /* HEADER (fixed: logo right, content centered, container stays intact) */
+    /* ===== HEADER (Logo right, content centered) ===== */
     .header{
       position:relative;
       background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-      color:#fff; padding:30px; text-align:center;
+      color:#fff;
+      padding:30px;
+      text-align:center;
     }
     .header-content{
       max-width:980px;
@@ -35,17 +37,25 @@
     .header h1{ font-size:28px; margin-bottom:10px; }
     .header p{ font-size:14px; opacity:0.9; }
 
-    /* Logo: ~4x bigger than typical 40px/50px icon usage */
     .header-logo{
       position:absolute;
-      right:20px;
-      top:20px;
-      width:200px;   /* adjust if you want even bigger/smaller */
+      right:18px;
+      top:18px;
+      width:220px;            /* "4x bigger" vibe; adjust as needed */
       height:auto;
       border-radius:12px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.25);
+      box-shadow:0 12px 28px rgba(0,0,0,0.25);
       border:2px solid rgba(255,255,255,0.25);
       background:rgba(255,255,255,0.08);
+    }
+    @media (max-width: 900px){
+      .header{ padding:22px 18px 18px 18px; }
+      .header-logo{
+        position:static;
+        display:block;
+        margin:0 auto 12px auto;
+        width:min(260px, 70vw);
+      }
     }
 
     .tabs{ display:flex; border-bottom:2px solid #667eea; background:#f8f9fa; }
@@ -74,12 +84,12 @@
     .form-group{ margin-bottom:15px; }
     label{ display:block; margin-bottom:6px; color:#333; font-weight:500; font-size:13px; }
 
-    input[type="text"],input[type="number"],input[type="date"],select,textarea{
+    input[type="text"],select,textarea{
       width:100%; padding:8px; border:1px solid #ddd; border-radius:5px;
       font-size:13px; font-family:inherit;
     }
     textarea{ min-height:90px; resize:vertical; }
-    input[type="text"]:focus,input[type="number"]:focus,input[type="date"]:focus,select:focus,textarea:focus{
+    input[type="text"]:focus,select:focus,textarea:focus{
       outline:none; border-color:#667eea; box-shadow:0 0 5px rgba(102,126,234,0.3);
     }
 
@@ -108,6 +118,8 @@
     .btn-reset:hover{ background:#d0d0d0; }
     .btn-export{ background:#FF9800; color:#fff; }
     .btn-export:hover{ background:#F57C00; transform:translateY(-2px); }
+    .btn-secondary{ background:#e0e0e0; color:#333; }
+    .btn-secondary:hover{ background:#d0d0d0; }
 
     .matrix-container{ background:#f5f5f5; padding:20px; border-radius:10px; overflow-x:auto; }
     .matrix{
@@ -139,58 +151,44 @@
       background:#667eea; color:#fff; box-shadow:0 2px 6px rgba(102,126,234,0.3);
     }
 
+    /* ===== Captured vessels list: TALLER ===== */
     .ships-list{
-  background:#f0f4ff; border-radius:10px; padding:15px; margin-top:20px;
-
-  /* höher machen: */
-  max-height:650px;
-
-  /* scrollbar nur wenn nötig */
-  overflow-y:auto;
-}
-
-/* Optional: wenn du willst, dass es GAR NICHT begrenzt wird:
-   -> max-height entfernen und overflow-y:visible setzen
-   (aber dann kann die Seite sehr lang werden)
-*/
-
-/* Notizvorschau unter "Captured vessels" (max 3 Zeilen) */
-.note-preview{
-  margin-top:6px;
-  padding:6px 8px;
-  border-radius:8px;
-  background:rgba(255,255,255,0.75);
-  border:1px dashed rgba(102,126,234,0.45);
-  color:#444;
-  font-size:11px;
-  line-height:1.35;
-
-  display:-webkit-box;
-  -webkit-line-clamp:3;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
-
-.note-indicator{
-  font-size:11px;
-  opacity:0.85;
-  margin-left:6px;
-}
-
+      background:#f0f4ff; border-radius:10px; padding:15px; margin-top:20px;
+      max-height:55vh;              /* bigger, responsive */
+      min-height:220px;
+      overflow-y:auto;
+    }
     .ships-list h3{ color:#333; font-size:14px; margin-bottom:10px; }
     .ship-item{
-      background:#fff; padding:8px; border-radius:5px; margin-bottom:8px;
+      background:#fff; padding:10px; border-radius:8px; margin-bottom:10px;
       border-left:4px solid #667eea;
-      display:flex; justify-content:space-between; align-items:center; font-size:12px;
+      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+      font-size:12px;
     }
     .ship-item .meta{ color:#555; }
-    .ship-item .reasons{ color:#666; font-size:11px; margin-top:2px; }
+    .ship-item .reasons{ color:#666; font-size:11px; margin-top:3px; }
+    .ship-item .notes-preview{
+      margin-top:6px;
+      font-size:11px;
+      color:#444;
+      background:#f6f7ff;
+      border:1px solid #e1e4ff;
+      border-radius:8px;
+      padding:8px;
+      line-height:1.35;
+
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:3;         /* first ~3 lines */
+      overflow:hidden;
+    }
 
     .ship-risk{
       padding:2px 8px; border-radius:12px; font-weight:600;
       font-size:11px; color:#fff; white-space:nowrap;
+      margin-top:2px;
     }
-    /* Keep class names as-is (CSS), map English labels in JS */
+    /* Keep existing class names; map labels in JS */
     .risk-niedrig-text{ background:#4CAF50; }
     .risk-mittel-text{ background:#FFC107; color:#333; }
     .risk-hoch-text{ background:#FF9800; }
@@ -220,17 +218,6 @@
     }
 
     @media (max-width:1200px){ .content.active{ grid-template-columns:1fr; } }
-
-    /* Make header logo behave on small screens */
-    @media (max-width:900px){
-      .header{ padding-top:24px; }
-      .header-logo{
-        position:static;
-        display:block;
-        margin:0 auto 14px auto;
-        width:160px;
-      }
-    }
 
     /* MODAL */
     .modal-backdrop{
@@ -270,9 +257,16 @@
       display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;
     }
     .btn-danger{ background:#F44336; color:#fff; }
-    .btn-secondary{ background:#e0e0e0; color:#333; }
+    .btn-danger:hover{ filter:brightness(0.95); }
 
     .small{ font-size:11px; color:#777; }
+
+    /* Print snapshot: hide tabs + form controls if desired */
+    @media print{
+      body{ background:#fff; padding:0; }
+      .container{ box-shadow:none; border-radius:0; }
+      .tabs{ display:none; }
+    }
   </style>
 </head>
 
@@ -281,6 +275,7 @@
 
     <div class="header">
       <img src="mowlsint_logo.jpg" alt="MOWLSINT Logo" class="header-logo">
+
       <div class="header-content">
         <h1>🚢 Maritime Phase Zero Risk Matrix</h1>
         <p>Multi-vessel assessment with a visual matrix</p>
@@ -389,7 +384,6 @@
               </select>
             </div>
 
-            <!-- Confidence -->
             <div class="form-group">
               <label for="dataConfidence">Data quality / Confidence</label>
               <select id="dataConfidence">
@@ -399,12 +393,13 @@
               </select>
               <div class="small">Affects the X-axis (operational evidence) — reduces false positives for “AIS-only”.</div>
             </div>
-            <div class="form-group">
-  <label for="shipNotesPre">Free text / notes (optional)</label>
-  <textarea id="shipNotesPre" placeholder="e.g., sources, AIS anomalies, actions, assessment..."></textarea>
-  <div class="small">Will be stored with the vessel and exported (CSV/XLS). You can still edit later via the vessel modal.</div>
-</div>
 
+            <!-- NEW: Notes BEFORE saving -->
+            <div class="form-group">
+              <label for="shipNotesDraft">Free text / notes (optional)</label>
+              <textarea id="shipNotesDraft" placeholder="e.g., sources, AIS anomalies, actions, assessment..."></textarea>
+              <div class="small">Saved into the vessel record when you click “Add vessel”.</div>
+            </div>
           </div>
 
           <!-- STRUCTURE -->
@@ -465,7 +460,7 @@
             </div>
 
             <div class="info-box" style="margin-top:10px;">
-              📋 <a href="https://war-sanctions.gur.gov.ua/en/transport/ships" target="_blank" rel="noreferrer">War Sanctions list</a>
+              📋 <a href="https://war-sanctions.gur.gov.ua/en/transport/ships" target="_blank" rel="noreferrer">War Sanctions list (Ukraine)</a>
             </div>
           </div>
 
@@ -572,26 +567,18 @@
             <button type="button" class="btn-calculate" onclick="calculateAndAdd()">🔍 Add vessel</button>
             <button type="reset" class="btn-reset">🔄 Clear</button>
           </div>
+
           <div class="button-group">
-            <div class="button-group">
-  <button type="button" class="btn-export" onclick="exportAllShips()" id="exportBtn" style="display:none;">📥 Export all as CSV</button>
-
-  <button type="button" class="btn-export" onclick="exportMatrixAndListXLS()" id="exportXlsBtn" style="display:none;">
-    📊 Export matrix + list (Excel)
-  </button>
-
-  <button type="button" class="btn-export" onclick="openSnapshotView()" id="snapshotBtn" style="display:none;">
-    🖼️ Snapshot / Print view
-  </button>
-</div>
+            <button type="button" class="btn-export" onclick="exportAllShipsCSV()" id="exportBtn" style="display:none;">📥 Export all as CSV</button>
+            <button type="button" class="btn-export" onclick="exportMatrixAndShipsExcel()" id="exportExcelBtn" style="display:none;">📗 Export matrix + list (Excel)</button>
+            <button type="button" class="btn-secondary" onclick="openSnapshotPrintView()" id="snapshotBtn" style="display:none;">🖨️ Snapshot / Print view</button>
           </div>
-
         </form>
       </div>
 
-      <!-- RIGHT: MATRIX -->
+      <!-- RIGHT: MATRIX + LIST -->
       <div class="right-panel">
-        <div class="matrix-container">
+        <div class="matrix-container" id="reportArea">
           <h2 style="margin-bottom:15px;">Risk matrix</h2>
           <table class="matrix" id="riskMatrix">
             <thead>
@@ -654,21 +641,21 @@
           <div class="info-box" style="margin-top:12px;">
             Click a vessel badge in the matrix to open details + editable notes.
           </div>
-        </div>
 
-        <!-- VESSEL LIST -->
-        <div class="ships-list" id="shipsList" style="display:none;">
-          <h3>📍 Captured vessels</h3>
-          <div id="shipsContainer"></div>
+          <!-- VESSEL LIST -->
+          <div class="ships-list" id="shipsList" style="display:none;">
+            <h3>📍 Captured vessels</h3>
+            <div id="shipsContainer"></div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- INFO TAB -->
     <div class="content-full" id="info">
-      <div style="max-width:1200px; margin:0 auto;">
+      <div style="max-width:1200px; margin:0 auto; padding:30px;">
         <h2 style="color:#333; margin-bottom:30px; padding-bottom:15px; border-bottom:3px solid #667eea;">
-          📚 Explanations, lists & resources
+          📚 Explanations, lists &amp; resources
         </h2>
 
         <div class="reference-list">
@@ -742,63 +729,6 @@
         </div>
 
         <div class="reference-list">
-          <h3>🚩 Flag lists (explained)</h3>
-          <div style="font-size:12px; line-height:1.6;">
-            <p><strong>🟡 Grey List:</strong></p>
-            <p style="margin-left:10px; color:#666;">
-              Deficiencies/observation. Weighted below Black in the structure-scoring logic.
-            </p>
-
-            <p style="margin-top:15px;"><strong>🔴 Black List:</strong></p>
-            <p style="margin-left:10px; color:#666;">
-              Severe deficiencies. Weighted higher than Grey in the structure-scoring logic.
-            </p>
-
-            <p style="margin-top:15px;"><strong>⚠️ Unknown (Zombie vessel):</strong></p>
-            <p style="margin-left:10px; color:#666;">
-              Unclear responsibility — structurally risky, but X depends on evidence/confidence.
-            </p>
-          </div>
-        </div>
-
-        <div class="reference-list">
-          <h3>⚙️ Scoring algorithm (updated &amp; transparent)</h3>
-          <div style="font-size:12px; line-height:1.7; font-family:'Courier New', monospace;">
-            <p><strong>Y-AXIS (Structure 1–5):</strong> Grey/Black separated + mild accumulation of mid-level red flags.</p>
-            <pre style="background:#f0f0f0; padding:10px; border-radius:5px; overflow-x:auto; margin:10px 0;">
-Baseline:
-- Grey flag -> at least 2
-- Black flag -> at least 3
-- Zombie (unknown) -> at least 3 (higher if sanctions_evasion / sanctions)
-
-Hard triggers:
-- flag_change -> at least 4
-- sanctions (vessel sanctioned) -> at least 4
-- combos (Black + flag_change, Black + flag_change + kaliningrad, Zombie + sanctions) -> 5
-
-Accumulation:
-- multiple mid-level structure hints (opaque, class_issue, pi_issue, identity_churn, manager_churn, ...) -> +1 level</pre>
-
-            <p style="margin-top:14px;"><strong>X-AXIS (Operational 0–5):</strong> maxSeverity + sum×confidence + combo boost (no hard override).</p>
-            <pre style="background:#f0f0f0; padding:10px; border-radius:5px; overflow-x:auto; margin:10px 0;">
-Inputs:
-- severity per indicator (1..4)
-- confidence (0.3/0.6/0.9)
-
-effective = sum(severity) * confidence
-
-Mapping:
-- hard signals (severity 4) -> quickly high
-- many moderate signals -> rise via effective
-- hybrid patterns -> +1 boost (capped at 5)</pre>
-
-            <div class="info-box" style="margin-top:10px; font-family:inherit;">
-              Output includes “Top 3 reasons” + confidence and an editable note per vessel.
-            </div>
-          </div>
-        </div>
-
-        <div class="reference-list">
           <h3>🔗 External resources &amp; data sources</h3>
           <ul>
             <li><a href="https://war-sanctions.gur.gov.ua/en/transport/ships" target="_blank" rel="noreferrer">War Sanctions Ukraine (vessel list)</a></li>
@@ -806,11 +736,10 @@ Mapping:
             <li><a href="https://portal.emsa.europa.eu/web/thetis/home" target="_blank" rel="noreferrer">Thetis PSC</a></li>
           </ul>
         </div>
-
       </div>
     </div>
 
-  </div> <!-- /container -->
+  </div>
 
   <!-- MODAL -->
   <div class="modal-backdrop" id="shipModalBackdrop" aria-hidden="true">
@@ -849,623 +778,693 @@ Mapping:
   </div>
 
   <script>
-  // ==========
-  // Data model
-  // ==========
-  let allShips = [];
-  let currentShipId = null;
+    // ==========
+    // Data model
+    // ==========
+    let allShips = [];
+    let currentShipId = null;
 
-  // ==========
-  // Tabs
-  // ==========
-  function switchTab(tabName) {
-    document.querySelectorAll('.content, .content-full').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+    // ==========
+    // Tabs
+    // ==========
+    function switchTab(tabName) {
+      document.querySelectorAll('.content, .content-full').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
 
-    if (tabName === 'tool') {
-      document.getElementById('tool').classList.add('active');
-      document.querySelector('.tab-button[onclick*="tool"]').classList.add('active');
-    } else {
-      document.getElementById('info').classList.add('active');
-      document.querySelector('.tab-button[onclick*="info"]').classList.add('active');
-    }
-  }
-
-  // ==========
-  // Flag weights
-  // ==========
-  const flagWeights = {
-    // black list
-    'kn-black': 3, 'tg-black': 3, 'pw-black': 3, 'gw-black': 3, 'bz-black': 3,
-    'vu-black': 3, 'ua-black': 3, 'km-black': 3, 'vn-black': 3, 'md-black': 3, 'tz-black': 3, 'cm-black': 3,
-    // grey list
-    'sa-grey': 2, 'hr-grey': 2, 'in-grey': 2, 'lv-grey': 2, 'kr-grey': 2, 'ma-grey': 2, 'ru-grey': 2,
-    'pa-grey': 2, 'lb-grey': 2, 'ck-grey': 2, 'ph-grey': 2, 'al-grey': 2, 'dz-grey': 2, 'vc-grey': 2,
-    'sl-grey': 2, 'tn-grey': 2, 'bd-grey': 2,
-    // special/other
-    'unknown-flag': 4,
-    'other-flag': 1
-  };
-
-  function getFlagWeight() {
-    const flagSelect = document.getElementById('shipFlag').value;
-    return flagWeights[flagSelect] ?? 0;
-  }
-
-  // ==========
-  // Auto-set Grey/Black checkboxes from selected flag
-  // ==========
-  function syncFlagCheckboxesFromSelect() {
-    const w = getFlagWeight();
-    const grey = document.getElementById('cb_grey_flag');
-    const black = document.getElementById('cb_black_flag');
-    if (grey) grey.checked = (w === 2);
-    if (black) black.checked = (w === 3);
-  }
-
-  // ==========
-  // Helpers
-  // ==========
-  function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
-
-  function normalizeRiskClass(riskLevel) {
-    const s = (riskLevel || '').toLowerCase().trim();
-    if (s === 'very high') return 'risk-sehr-hoch-text';
-    if (s === 'high') return 'risk-hoch-text';
-    if (s === 'medium') return 'risk-mittel-text';
-    return 'risk-niedrig-text';
-  }
-
-  function newId() {
-    return 'ship_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
-  }
-
-  function escapeHtml(s) {
-    return String(s ?? '')
-      .replaceAll('&','&amp;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;')
-      .replaceAll('"','&quot;')
-      .replaceAll("'","&#039;");
-  }
-
-  // ==========
-  // Scoring: Structure (Y)
-  // ==========
-  function calculateStructure() {
-    const struct = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
-    const flagWeight = getFlagWeight();
-
-    let score = 1;
-
-    const isZombie = flagWeight === 4;
-    const isBlack  = flagWeight === 3;
-    const isGrey   = flagWeight === 2;
-
-    if (isGrey) score = Math.max(score, 2);
-    if (isBlack) score = Math.max(score, 3);
-
-    if (isZombie) {
-      score = Math.max(score, 3);
-      if (struct.includes('sanctions_evasion')) score = Math.max(score, 4);
-    }
-
-    if (struct.includes('flag_change')) score = Math.max(score, 4);
-    if (struct.includes('kaliningrad')) score = Math.max(score, 3);
-    if (struct.includes('sanctions')) score = Math.max(score, 4);
-
-    if (struct.includes('sanctions_evasion')) score = Math.max(score, 3);
-    if (struct.includes('opaque')) score = Math.max(score, 3);
-    if (struct.includes('class_issue')) score = Math.max(score, 3);
-    if (struct.includes('pi_issue')) score = Math.max(score, 3);
-    if (struct.includes('identity_churn')) score = Math.max(score, 3);
-    if (struct.includes('manager_churn')) score = Math.max(score, 2);
-
-    const accumKeys = ['opaque','kaliningrad','sanctions_evasion','class_issue','pi_issue','identity_churn','manager_churn'];
-    const accum = accumKeys.reduce((n,k)=> n + (struct.includes(k) ? 1 : 0), 0);
-    if (accum >= 3) score += 1;
-
-    if (struct.includes('flag_change') && (isBlack || struct.includes('black_flag'))) score = 5;
-    if (isBlack && struct.includes('flag_change') && struct.includes('kaliningrad')) score = 5;
-    if (isZombie && struct.includes('sanctions')) score = 5;
-
-    return clamp(score, 1, 5);
-  }
-
-  // ==========
-  // Scoring: Operational (X)
-  // ==========
-  function calculateProbability() {
-    const indicators = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
-    const flagWeight = getFlagWeight();
-    const isZombie = flagWeight === 4;
-
-    const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
-
-    const sev = {
-      multi_loitering: 4,
-      drone: 4,
-      military: 4,
-      uniformed: 4,
-      pmc: 4,
-      gnss_spoofing: 4,
-      survey_pattern: 4,
-
-      boarding: 3,
-      loitering: 3,
-      ais_blackout: 3,
-      known_incident: 3,
-      sts: 3,
-      dark_activity: 3,
-      ci_anchoring: 3,
-
-      russian_ports: 2,
-      ais_unnatural: 2,
-      ci_corridor_crossing: 2
-    };
-
-    if (indicators.length === 0) {
-      if (isZombie) return (confidence >= 0.6) ? 1 : 0;
-      return 0;
-    }
-
-    let maxS = 0;
-    let sumS = 0;
-    for (const ind of indicators) {
-      const s = sev[ind] ?? 1;
-      maxS = Math.max(maxS, s);
-      sumS += s;
-    }
-
-    const effective = sumS * confidence;
-
-    let score = 0;
-    if (maxS >= 4 && effective >= 6) score = 5;
-    else if (maxS >= 4) score = 4;
-    else if (effective >= 6) score = 4;
-    else if (maxS >= 3 && effective >= 4) score = 3;
-    else if (maxS >= 3) score = 2;
-    else if (effective >= 3) score = 2;
-    else score = 1;
-
-    const has = (x) => indicators.includes(x);
-
-    if (has('uniformed') && has('russian_ports') && (has('ais_blackout') || has('gnss_spoofing'))) {
-      score = Math.min(5, score + 1);
-    }
-
-    if ((has('loitering') || has('multi_loitering') || has('ci_anchoring')) &&
-        has('ci_corridor_crossing') &&
-        (has('ais_blackout') || has('gnss_spoofing'))) {
-      score = Math.min(5, score + 1);
-    }
-
-    if (has('sts') && has('dark_activity')) {
-      score = Math.min(5, score + 1);
-    }
-
-    return clamp(score, 0, 5);
-  }
-
-  // ==========
-  // Risk matrix lookup
-  // ==========
-  function getRiskLevel(structure, probabilityRaw) {
-    const matrix = {
-      '1,0':'Low','1,1':'Low','1,2':'Low','1,3':'Low','1,4':'Medium','1,5':'High',
-      '2,0':'Low','2,1':'Low','2,2':'Low','2,3':'Medium','2,4':'High','2,5':'High',
-      '3,0':'Low','3,1':'Medium','3,2':'Medium','3,3':'High','3,4':'High','3,5':'Very high',
-      '4,0':'Medium','4,1':'High','4,2':'High','4,3':'High','4,4':'Very high','4,5':'Very high',
-      '5,0':'High','5,1':'High','5,2':'Very high','5,3':'Very high','5,4':'Very high','5,5':'Very high'
-    };
-    return matrix[`${structure},${probabilityRaw}`] || 'Unknown';
-  }
-
-  // ==========
-  // Reasons (Top 3)
-  // ==========
-  function getTopReasonsFromCurrentForm() {
-    const struct = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
-    const indicators = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
-    const flagSelect = document.getElementById('shipFlag').value;
-
-    const labels = {
-      grey_flag:"Grey-list flag",
-      black_flag:"Black-list flag",
-      flag_change:"Frequent flag changes",
-      opaque:"Opaque ownership structure",
-      kaliningrad:"Kaliningrad crewing",
-      sanctions:"Sanctions history (vessel)",
-      sanctions_evasion:"Sanctions evasion (cargo/trade)",
-      class_issue:"Class/RO irregularities",
-      pi_issue:"P&I/insurance irregularities",
-      identity_churn:"Identity churn",
-      manager_churn:"Owner/manager churn",
-
-      russian_ports:"Russian ports (10 days)",
-      ais_blackout:"AIS blackout",
-      gnss_spoofing:"GNSS/AIS spoofing anomalies",
-      ais_unnatural:"Unnatural routes",
-      loitering:"Cable loitering",
-      multi_loitering:"Repeated loitering",
-      ci_corridor_crossing:"CI corridor crossing",
-      ci_anchoring:"Anchoring/drifting in CI corridor",
-      sts:"STS / rendezvous",
-      dark_activity:"Dark activity",
-      survey_pattern:"Survey / grid patterns",
-      military:"Proximity to military",
-      uniformed:"Uniformed personnel",
-      pmc:"PMC linkage",
-      drone:"Drone activity",
-      boarding:"Boarding",
-      known_incident:"Proximity to incidents"
-    };
-
-    const reasons = [];
-    if (flagSelect === "unknown-flag") reasons.push("Zombie vessel (unknown flag)");
-    for (const s of struct) reasons.push(labels[s] ?? s);
-    for (const i of indicators) reasons.push(labels[i] ?? i);
-
-    const priority = {
-      "Zombie vessel (unknown flag)": 10,
-      "AIS blackout": 9,
-      "GNSS/AIS spoofing anomalies": 9,
-      "Repeated loitering": 8,
-      "Cable loitering": 8,
-      "Anchoring/drifting in CI corridor": 8,
-      "Drone activity": 8,
-      "Boarding": 8,
-      "STS / rendezvous": 7,
-      "Dark activity": 7,
-      "Sanctions history (vessel)": 7,
-      "Uniformed personnel": 7,
-      "PMC linkage": 7,
-      "Survey / grid patterns": 7,
-      "Frequent flag changes": 6,
-      "Black-list flag": 6,
-      "Russian ports (10 days)": 5,
-      "Unnatural routes": 5,
-      "CI corridor crossing": 5
-    };
-
-    const unique = Array.from(new Set(reasons));
-    unique.sort((a,b) => (priority[b] ?? 1) - (priority[a] ?? 1));
-    return unique.slice(0,3);
-  }
-
-  // ==========
-  // Add vessel
-  // ==========
-  function calculateAndAdd() {
-    const shipName = document.getElementById('shipName').value.trim();
-    if (!shipName) { alert('Please enter a vessel name!'); return; }
-
-    const id = newId();
-    const structure = calculateStructure();
-    const probabilityRaw = calculateProbability();
-    const probabilityMatrix = (probabilityRaw >= 4) ? 4 : probabilityRaw;
-
-    const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
-    const reasons = getTopReasonsFromCurrentForm();
-
-    const riskLevel = getRiskLevel(structure, probabilityRaw);
-
-    const ship = {
-      id,
-      name: shipName,
-      type: document.getElementById('shipType').options[document.getElementById('shipType').selectedIndex].text,
-      structure,
-      probabilityRaw,
-      probabilityMatrix,
-      riskLevel,
-      confidence,
-      reasons,
-      notes: (document.getElementById('shipNotesPre')?.value ?? "").trim(),
-      timestamp: new Date().toLocaleString('en-GB')
-    };
-
-    allShips.push(ship);
-    updateMatrix();
-    updateShipsList();
-    resetForm();
-    document.getElementById('exportBtn').style.display = 'inline-block';
-    document.getElementById('exportXlsBtn').style.display = 'inline-block';
-    document.getElementById('snapshotBtn').style.display = 'inline-block';
-
-  }
-
-  // ==========
-  // Matrix update
-  // ==========
-  function updateMatrix() {
-    for (let s=1; s<=5; s++) {
-      for (let p=0; p<=4; p++) {
-        const cell = document.getElementById(`cell_${s}_${p}`);
-        if (cell) cell.innerHTML = '';
+      if (tabName === 'tool') {
+        document.getElementById('tool').classList.add('active');
+        document.querySelector('.tab-button[onclick*="tool"]').classList.add('active');
+      } else {
+        document.getElementById('info').classList.add('active');
+        document.querySelector('.tab-button[onclick*="info"]').classList.add('active');
       }
     }
 
-    for (const ship of allShips) {
-      const cellId = `cell_${ship.structure}_${ship.probabilityMatrix}`;
-      const cell = document.getElementById(cellId);
-      if (!cell) continue;
+    // ==========
+    // Flag weights
+    // ==========
+    const flagWeights = {
+      // black list
+      'kn-black': 3, 'tg-black': 3, 'pw-black': 3, 'gw-black': 3, 'bz-black': 3,
+      'vu-black': 3, 'ua-black': 3, 'km-black': 3, 'vn-black': 3, 'md-black': 3, 'tz-black': 3, 'cm-black': 3,
+      // grey list
+      'sa-grey': 2, 'hr-grey': 2, 'in-grey': 2, 'lv-grey': 2, 'kr-grey': 2, 'ma-grey': 2, 'ru-grey': 2,
+      'pa-grey': 2, 'lb-grey': 2, 'ck-grey': 2, 'ph-grey': 2, 'al-grey': 2, 'dz-grey': 2, 'vc-grey': 2,
+      'sl-grey': 2, 'tn-grey': 2, 'bd-grey': 2,
+      // special/other
+      'unknown-flag': 4,
+      'other-flag': 1
+    };
 
-      const badge = document.createElement('div');
-      badge.className = 'ship-badge';
-      badge.textContent = ship.name;
-      badge.title = `${ship.name} – ${ship.riskLevel} (conf ${Number(ship.confidence ?? 0.6).toFixed(1)})`;
-      badge.addEventListener('click', () => openShipModal(ship.id));
-      cell.appendChild(badge);
+    function getFlagWeight() {
+      const flagSelect = document.getElementById('shipFlag').value;
+      return flagWeights[flagSelect] ?? 0;
     }
-  }
 
-  // ==========
-  // Vessel list update
-  // ==========
-  function updateShipsList() {
-    const container = document.getElementById('shipsContainer');
-    const list = document.getElementById('shipsList');
+    // ==========
+    // Auto-set Grey/Black checkboxes from selected flag
+    // ==========
+    function syncFlagCheckboxesFromSelect() {
+      const w = getFlagWeight();
+      const grey = document.getElementById('cb_grey_flag');
+      const black = document.getElementById('cb_black_flag');
+      if (grey) grey.checked = (w === 2);
+      if (black) black.checked = (w === 3);
+    }
 
-    if (allShips.length === 0) { list.style.display = 'none'; return; }
+    // ==========
+    // Helpers
+    // ==========
+    function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
 
-    list.style.display = 'block';
-    container.innerHTML = allShips.map(ship => `
-      <div class="ship-item" style="cursor:pointer;" onclick="openShipModal('${ship.id}')">
-        <div>
-          container.innerHTML = allShips.map(ship => {
-  const hasNote = (ship.notes ?? '').trim().length > 0;
-  const noteSafe = escapeHtml((ship.notes ?? '').trim());
+    function normalizeRiskClass(riskLevel) {
+      const s = (riskLevel || '').toLowerCase().trim();
+      if (s === 'very high') return 'risk-sehr-hoch-text';
+      if (s === 'high') return 'risk-hoch-text';
+      if (s === 'medium') return 'risk-mittel-text';
+      return 'risk-niedrig-text';
+    }
 
-  return `
-    <div class="ship-item" style="cursor:pointer;" onclick="openShipModal('${ship.id}')">
-      <div style="flex:1; min-width:0;">
-        <strong>${escapeHtml(ship.name)}</strong>
-        ${hasNote ? `<span class="note-indicator">📝</span>` : ``}
-        <br>
-        <span class="meta">
-          ${escapeHtml(ship.type)} | L${ship.structure} | X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix}) | conf ${(ship.confidence ?? 0.6).toFixed(1)}
-        </span>
-        <div class="reasons">Reasons: ${(ship.reasons ?? []).map(escapeHtml).join(' · ')}</div>
+    function newId() {
+      return 'ship_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+    }
 
-        ${hasNote ? `<div class="note-preview">${noteSafe.replace(/\r?\n/g,'<br>')}</div>` : ``}
-      </div>
+    function escapeHtml(s) {
+      return String(s ?? '')
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
 
-      <div class="ship-risk ${normalizeRiskClass(ship.riskLevel)}">
-        ${escapeHtml(ship.riskLevel)}
-      </div>
-    </div>
-  `;
-}).join('');
-  }
+    function notesToHtml(notes){
+      const safe = escapeHtml(notes ?? '');
+      return safe.replace(/\r?\n/g, '<br>');
+    }
 
-  // ==========
-  // Export CSV
-  // ==========
-  function exportAllShips() {
-    if (allShips.length === 0) { alert('No vessels captured!'); return; }
+    // ==========
+    // Scoring: Structure (Y)
+    // ==========
+    function calculateStructure() {
+      const struct = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
+      const flagWeight = getFlagWeight();
 
-    let csv = 'VesselName,Type,StructureY,OperationalRawX,OperationalMatrixX0_4,Risk,Confidence,TopReasons,Timestamp,Note\n';
-    allShips.forEach(ship => {
-      const reasons = (ship.reasons ?? []).join(' | ');
-      // CSV kann Zeilenumbrüche innerhalb von Quotes – Excel kann das i.d.R. anzeigen
-   const notes = (ship.notes ?? '').replace(/\r?\n/g,'\\n');
-      csv += `"${String(ship.name).replace(/"/g,'""')}","${String(ship.type).replace(/"/g,'""')}",${ship.structure},${ship.probabilityRaw},${ship.probabilityMatrix},"${String(ship.riskLevel).replace(/"/g,'""')}",${Number(ship.confidence ?? 0.6).toFixed(1)},"${reasons.replace(/"/g,'""')}","${String(ship.timestamp).replace(/"/g,'""')}","${notes.replace(/"/g,'""')}"\n`;
+      let score = 1;
+
+      const isZombie = flagWeight === 4;
+      const isBlack  = flagWeight === 3;
+      const isGrey   = flagWeight === 2;
+
+      // Baseline by flag
+      if (isGrey) score = Math.max(score, 2);
+      if (isBlack) score = Math.max(score, 3);
+
+      // Zombie logic
+      if (isZombie) {
+        score = Math.max(score, 3);
+        if (struct.includes('sanctions_evasion')) score = Math.max(score, 4);
+      }
+
+      // Hard triggers
+      if (struct.includes('flag_change')) score = Math.max(score, 4);
+      if (struct.includes('kaliningrad')) score = Math.max(score, 3);
+      if (struct.includes('sanctions')) score = Math.max(score, 4);
+
+      // Mid-level hints
+      if (struct.includes('sanctions_evasion')) score = Math.max(score, 3);
+      if (struct.includes('opaque')) score = Math.max(score, 3);
+      if (struct.includes('class_issue')) score = Math.max(score, 3);
+      if (struct.includes('pi_issue')) score = Math.max(score, 3);
+      if (struct.includes('identity_churn')) score = Math.max(score, 3);
+      if (struct.includes('manager_churn')) score = Math.max(score, 2);
+
+      // Accumulation
+      const accumKeys = ['opaque','kaliningrad','sanctions_evasion','class_issue','pi_issue','identity_churn','manager_churn'];
+      const accum = accumKeys.reduce((n,k)=> n + (struct.includes(k) ? 1 : 0), 0);
+      if (accum >= 3) score += 1;
+
+      // Level 5 combos
+      if (struct.includes('flag_change') && (isBlack || struct.includes('black_flag'))) score = 5;
+      if (isBlack && struct.includes('flag_change') && struct.includes('kaliningrad')) score = 5;
+      if (isZombie && struct.includes('sanctions')) score = 5;
+
+      return clamp(score, 1, 5);
+    }
+
+    // ==========
+    // Scoring: Operational (X)
+    // ==========
+    function calculateProbability() {
+      const indicators = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
+      const flagWeight = getFlagWeight();
+      const isZombie = flagWeight === 4;
+
+      const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
+
+      const sev = {
+        // very strong
+        multi_loitering: 4,
+        drone: 4,
+        military: 4,
+        uniformed: 4,
+        pmc: 4,
+        gnss_spoofing: 4,
+        survey_pattern: 4,
+
+        // strong
+        boarding: 3,
+        loitering: 3,
+        ais_blackout: 3,
+        known_incident: 3,
+        sts: 3,
+        dark_activity: 3,
+        ci_anchoring: 3,
+
+        // moderate
+        russian_ports: 2,
+        ais_unnatural: 2,
+        ci_corridor_crossing: 2
+      };
+
+      if (indicators.length === 0) {
+        if (isZombie) return (confidence >= 0.6) ? 1 : 0;
+        return 0;
+      }
+
+      let maxS = 0;
+      let sumS = 0;
+      for (const ind of indicators) {
+        const s = sev[ind] ?? 1;
+        maxS = Math.max(maxS, s);
+        sumS += s;
+      }
+
+      const effective = sumS * confidence;
+
+      let score = 0;
+      if (maxS >= 4 && effective >= 6) score = 5;
+      else if (maxS >= 4) score = 4;
+      else if (effective >= 6) score = 4;
+      else if (maxS >= 3 && effective >= 4) score = 3;
+      else if (maxS >= 3) score = 2;
+      else if (effective >= 3) score = 2;
+      else score = 1;
+
+      const has = (x) => indicators.includes(x);
+
+      // Hybrid boost (no hard override)
+      if (has('uniformed') && has('russian_ports') && (has('ais_blackout') || has('gnss_spoofing'))) {
+        score = Math.min(5, score + 1);
+      }
+
+      // CI boost
+      if ((has('loitering') || has('multi_loitering') || has('ci_anchoring')) &&
+          has('ci_corridor_crossing') &&
+          (has('ais_blackout') || has('gnss_spoofing'))) {
+        score = Math.min(5, score + 1);
+      }
+
+      // Shadow-fleet behavior
+      if (has('sts') && has('dark_activity')) {
+        score = Math.min(5, score + 1);
+      }
+
+      return clamp(score, 0, 5);
+    }
+
+    // ==========
+    // Risk matrix lookup (uses RAW X: 0..5)
+    // ==========
+    function getRiskLevel(structure, probabilityRaw) {
+      const matrix = {
+        '1,0':'Low','1,1':'Low','1,2':'Low','1,3':'Low','1,4':'Medium','1,5':'High',
+        '2,0':'Low','2,1':'Low','2,2':'Low','2,3':'Medium','2,4':'High','2,5':'High',
+        '3,0':'Low','3,1':'Medium','3,2':'Medium','3,3':'High','3,4':'High','3,5':'Very high',
+        '4,0':'Medium','4,1':'High','4,2':'High','4,3':'High','4,4':'Very high','4,5':'Very high',
+        '5,0':'High','5,1':'High','5,2':'Very high','5,3':'Very high','5,4':'Very high','5,5':'Very high'
+      };
+      return matrix[`${structure},${probabilityRaw}`] || 'Unknown';
+    }
+
+    // ==========
+    // Reasons (Top 3)
+    // ==========
+    function getTopReasonsFromCurrentForm() {
+      const struct = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
+      const indicators = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
+      const flagSelect = document.getElementById('shipFlag').value;
+
+      const labels = {
+        grey_flag:"Grey-list flag",
+        black_flag:"Black-list flag",
+        flag_change:"Frequent flag changes",
+        opaque:"Opaque ownership structure",
+        kaliningrad:"Kaliningrad crewing",
+        sanctions:"Sanctions history (vessel)",
+        sanctions_evasion:"Sanctions evasion (cargo/trade)",
+        class_issue:"Class/RO irregularities",
+        pi_issue:"P&I/insurance irregularities",
+        identity_churn:"Identity churn",
+        manager_churn:"Owner/manager churn",
+
+        russian_ports:"Russian ports (10 days)",
+        ais_blackout:"AIS blackout",
+        gnss_spoofing:"GNSS/AIS spoofing anomalies",
+        ais_unnatural:"Unnatural routes",
+        loitering:"Cable loitering",
+        multi_loitering:"Repeated loitering",
+        ci_corridor_crossing:"CI corridor crossing",
+        ci_anchoring:"Anchoring/drifting in CI corridor",
+        sts:"STS / rendezvous",
+        dark_activity:"Dark activity",
+        survey_pattern:"Survey / grid patterns",
+        military:"Proximity to military",
+        uniformed:"Uniformed personnel",
+        pmc:"PMC linkage",
+        drone:"Drone activity",
+        boarding:"Boarding",
+        known_incident:"Proximity to incidents"
+      };
+
+      const reasons = [];
+      if (flagSelect === "unknown-flag") reasons.push("Zombie vessel (unknown flag)");
+      for (const s of struct) reasons.push(labels[s] ?? s);
+      for (const i of indicators) reasons.push(labels[i] ?? i);
+
+      const priority = {
+        "Zombie vessel (unknown flag)": 10,
+        "AIS blackout": 9,
+        "GNSS/AIS spoofing anomalies": 9,
+        "Repeated loitering": 8,
+        "Cable loitering": 8,
+        "Anchoring/drifting in CI corridor": 8,
+        "Drone activity": 8,
+        "Boarding": 8,
+        "STS / rendezvous": 7,
+        "Dark activity": 7,
+        "Sanctions history (vessel)": 7,
+        "Uniformed personnel": 7,
+        "PMC linkage": 7,
+        "Survey / grid patterns": 7,
+        "Frequent flag changes": 6,
+        "Black-list flag": 6,
+        "Russian ports (10 days)": 5,
+        "Unnatural routes": 5,
+        "CI corridor crossing": 5
+      };
+
+      const unique = Array.from(new Set(reasons));
+      unique.sort((a,b) => (priority[b] ?? 1) - (priority[a] ?? 1));
+      return unique.slice(0,3);
+    }
+
+    // ==========
+    // Add vessel
+    // ==========
+    function calculateAndAdd() {
+      const shipName = document.getElementById('shipName').value.trim();
+      if (!shipName) { alert('Please enter a vessel name!'); return; }
+
+      const id = newId();
+      const structure = calculateStructure();
+      const probabilityRaw = calculateProbability();
+      const probabilityMatrix = (probabilityRaw >= 4) ? 4 : probabilityRaw; // Matrix column 4 = 4/5
+
+      const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
+      const reasons = getTopReasonsFromCurrentForm();
+      const riskLevel = getRiskLevel(structure, probabilityRaw);
+
+      const draftNotes = document.getElementById('shipNotesDraft')?.value ?? '';
+
+      const ship = {
+        id,
+        name: shipName,
+        type: document.getElementById('shipType').options[document.getElementById('shipType').selectedIndex].text,
+        structure,
+        probabilityRaw,
+        probabilityMatrix,
+        riskLevel,
+        confidence,
+        reasons,
+        notes: draftNotes,
+        timestamp: new Date().toLocaleString('en-GB')
+      };
+
+      allShips.push(ship);
+      updateMatrix();
+      updateShipsList();
+
+      resetForm();
+      document.getElementById('exportBtn').style.display = 'inline-block';
+      document.getElementById('exportExcelBtn').style.display = 'inline-block';
+      document.getElementById('snapshotBtn').style.display = 'inline-block';
+    }
+
+    // ==========
+    // Matrix update (clickable badges)
+    // ==========
+    function updateMatrix() {
+      for (let s=1; s<=5; s++) {
+        for (let p=0; p<=4; p++) {
+          const cell = document.getElementById(`cell_${s}_${p}`);
+          if (cell) cell.innerHTML = '';
+        }
+      }
+
+      for (const ship of allShips) {
+        const cellId = `cell_${ship.structure}_${ship.probabilityMatrix}`;
+        const cell = document.getElementById(cellId);
+        if (!cell) continue;
+
+        const badge = document.createElement('div');
+        badge.className = 'ship-badge';
+        badge.textContent = ship.name;
+        badge.title = `${ship.name} – ${ship.riskLevel} (conf ${Number(ship.confidence ?? 0.6).toFixed(1)})`;
+        badge.addEventListener('click', () => openShipModal(ship.id));
+        cell.appendChild(badge);
+      }
+    }
+
+    // ==========
+    // Vessel list update (shows notes preview)
+    // ==========
+    function updateShipsList() {
+      const container = document.getElementById('shipsContainer');
+      const list = document.getElementById('shipsList');
+
+      if (allShips.length === 0) { list.style.display = 'none'; return; }
+
+      list.style.display = 'block';
+      container.innerHTML = allShips.map(ship => {
+        const hasNotes = (ship.notes ?? '').trim().length > 0;
+        return `
+          <div class="ship-item" style="cursor:pointer;" onclick="openShipModal('${ship.id}')">
+            <div style="flex:1;">
+              <strong>${escapeHtml(ship.name)}</strong><br>
+              <span class="meta">
+                ${escapeHtml(ship.type)} | L${ship.structure} | X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix}) | conf ${(ship.confidence ?? 0.6).toFixed(1)}
+              </span>
+              <div class="reasons">Reasons: ${(ship.reasons ?? []).map(escapeHtml).join(' · ')}</div>
+              ${hasNotes ? `<div class="notes-preview"><b>Note:</b><br>${notesToHtml(ship.notes)}</div>` : ``}
+            </div>
+            <div class="ship-risk ${normalizeRiskClass(ship.riskLevel)}">
+              ${escapeHtml(ship.riskLevel)}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==========
+    // Export CSV (extended)
+    // ==========
+    function exportAllShipsCSV() {
+      if (allShips.length === 0) { alert('No vessels captured!'); return; }
+
+      let csv = 'VesselName,Type,StructureY,OperationalRawX,OperationalMatrixX0_4,Risk,Confidence,TopReasons,Timestamp,Note\n';
+      allShips.forEach(ship => {
+        const reasons = (ship.reasons ?? []).join(' | ');
+        const notes = (ship.notes ?? '').replace(/\r?\n/g,' ');
+        csv += `"${String(ship.name).replace(/"/g,'""')}","${String(ship.type).replace(/"/g,'""')}",${ship.structure},${ship.probabilityRaw},${ship.probabilityMatrix},"${String(ship.riskLevel).replace(/"/g,'""')}",${Number(ship.confidence ?? 0.6).toFixed(1)},"${reasons.replace(/"/g,'""')}","${String(ship.timestamp).replace(/"/g,'""')}","${notes.replace(/"/g,'""')}"\n`;
+      });
+
+      const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `maritime_phase_zero_risk_matrix_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+    }
+
+    // ==========
+    // Export Excel-compatible (.xls) with matrix + vessel list + notes
+    // ==========
+    function exportMatrixAndShipsExcel(){
+      if (allShips.length === 0) { alert('No vessels captured!'); return; }
+
+      // Build a "static" matrix table (no badges-divs; just names)
+      const matrixGrid = {};
+      for (const ship of allShips){
+        const key = `${ship.structure}_${ship.probabilityMatrix}`;
+        matrixGrid[key] = matrixGrid[key] || [];
+        matrixGrid[key].push(ship.name);
+      }
+
+      const matrixHtml = `
+        <table border="1" cellspacing="0" cellpadding="6">
+          <tr>
+            <th colspan="6" style="background:#667eea;color:#fff;">Operational indicators (X-axis)</th>
+          </tr>
+          <tr>
+            <th style="background:#667eea;color:#fff;">Structure \\ Indicators</th>
+            <th style="background:#667eea;color:#fff;">0 - None</th>
+            <th style="background:#667eea;color:#fff;">1 - Low</th>
+            <th style="background:#667eea;color:#fff;">2 - Moderate</th>
+            <th style="background:#667eea;color:#fff;">3 - Relevant</th>
+            <th style="background:#667eea;color:#fff;">4/5 - Critical</th>
+          </tr>
+          ${[1,2,3,4,5].map(s => `
+            <tr>
+              <th style="background:#f0f4ff;">L${s}</th>
+              ${[0,1,2,3,4].map(p => {
+                const names = (matrixGrid[`${s}_${p}`] || []).map(escapeHtml).join(', ');
+                return `<td>${names}</td>`;
+              }).join('')}
+            </tr>
+          `).join('')}
+        </table>
+      `;
+
+      const listHtml = `
+        <table border="1" cellspacing="0" cellpadding="6" style="margin-top:14px;">
+          <tr>
+            <th colspan="10" style="background:#764ba2;color:#fff;">Captured vessels (including notes)</th>
+          </tr>
+          <tr style="background:#f0f0f0;">
+            <th>Name</th><th>Type</th><th>Y</th><th>X raw</th><th>X matrix</th><th>Risk</th><th>Confidence</th><th>Top reasons</th><th>Timestamp</th><th>Note</th>
+          </tr>
+          ${allShips.map(s => `
+            <tr>
+              <td>${escapeHtml(s.name)}</td>
+              <td>${escapeHtml(s.type)}</td>
+              <td>L${s.structure}</td>
+              <td>X${s.probabilityRaw}</td>
+              <td>${s.probabilityMatrix}</td>
+              <td>${escapeHtml(s.riskLevel)}</td>
+              <td>${Number(s.confidence ?? 0.6).toFixed(1)}</td>
+              <td>${escapeHtml((s.reasons ?? []).join(' · '))}</td>
+              <td>${escapeHtml(s.timestamp)}</td>
+              <td>${notesToHtml(s.notes)}</td>
+            </tr>
+          `).join('')}
+        </table>
+      `;
+
+      const html = `
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Maritime Phase Zero Risk Matrix Export</title>
+          </head>
+          <body>
+            <h2>Maritime Phase Zero Risk Matrix</h2>
+            <div>${matrixHtml}</div>
+            <div>${listHtml}</div>
+          </body>
+        </html>
+      `;
+
+      const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `maritime_phase_zero_matrix_report_${new Date().toISOString().split('T')[0]}.xls`;
+      link.click();
+    }
+
+    // ==========
+    // Snapshot / Print view (matrix + list + full notes)
+    // ==========
+    function openSnapshotPrintView(){
+      if (allShips.length === 0) { alert('No vessels captured!'); return; }
+
+      // Reuse the Excel HTML (it’s already “static” + includes notes)
+      // but open it in a new window for printing/screenshotting.
+      const w = window.open('', '_blank');
+      if (!w) { alert('Popup blocked. Please allow popups for snapshot view.'); return; }
+
+      // Build a clean printable report
+      const reportTitle = `Maritime Phase Zero Risk Matrix – Snapshot (${new Date().toLocaleString('en-GB')})`;
+
+      // Create static matrix in HTML
+      const matrixGrid = {};
+      for (const ship of allShips){
+        const key = `${ship.structure}_${ship.probabilityMatrix}`;
+        matrixGrid[key] = matrixGrid[key] || [];
+        matrixGrid[key].push(ship.name);
+      }
+
+      const tableRows = [1,2,3,4,5].map(s => `
+        <tr>
+          <th style="background:#eef2ff;">L${s}</th>
+          ${[0,1,2,3,4].map(p => {
+            const names = (matrixGrid[`${s}_${p}`] || []).map(escapeHtml).join(', ');
+            return `<td style="vertical-align:top;">${names}</td>`;
+          }).join('')}
+        </tr>
+      `).join('');
+
+      const listRows = allShips.map(s => `
+        <tr>
+          <td>${escapeHtml(s.name)}</td>
+          <td>${escapeHtml(s.type)}</td>
+          <td>L${s.structure}</td>
+          <td>X${s.probabilityRaw}</td>
+          <td>${s.probabilityMatrix}</td>
+          <td>${escapeHtml(s.riskLevel)}</td>
+          <td>${Number(s.confidence ?? 0.6).toFixed(1)}</td>
+          <td>${escapeHtml((s.reasons ?? []).join(' · '))}</td>
+          <td>${escapeHtml(s.timestamp)}</td>
+          <td>${notesToHtml(s.notes)}</td>
+        </tr>
+      `).join('');
+
+      w.document.open();
+      w.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>${escapeHtml(reportTitle)}</title>
+          <style>
+            body{ font-family:Segoe UI, Arial, sans-serif; padding:18px; }
+            h2{ margin:0 0 6px 0; }
+            .small{ color:#666; font-size:12px; margin-bottom:14px; }
+            table{ border-collapse:collapse; width:100%; }
+            th,td{ border:1px solid #999; padding:8px; font-size:12px; }
+            th{ background:#667eea; color:#fff; }
+            .subhead{ background:#764ba2 !important; }
+            @media print{
+              button{ display:none; }
+            }
+          </style>
+        </head>
+        <body>
+          <button onclick="window.print()" style="padding:10px 14px; font-weight:700;">Print / Save as PDF</button>
+          <h2>Maritime Phase Zero Risk Matrix</h2>
+          <div class="small">${escapeHtml(new Date().toLocaleString('en-GB'))}</div>
+
+          <h3>Matrix</h3>
+          <table>
+            <tr>
+              <th colspan="6">Operational indicators (X-axis)</th>
+            </tr>
+            <tr>
+              <th>Structure \\ Indicators</th>
+              <th>0 - None</th>
+              <th>1 - Low</th>
+              <th>2 - Moderate</th>
+              <th>3 - Relevant</th>
+              <th>4/5 - Critical</th>
+            </tr>
+            ${tableRows}
+          </table>
+
+          <h3 style="margin-top:18px;">Captured vessels (including notes)</h3>
+          <table>
+            <tr>
+              <th class="subhead" colspan="10">Captured vessels</th>
+            </tr>
+            <tr style="background:#f0f0f0;color:#000;">
+              <td><b>Name</b></td><td><b>Type</b></td><td><b>Y</b></td><td><b>X raw</b></td><td><b>X matrix</b></td>
+              <td><b>Risk</b></td><td><b>Confidence</b></td><td><b>Top reasons</b></td><td><b>Timestamp</b></td><td><b>Note</b></td>
+            </tr>
+            ${listRows}
+          </table>
+        </body>
+        </html>
+      `);
+      w.document.close();
+    }
+
+    // ==========
+    // Form reset
+    // ==========
+    function resetForm() {
+      document.getElementById('assessmentForm').reset();
+      syncFlagCheckboxesFromSelect();
+    }
+
+    // ==========
+    // Modal logic (editable notes)
+    // ==========
+    function openShipModal(shipId) {
+      const ship = allShips.find(s => s.id === shipId);
+      if (!ship) return;
+
+      currentShipId = shipId;
+
+      document.getElementById('m_name').textContent = ship.name;
+      document.getElementById('m_type').textContent = ship.type;
+      document.getElementById('m_y').textContent = 'L' + ship.structure;
+      document.getElementById('m_x').textContent = `X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix})`;
+      document.getElementById('m_risk').textContent = ship.riskLevel;
+      document.getElementById('m_conf').textContent = Number(ship.confidence ?? 0.6).toFixed(1);
+      document.getElementById('m_reasons').textContent = (ship.reasons ?? []).join(' · ');
+      document.getElementById('m_notes').value = ship.notes ?? '';
+
+      const backdrop = document.getElementById('shipModalBackdrop');
+      backdrop.classList.add('show');
+      backdrop.setAttribute('aria-hidden','false');
+
+      setTimeout(() => document.getElementById('m_notes').focus(), 50);
+    }
+
+    function closeShipModal() {
+      const backdrop = document.getElementById('shipModalBackdrop');
+      backdrop.classList.remove('show');
+      backdrop.setAttribute('aria-hidden','true');
+      currentShipId = null;
+    }
+
+    function saveShipNotes() {
+      if (!currentShipId) return;
+      const ship = allShips.find(s => s.id === currentShipId);
+      if (!ship) return;
+      ship.notes = document.getElementById('m_notes').value ?? '';
+      updateShipsList();
+    }
+
+    function removeCurrentShip() {
+      if (!currentShipId) return;
+      const idx = allShips.findIndex(s => s.id === currentShipId);
+      if (idx === -1) return;
+      allShips.splice(idx, 1);
+      closeShipModal();
+      updateMatrix();
+      updateShipsList();
+      if (allShips.length === 0){
+        document.getElementById('exportBtn').style.display = 'none';
+        document.getElementById('exportExcelBtn').style.display = 'none';
+        document.getElementById('snapshotBtn').style.display = 'none';
+      }
+    }
+
+    // Close modal on backdrop click / ESC
+    document.getElementById('shipModalBackdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'shipModalBackdrop') closeShipModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const backdrop = document.getElementById('shipModalBackdrop');
+        if (backdrop.classList.contains('show')) closeShipModal();
+      }
     });
 
-    const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `maritime_phase_zero_risk_matrix_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-  }
+    // Hook: sync flag checkboxes when flag changes
+    document.getElementById('shipFlag').addEventListener('change', syncFlagCheckboxesFromSelect);
 
-  // ==========
-  // Form reset
-  // ==========
-  function resetForm() {
-  document.getElementById('assessmentForm').reset();
-  const pre = document.getElementById('shipNotesPre');
-  if (pre) pre.value = '';
-  syncFlagCheckboxesFromSelect();
-}
-  function exportMatrixAndListXLS() {
-  if (allShips.length === 0) { alert('No vessels captured!'); return; }
-
-  // Build a simple HTML workbook (Excel opens .xls with HTML tables)
-  const dateStr = new Date().toISOString().split('T')[0];
-
-  // 1) Matrix as text table: read current matrix cells and take their visible text
-  const matrixEl = document.getElementById('riskMatrix');
-  let matrixHtml = '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;">';
-
-  // clone header + rows, but replace badges with plain text (innerText)
-  const rows = Array.from(matrixEl.querySelectorAll('tr'));
-  for (const tr of rows) {
-    const cells = Array.from(tr.children);
-    matrixHtml += '<tr>';
-    for (const td of cells) {
-      const tag = td.tagName.toLowerCase();
-      const text = (td.innerText ?? '').trim().replace(/\s+\n/g,'\n');
-
-      // Keep header cells bold
-      if (tag === 'th') {
-        matrixHtml += `<th style="font-weight:700;background:#eef;">${escapeHtml(text).replace(/\n/g,'<br>')}</th>`;
-      } else {
-        matrixHtml += `<td>${escapeHtml(text).replace(/\n/g,'<br>')}</td>`;
-      }
-    }
-    matrixHtml += '</tr>';
-  }
-  matrixHtml += '</table>';
-
-  // 2) Captured vessels table
-  let vesselsHtml = `
-    <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; margin-top:14px; width:100%;">
-      <tr style="font-weight:700;background:#eef;">
-        <td>Vessel</td><td>Type</td><td>Structure (Y)</td><td>Operational (X raw)</td><td>Operational (X matrix)</td>
-        <td>Risk</td><td>Confidence</td><td>Top reasons</td><td>Timestamp</td><td>Notes</td>
-      </tr>
-  `;
-
-  for (const ship of allShips) {
-    const reasons = (ship.reasons ?? []).join(' · ');
-    const notes = (ship.notes ?? '').trim().replace(/\r?\n/g,'<br>');
-    vesselsHtml += `
-      <tr>
-        <td>${escapeHtml(ship.name)}</td>
-        <td>${escapeHtml(ship.type)}</td>
-        <td>L${ship.structure}</td>
-        <td>X${ship.probabilityRaw}</td>
-        <td>${ship.probabilityMatrix}</td>
-        <td>${escapeHtml(ship.riskLevel)}</td>
-        <td>${Number(ship.confidence ?? 0.6).toFixed(1)}</td>
-        <td>${escapeHtml(reasons)}</td>
-        <td>${escapeHtml(ship.timestamp)}</td>
-        <td>${notes ? notes : ''}</td>
-      </tr>
-    `;
-  }
-  vesselsHtml += '</table>';
-
-  const html = `
-    <html>
-    <head><meta charset="UTF-8"></head>
-    <body>
-      <h2>Maritime Phase Zero Risk Matrix — Export (${dateStr})</h2>
-      <h3>Risk matrix</h3>
-      ${matrixHtml}
-      <h3>Captured vessels</h3>
-      ${vesselsHtml}
-    </body>
-    </html>
-  `.trim();
-
-  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `risk_matrix_export_${dateStr}.xls`;
-  link.click();
-}
-
-function openSnapshotView() {
-  if (allShips.length === 0) { alert('No vessels captured!'); return; }
-
-  // Create a printable/screenshot-friendly view in a new window
-  const w = window.open('', '_blank');
-  if (!w) { alert('Popup blocked. Please allow popups for this file.'); return; }
-
-  const dateStr = new Date().toLocaleString('en-GB');
-
-  const matrixClone = document.querySelector('.matrix-container')?.cloneNode(true);
-  const listClone = document.getElementById('shipsList')?.cloneNode(true);
-
-  // Expand list in snapshot (no scroll box)
-  if (listClone) {
-    listClone.style.maxHeight = 'none';
-    listClone.style.overflow = 'visible';
-    listClone.style.display = 'block';
-  }
-
-  const styles = `
-    <style>
-      body{ font-family:Segoe UI,Tahoma,Verdana,sans-serif; padding:20px; }
-      h1{ margin:0 0 6px 0; }
-      .meta{ color:#555; font-size:12px; margin-bottom:14px; }
-      .matrix-container{ background:#f5f5f5; padding:16px; border-radius:10px; }
-      table{ border-collapse:collapse; width:100%; background:#fff; }
-      th,td{ border:2px solid #667eea; padding:10px; font-size:12px; vertical-align:top; }
-      th{ background:#667eea; color:#fff; }
-      .ships-list{ margin-top:16px; background:#f0f4ff; border-radius:10px; padding:14px; }
-      .ship-item{ background:#fff; padding:8px; border-radius:6px; margin-bottom:8px; border-left:4px solid #667eea; }
-      .note-preview{ margin-top:6px; padding:6px 8px; border-radius:8px; background:#fff; border:1px dashed rgba(102,126,234,0.45); font-size:11px; }
-      @media print { button{ display:none; } }
-    </style>
-  `;
-
-  w.document.open();
-  w.document.write(`
-    <!DOCTYPE html>
-    <html><head><meta charset="UTF-8"><title>Snapshot</title>${styles}</head>
-    <body>
-      <h1>Maritime Phase Zero Risk Matrix — Snapshot</h1>
-      <div class="meta">Generated: ${escapeHtml(dateStr)} • Tip: Use browser print to PDF, or take a screenshot.</div>
-      <button onclick="window.print()">Print / Save as PDF</button>
-      <hr style="margin:14px 0;">
-      ${matrixClone ? matrixClone.outerHTML : '<p>(Matrix not found)</p>'}
-      ${listClone ? listClone.outerHTML : '<p>(Captured vessels list not found)</p>'}
-    </body></html>
-  `);
-  w.document.close();
-}
-
-  // ==========
-  // Modal logic
-  // ==========
-  function openShipModal(shipId) {
-    const ship = allShips.find(s => s.id === shipId);
-    if (!ship) return;
-
-    currentShipId = shipId;
-
-    document.getElementById('m_name').textContent = ship.name;
-    document.getElementById('m_type').textContent = ship.type;
-    document.getElementById('m_y').textContent = 'L' + ship.structure;
-    document.getElementById('m_x').textContent = `X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix})`;
-    document.getElementById('m_risk').textContent = ship.riskLevel;
-    document.getElementById('m_conf').textContent = Number(ship.confidence ?? 0.6).toFixed(1);
-    document.getElementById('m_reasons').textContent = (ship.reasons ?? []).join(' · ');
-    document.getElementById('m_notes').value = ship.notes ?? '';
-
-    const backdrop = document.getElementById('shipModalBackdrop');
-    backdrop.classList.add('show');
-    backdrop.setAttribute('aria-hidden','false');
-
-    setTimeout(() => document.getElementById('m_notes').focus(), 50);
-  }
-
-  function closeShipModal() {
-    const backdrop = document.getElementById('shipModalBackdrop');
-    backdrop.classList.remove('show');
-    backdrop.setAttribute('aria-hidden','true');
-    currentShipId = null;
-  }
-
-  function saveShipNotes() {
-    if (!currentShipId) return;
-    const ship = allShips.find(s => s.id === currentShipId);
-    if (!ship) return;
-    ship.notes = document.getElementById('m_notes').value ?? '';
-    updateShipsList();
-  }
-
-  function removeCurrentShip() {
-    if (!currentShipId) return;
-    const idx = allShips.findIndex(s => s.id === currentShipId);
-    if (idx === -1) return;
-    allShips.splice(idx, 1);
-    closeShipModal();
-    updateMatrix();
-    updateShipsList();
-    if (allShips.length === 0) if (allShips.length === 0) {
-  document.getElementById('exportBtn').style.display = 'none';
-  document.getElementById('exportXlsBtn').style.display = 'none';
-  document.getElementById('snapshotBtn').style.display = 'none';
-}
-
-
-  document.getElementById('shipModalBackdrop').addEventListener('click', (e) => {
-    if (e.target.id === 'shipModalBackdrop') closeShipModal();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      const backdrop = document.getElementById('shipModalBackdrop');
-      if (backdrop.classList.contains('show')) closeShipModal();
-    }
-  });
-
-  document.getElementById('shipFlag').addEventListener('change', syncFlagCheckboxesFromSelect);
-  syncFlagCheckboxesFromSelect();
+    // Initial sync on load
+    syncFlagCheckboxesFromSelect();
   </script>
-
 </body>
 </html>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maritime Phase Zero Risk Matrix — Quick Guide</title>
+  <style>
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      line-height: 1.55;
+      max-width: 980px;
+      margin: 24px auto;
+      padding: 0 16px;
+      color:#222;
+    }
+    pre{
+      white-space: pre-wrap;
+      word-break: break-word;
+      background:#f7f7fb;
+      border:1px solid #e6e6f2;
+      border-radius:12px;
+      padding:16px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<pre>## Quick Guide &amp; Explanation
+
+**What is this?**
+This risk matrix is a working tool for a **structured initial assessment** of vessels in the context of maritime **hybrid threats** (e.g., shadow-fleet patterns, concealment, proximity to critical infrastructure, manipulation indicators). It does **not** replace situational analysis, evidence collection, or legal assessment — but it helps weight indicators consistently and compare multiple vessels in a repeatable way.
+
+### 1) Core principle (Y × X)
+
+The assessment uses two axes:
+
+**Y-Axis: Structure (L1–L5)**
+Describes how “concerning” a vessel is **structurally** — independent of current behavior. Examples: flag profile (Grey/Black/Unknown), frequent identity changes, opaque ownership/management chains, unusual insurance/class arrangements, sanctions links.
+
+**X-Axis: Operational Indicators (X0–X5, shown as X0–X4 in the matrix)**
+Describes the strength of **operational evidence** — what the vessel **does** or what anomalies/incident proximity exist (AIS blackout, GNSS/AIS spoofing, cable loitering, STS, “dark activity”, survey patterns, proximity to military, etc.).
+
+**Important:** The table has a final column **“4/5 – Critical”**.
+That means: X=4 or X=5 are both placed into the last column visually. Internally the finer “raw” value remains (e.g., X5), but the matrix display groups them (X4/5).
+
+---
+
+### 2) Data quality / Confidence (why it matters)
+
+AIS and GNSS can be disrupted, manipulated, or incomplete. Therefore you can select **Data quality / Confidence**:
+
+* **high (0.9):** AIS plus additional source(s) confirmed (e.g., imagery, port info, documents, OSINT verification).
+* **medium (0.6):** AIS plausible, partly confirmed or consistent in context.
+* **low (0.3):** AIS only / uncertain / significant ambiguity.
+
+Confidence affects the **X-Axis**:
+With low confidence, operational indicators are interpreted more cautiously to reduce false positives. (“AIS-only” patterns should not be rated like confirmed incidents.)
+
+---
+
+### 3) Step-by-step usage
+
+**Step 1 — Basics:**
+Enter vessel name, type, and flag state.
+The selected flag automatically sets Grey/Black status (as an indicator display).
+
+**Step 2 — Structure (Y):**
+Tick structural indicators.
+Rule of thumb: everything that belongs to the longer-term “profile” (ownership, flag changes, sanctions, class/insurance/identity churn) goes to Y.
+
+**Step 3 — Operational indicators (X):**
+Tick operational indicators.
+Rule of thumb: current behavior, routes, patterns, incidents, and critical-infrastructure proximity go to X.
+
+**Step 4 — Add vessel:**
+Click **“Add vessel”**.
+The vessel appears:
+* as a **badge in the matrix cell** (Ly / X column)
+* in the list below (risk level, X raw/matrix, confidence, top reasons)
+
+**Step 5 — Details &amp; notes:**
+Click the badge (or the vessel entry in the list) to open the **details window**.
+You can store an **editable free-text note** (e.g., sources, actions, assessment, open questions).
+Notes are stored per vessel and can be overwritten anytime.
+
+**Step 6 — Export:**
+Use **“Export all as CSV”** to export the vessels for further processing.
+
+---
+
+### 4) Interpreting results (without fooling yourself)
+
+* **Low / Medium** does not mean “safe” — it means: *currently no strong evidence or structurally unremarkable.*
+* **High / Very high** means: *relevant indicators in structure and/or operational evidence — prioritize deeper checks.*
+* A **high structure level (L4/L5)** without operational ticks can make sense (e.g., heavily obfuscated profile).
+* A **high X score** should ideally be supported by **high confidence** — otherwise treat it as a working suspicion.
+
+---
+
+### 5) Typical pitfalls this matrix tries to prevent
+
+* **“AIS says it, therefore it’s true.”** → confidence forces source discipline.
+* **“One indicator = certainty.”** → X considers severity and combinations, not just the count.
+* **“Flag alone decides everything.”** → flag influences Y, but operational evidence remains separate.
+* **“Too many vessels, no overview.”** → matrix + list give visibility and comparability.
+
+---
+
+### 6) 20-second field note
+
+1. Set flag + structural indicators (Y).
+2. Set operational anomalies (X).
+3. Choose realistic confidence.
+4. Add vessel.
+5. In the pop-up note: source + next action + open question.
+</pre>
+
+</body>
+</html>

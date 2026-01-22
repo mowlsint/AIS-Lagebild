@@ -573,7 +573,17 @@
             <button type="reset" class="btn-reset">🔄 Clear</button>
           </div>
           <div class="button-group">
-            <button type="button" class="btn-export" onclick="exportAllShips()" id="exportBtn" style="display:none;">📥 Export all as CSV</button>
+            <div class="button-group">
+  <button type="button" class="btn-export" onclick="exportAllShips()" id="exportBtn" style="display:none;">📥 Export all as CSV</button>
+
+  <button type="button" class="btn-export" onclick="exportMatrixAndListXLS()" id="exportXlsBtn" style="display:none;">
+    📊 Export matrix + list (Excel)
+  </button>
+
+  <button type="button" class="btn-export" onclick="openSnapshotView()" id="snapshotBtn" style="display:none;">
+    🖼️ Snapshot / Print view
+  </button>
+</div>
           </div>
 
         </form>
@@ -1159,6 +1169,9 @@ Mapping:
     updateShipsList();
     resetForm();
     document.getElementById('exportBtn').style.display = 'inline-block';
+    document.getElementById('exportXlsBtn').style.display = 'inline-block';
+    document.getElementById('snapshotBtn').style.display = 'inline-block';
+
   }
 
   // ==========
@@ -1234,7 +1247,8 @@ Mapping:
     let csv = 'VesselName,Type,StructureY,OperationalRawX,OperationalMatrixX0_4,Risk,Confidence,TopReasons,Timestamp,Note\n';
     allShips.forEach(ship => {
       const reasons = (ship.reasons ?? []).join(' | ');
-      const notes = (ship.notes ?? '').replace(/\r?\n/g,' ');
+      // CSV kann Zeilenumbrüche innerhalb von Quotes – Excel kann das i.d.R. anzeigen
+   const notes = (ship.notes ?? '').replace(/\r?\n/g,'\\n');
       csv += `"${String(ship.name).replace(/"/g,'""')}","${String(ship.type).replace(/"/g,'""')}",${ship.structure},${ship.probabilityRaw},${ship.probabilityMatrix},"${String(ship.riskLevel).replace(/"/g,'""')}",${Number(ship.confidence ?? 0.6).toFixed(1)},"${reasons.replace(/"/g,'""')}","${String(ship.timestamp).replace(/"/g,'""')}","${notes.replace(/"/g,'""')}"\n`;
     });
 
@@ -1253,6 +1267,135 @@ Mapping:
   const pre = document.getElementById('shipNotesPre');
   if (pre) pre.value = '';
   syncFlagCheckboxesFromSelect();
+}
+  function exportMatrixAndListXLS() {
+  if (allShips.length === 0) { alert('No vessels captured!'); return; }
+
+  // Build a simple HTML workbook (Excel opens .xls with HTML tables)
+  const dateStr = new Date().toISOString().split('T')[0];
+
+  // 1) Matrix as text table: read current matrix cells and take their visible text
+  const matrixEl = document.getElementById('riskMatrix');
+  let matrixHtml = '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;">';
+
+  // clone header + rows, but replace badges with plain text (innerText)
+  const rows = Array.from(matrixEl.querySelectorAll('tr'));
+  for (const tr of rows) {
+    const cells = Array.from(tr.children);
+    matrixHtml += '<tr>';
+    for (const td of cells) {
+      const tag = td.tagName.toLowerCase();
+      const text = (td.innerText ?? '').trim().replace(/\s+\n/g,'\n');
+
+      // Keep header cells bold
+      if (tag === 'th') {
+        matrixHtml += `<th style="font-weight:700;background:#eef;">${escapeHtml(text).replace(/\n/g,'<br>')}</th>`;
+      } else {
+        matrixHtml += `<td>${escapeHtml(text).replace(/\n/g,'<br>')}</td>`;
+      }
+    }
+    matrixHtml += '</tr>';
+  }
+  matrixHtml += '</table>';
+
+  // 2) Captured vessels table
+  let vesselsHtml = `
+    <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; margin-top:14px; width:100%;">
+      <tr style="font-weight:700;background:#eef;">
+        <td>Vessel</td><td>Type</td><td>Structure (Y)</td><td>Operational (X raw)</td><td>Operational (X matrix)</td>
+        <td>Risk</td><td>Confidence</td><td>Top reasons</td><td>Timestamp</td><td>Notes</td>
+      </tr>
+  `;
+
+  for (const ship of allShips) {
+    const reasons = (ship.reasons ?? []).join(' · ');
+    const notes = (ship.notes ?? '').trim().replace(/\r?\n/g,'<br>');
+    vesselsHtml += `
+      <tr>
+        <td>${escapeHtml(ship.name)}</td>
+        <td>${escapeHtml(ship.type)}</td>
+        <td>L${ship.structure}</td>
+        <td>X${ship.probabilityRaw}</td>
+        <td>${ship.probabilityMatrix}</td>
+        <td>${escapeHtml(ship.riskLevel)}</td>
+        <td>${Number(ship.confidence ?? 0.6).toFixed(1)}</td>
+        <td>${escapeHtml(reasons)}</td>
+        <td>${escapeHtml(ship.timestamp)}</td>
+        <td>${notes ? notes : ''}</td>
+      </tr>
+    `;
+  }
+  vesselsHtml += '</table>';
+
+  const html = `
+    <html>
+    <head><meta charset="UTF-8"></head>
+    <body>
+      <h2>Maritime Phase Zero Risk Matrix — Export (${dateStr})</h2>
+      <h3>Risk matrix</h3>
+      ${matrixHtml}
+      <h3>Captured vessels</h3>
+      ${vesselsHtml}
+    </body>
+    </html>
+  `.trim();
+
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `risk_matrix_export_${dateStr}.xls`;
+  link.click();
+}
+
+function openSnapshotView() {
+  if (allShips.length === 0) { alert('No vessels captured!'); return; }
+
+  // Create a printable/screenshot-friendly view in a new window
+  const w = window.open('', '_blank');
+  if (!w) { alert('Popup blocked. Please allow popups for this file.'); return; }
+
+  const dateStr = new Date().toLocaleString('en-GB');
+
+  const matrixClone = document.querySelector('.matrix-container')?.cloneNode(true);
+  const listClone = document.getElementById('shipsList')?.cloneNode(true);
+
+  // Expand list in snapshot (no scroll box)
+  if (listClone) {
+    listClone.style.maxHeight = 'none';
+    listClone.style.overflow = 'visible';
+    listClone.style.display = 'block';
+  }
+
+  const styles = `
+    <style>
+      body{ font-family:Segoe UI,Tahoma,Verdana,sans-serif; padding:20px; }
+      h1{ margin:0 0 6px 0; }
+      .meta{ color:#555; font-size:12px; margin-bottom:14px; }
+      .matrix-container{ background:#f5f5f5; padding:16px; border-radius:10px; }
+      table{ border-collapse:collapse; width:100%; background:#fff; }
+      th,td{ border:2px solid #667eea; padding:10px; font-size:12px; vertical-align:top; }
+      th{ background:#667eea; color:#fff; }
+      .ships-list{ margin-top:16px; background:#f0f4ff; border-radius:10px; padding:14px; }
+      .ship-item{ background:#fff; padding:8px; border-radius:6px; margin-bottom:8px; border-left:4px solid #667eea; }
+      .note-preview{ margin-top:6px; padding:6px 8px; border-radius:8px; background:#fff; border:1px dashed rgba(102,126,234,0.45); font-size:11px; }
+      @media print { button{ display:none; } }
+    </style>
+  `;
+
+  w.document.open();
+  w.document.write(`
+    <!DOCTYPE html>
+    <html><head><meta charset="UTF-8"><title>Snapshot</title>${styles}</head>
+    <body>
+      <h1>Maritime Phase Zero Risk Matrix — Snapshot</h1>
+      <div class="meta">Generated: ${escapeHtml(dateStr)} • Tip: Use browser print to PDF, or take a screenshot.</div>
+      <button onclick="window.print()">Print / Save as PDF</button>
+      <hr style="margin:14px 0;">
+      ${matrixClone ? matrixClone.outerHTML : '<p>(Matrix not found)</p>'}
+      ${listClone ? listClone.outerHTML : '<p>(Captured vessels list not found)</p>'}
+    </body></html>
+  `);
+  w.document.close();
 }
 
   // ==========
@@ -1303,8 +1446,12 @@ Mapping:
     closeShipModal();
     updateMatrix();
     updateShipsList();
-    if (allShips.length === 0) document.getElementById('exportBtn').style.display = 'none';
-  }
+    if (allShips.length === 0) if (allShips.length === 0) {
+  document.getElementById('exportBtn').style.display = 'none';
+  document.getElementById('exportXlsBtn').style.display = 'none';
+  document.getElementById('snapshotBtn').style.display = 'none';
+}
+
 
   document.getElementById('shipModalBackdrop').addEventListener('click', (e) => {
     if (e.target.id === 'shipModalBackdrop') closeShipModal();

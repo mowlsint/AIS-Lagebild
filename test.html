@@ -1,12 +1,11 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data:; frame-ancestors *">
-  <title>Maritime Phase Zero Risk Matrix</title>
+  <title>Maritime Risikomatrix für Hybride Aktivitäten</title>
 
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -42,7 +41,7 @@
       position:absolute;
       right:18px;
       top:18px;
-      width:220px;            /* "4x bigger" vibe; adjust as needed */
+      width:220px;
       height:auto;
       border-radius:12px;
       box-shadow:0 12px 28px rgba(0,0,0,0.25);
@@ -155,7 +154,7 @@
     /* ===== Captured vessels list: TALLER ===== */
     .ships-list{
       background:#f0f4ff; border-radius:10px; padding:15px; margin-top:20px;
-      max-height:55vh;              /* bigger, responsive */
+      max-height:55vh;
       min-height:220px;
       overflow-y:auto;
     }
@@ -180,7 +179,7 @@
 
       display:-webkit-box;
       -webkit-box-orient:vertical;
-      -webkit-line-clamp:3;         /* first ~3 lines */
+      -webkit-line-clamp:3;
       overflow:hidden;
     }
 
@@ -189,7 +188,6 @@
       font-size:11px; color:#fff; white-space:nowrap;
       margin-top:2px;
     }
-    /* Keep existing class names; map labels in JS */
     .risk-niedrig-text{ background:#4CAF50; }
     .risk-mittel-text{ background:#FFC107; color:#333; }
     .risk-hoch-text{ background:#FF9800; }
@@ -262,7 +260,6 @@
 
     .small{ font-size:11px; color:#777; }
 
-    /* Print snapshot: hide tabs + form controls if desired */
     @media print{
       body{ background:#fff; padding:0; }
       .container{ box-shadow:none; border-radius:0; }
@@ -278,21 +275,21 @@
       <img src="mowlsint_logo.jpg" alt="MOWLSINT Logo" class="header-logo">
 
       <div class="header-content">
-        <h1>🚢 Maritime Phase Zero Risk Matrix</h1>
-        <p>Multi-vessel assessment with a visual matrix</p>
+        <h1>Maritime Risikomatrix für Hybride Aktivitäten</h1>
+        <p>Mehrschiff-Bewertung mit visueller Matrix</p>
 
         <p style="margin-top:10px;">
-          <a href="README_riskmatrix.html" target="_blank" rel="noreferrer"
+          <a href="README_matrix.html" target="_blank" rel="noreferrer"
              style="display:inline-block;background:rgba(255,255,255,0.15);padding:8px 12px;border-radius:10px;color:white;">
-            📖 Open Quick Guide / README
+            📖 Anleitung / README öffnen
           </a>
         </p>
       </div>
     </div>
 
     <div class="tabs">
-      <button class="tab-button active" onclick="switchTab('tool')">🔧 Assessment Tool</button>
-      <button class="tab-button" onclick="switchTab('info')">📚 Explanations & Lists</button>
+      <button class="tab-button active" onclick="switchTab('tool')">🔧 Bewertungstool</button>
+      <button class="tab-button" onclick="switchTab('info')">📚 Erklärungen & Listen</button>
     </div>
 
     <!-- TOOL TAB -->
@@ -303,41 +300,41 @@
 
           <!-- VESSEL -->
           <div class="section">
-            <h2>📋 Vessel</h2>
+            <h2>📋 Schiff</h2>
 
             <div class="form-group">
-              <label for="shipName">Vessel name *</label>
-              <input type="text" id="shipName" required placeholder="e.g., MV Baltika">
+              <label for="shipName">Schiffsname *</label>
+              <input type="text" id="shipName" required placeholder="z. B. MV Baltika">
             </div>
 
             <div class="form-group">
-              <label for="shipType">Vessel type *</label>
+              <label for="shipType">Schiffstyp *</label>
               <select id="shipType" required>
-                <option value="">-- Select --</option>
+                <option value="">-- Wählen --</option>
                 <option value="tanker">Tanker</option>
                 <option value="bulkcarrier">Bulk Carrier</option>
                 <option value="container_feeder">Container (Feeder)</option>
                 <option value="container_liner">Container (Liner)</option>
                 <option value="general">General Cargo</option>
                 <option value="roro">RoRo Vessel</option>
-                <option value="kms">Coastal Motor Vessel</option>
-                <option value="inland">Inland Vessel</option>
+                <option value="kms">Küstenmotorschiff</option>
+                <option value="inland">Binnenschiff</option>
                 <option value="fishing">Fishing Vessel</option>
-                <option value="other">Other</option>
+                <option value="other">Sonstiges</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="shipFlag">Flag state *</label>
+              <label for="shipFlag">Flaggenstaat *</label>
               <select id="shipFlag" required>
-                <option value="">-- Select --</option>
+                <option value="">-- Wählen --</option>
                 <optgroup label="🟢 EU States">
-                  <option value="de">Germany</option>
-                  <option value="nl">Netherlands</option>
-                  <option value="fr">France</option>
-                  <option value="pl">Poland</option>
-                  <option value="se">Sweden</option>
-                  <option value="dk">Denmark</option>
+                  <option value="de">Deutschland</option>
+                  <option value="nl">Niederlande</option>
+                  <option value="fr">Frankreich</option>
+                  <option value="pl">Polen</option>
+                  <option value="se">Schweden</option>
+                  <option value="dk">Dänemark</option>
                 </optgroup>
                 <optgroup label="🟡 Grey List (IMO)">
                   <option value="sa-grey">Saudi Arabia (Grey)</option>
@@ -374,56 +371,55 @@
                 </optgroup>
                 <optgroup label="⚪ Other">
                   <option value="mt">Malta</option>
-                  <option value="cy">Cyprus</option>
+                  <option value="cy">Zypern</option>
                   <option value="lbr">Liberia</option>
                   <option value="ag">Antigua and Barbuda</option>
-                  <option value="other-flag">Other flag</option>
+                  <option value="other-flag">Sonstige Flagge</option>
                 </optgroup>
                 <optgroup label="⚠️ Special cases">
-                  <option value="unknown-flag">Unknown (Zombie vessel)</option>
+                  <option value="unknown-flag">Unbekannt (Zombieschiff)</option>
                 </optgroup>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="dataConfidence">Data quality / Confidence</label>
+              <label for="dataConfidence">Datenqualität / Confidence</label>
               <select id="dataConfidence">
-                <option value="0.9">high (AIS + additional source confirmed)</option>
-                <option value="0.6" selected>medium (AIS plausible, partly confirmed)</option>
-                <option value="0.3">low (AIS only / uncertain)</option>
+                <option value="0.9">hoch (AIS + zusätzliche Quelle bestätigt)</option>
+                <option value="0.6" selected>mittel (AIS plausibel, teilweise bestätigt)</option>
+                <option value="0.3">niedrig (nur AIS / unsicher)</option>
               </select>
-              <div class="small">Affects the X-axis (operational evidence) — reduces false positives for “AIS-only”.</div>
+              <div class="small">Wirkt auf die X-Achse (operative Evidenz) – reduziert Fehlalarme bei „nur AIS“.</div>
             </div>
 
-            <!-- NEW: Notes BEFORE saving -->
             <div class="form-group">
-              <label for="shipNotesDraft">Free text / notes (optional)</label>
-              <textarea id="shipNotesDraft" placeholder="e.g., sources, AIS anomalies, actions, assessment..."></textarea>
-              <div class="small">Saved into the vessel record when you click “Add vessel”.</div>
+              <label for="shipNotesDraft">Freitext / Notizen (optional)</label>
+              <textarea id="shipNotesDraft" placeholder="z. B. Quellenlage, AIS-Anomalien, Maßnahmen, Bewertung..."></textarea>
+              <div class="small">Wird im Schiffseintrag gespeichert, wenn du auf „Schiff hinzufügen“ klickst.</div>
             </div>
           </div>
 
           <!-- STRUCTURE -->
           <div class="section">
-            <h2>🏢 Structure (signals)</h2>
+            <h2>🏢 Struktur (Signale)</h2>
 
             <div class="checkbox-group">
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_grey_flag" name="struct" value="grey_flag">
-                <label for="cb_grey_flag">Grey-list flag</label>
+                <label for="cb_grey_flag">Grey-List-Flagge</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_black_flag" name="struct" value="black_flag">
-                <label for="cb_black_flag">Black-list flag</label>
+                <label for="cb_black_flag">Black-List-Flagge</label>
               </div>
 
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_flag_change" name="struct" value="flag_change">
-                <label for="cb_flag_change">Frequent flag changes</label>
+                <label for="cb_flag_change">Häufige Flaggenwechsel</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_opaque" name="struct" value="opaque">
-                <label for="cb_opaque">Opaque ownership structure</label>
+                <label for="cb_opaque">Opake Eigentümer-/Betreiberstruktur</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_kaliningrad" name="struct" value="kaliningrad">
@@ -435,28 +431,28 @@
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_sanctions" name="struct" value="sanctions">
-                <label for="cb_sanctions">Sanctions history (vessel itself)</label>
+                <label for="cb_sanctions">Sanktionshistorie (Schiff selbst)</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_sanctions_evasion" name="struct" value="sanctions_evasion">
-                <label for="cb_sanctions_evasion">Sanctions evasion (cargo / trade pattern)</label>
+                <label for="cb_sanctions_evasion">Sanktionsumgehung (Ladung / Handelsmuster)</label>
               </div>
 
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_class_issue" name="struct" value="class_issue">
-                <label for="cb_class_issue">Class/RO irregularities (switch/gap/questionable)</label>
+                <label for="cb_class_issue">Class/RO irregularities (Switch/Gap/Questionable)</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_pi_issue" name="struct" value="pi_issue">
-                <label for="cb_pi_issue">P&amp;I / insurance irregularities (gap/unclear)</label>
+                <label for="cb_pi_issue">P&amp;I / Insurance irregularities (Gap/Unclear)</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_identity_churn" name="struct" value="identity_churn">
-                <label for="cb_identity_churn">Identity churn (name/IMO/MMSI “hygiene”)</label>
+                <label for="cb_identity_churn">Identity churn (Name/IMO/MMSI “Hygiene”)</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_manager_churn" name="struct" value="manager_churn">
-                <label for="cb_manager_churn">Frequent owner/manager changes</label>
+                <label for="cb_manager_churn">Häufige Owner/Manager changes</label>
               </div>
             </div>
 
@@ -467,7 +463,7 @@
 
           <!-- OPERATIONAL INDICATORS -->
           <div class="section">
-            <h2>📊 Operational indicators</h2>
+            <h2>📊 Operative Indikatoren</h2>
 
             <div class="checkbox-group">
               <div class="checkbox-item">
@@ -565,21 +561,21 @@
 
           <!-- BUTTONS -->
           <div class="button-group">
-            <button type="button" class="btn-calculate" onclick="calculateAndAdd()">🔍 Add vessel</button>
-            <button type="reset" class="btn-reset">🔄 Clear</button>
+            <button type="button" class="btn-calculate" onclick="calculateAndAdd()">🔍 Schiff hinzufügen</button>
+            <button type="reset" class="btn-reset">🔄 Löschen</button>
           </div>
 
           <div class="button-group">
-            <button type="button" class="btn-export" onclick="exportAllShipsCSV()" id="exportBtn" style="display:none;">📥 Export all as CSV</button>
+            <button type="button" class="btn-export" onclick="exportAllShipsCSV()" id="exportBtn" style="display:none;">📥 Alle als CSV exportieren</button>
             <button type="button"
-        class="btn-export"
-        onclick="exportMatrixAndShipsExcelXml()"
-        id="exportExcelBtn"
-        style="display:none;">
-  📗 Export matrix + list (Excel)
-</button>
+              class="btn-export"
+              onclick="exportMatrixAndShipsExcelXml()"
+              id="exportExcelBtn"
+              style="display:none;">
+              📗 Matrix + Liste exportieren (Excel)
+            </button>
 
-            <button type="button" class="btn-secondary" onclick="openSnapshotPrintView()" id="snapshotBtn" style="display:none;">🖨️ Snapshot / Print view</button>
+            <button type="button" class="btn-secondary" onclick="openSnapshotPrintView()" id="snapshotBtn" style="display:none;">🖨️ Snapshot / Druckansicht</button>
           </div>
         </form>
       </div>
@@ -587,19 +583,19 @@
       <!-- RIGHT: MATRIX + LIST -->
       <div class="right-panel">
         <div class="matrix-container" id="reportArea">
-          <h2 style="margin-bottom:15px;">Risk matrix</h2>
+          <h2 style="margin-bottom:15px;">Risikomatrix</h2>
           <table class="matrix" id="riskMatrix">
             <thead>
               <tr>
-                <th colspan="6" style="text-align:center;">Operational indicators (X-axis)</th>
+                <th colspan="6" style="text-align:center;">Operative Indikatoren (X-Achse)</th>
               </tr>
               <tr>
-                <th>Structure \ Indicators</th>
-                <th>0 - None</th>
-                <th>1 - Low</th>
-                <th>2 - Moderate</th>
+                <th>Struktur \ Indikatoren</th>
+                <th>0 - Keine</th>
+                <th>1 - Gering</th>
+                <th>2 - Moderat</th>
                 <th>3 - Relevant</th>
-                <th>4/5 - Critical</th>
+                <th>4/5 - Kritisch</th>
               </tr>
             </thead>
             <tbody>
@@ -647,12 +643,12 @@
           </table>
 
           <div class="info-box" style="margin-top:12px;">
-            Click a vessel badge in the matrix to open details + editable notes.
+            Klick auf ein Schiff-Badge in der Matrix öffnet Details + editierbare Notizen.
           </div>
 
           <!-- VESSEL LIST -->
           <div class="ships-list" id="shipsList" style="display:none;">
-            <h3>📍 Captured vessels</h3>
+            <h3>📍 Erfasste Schiffe</h3>
             <div id="shipsContainer"></div>
           </div>
         </div>
@@ -663,30 +659,30 @@
     <div class="content-full" id="info">
       <div style="max-width:1200px; margin:0 auto; padding:30px;">
         <h2 style="color:#333; margin-bottom:30px; padding-bottom:15px; border-bottom:3px solid #667eea;">
-          📚 Explanations, lists &amp; resources
+          📚 Erklärungen, Listen &amp; Ressourcen
         </h2>
 
         <div class="reference-list">
-          <h3>⚠️ Zombie vessels &amp; sanctions evasion</h3>
+          <h3>⚠️ Zombieschiffe &amp; sanctions evasion</h3>
           <div style="font-size:12px; line-height:1.8;">
-            <p><strong>Zombie vessel:</strong></p>
+            <p><strong>Zombieschiff:</strong></p>
             <p style="margin-left:10px; color:#666; margin-bottom:10px;">
-              A vessel with an unknown or unclear flag registration. Common concealment/evasion pattern.
+              Ein Schiff mit unbekannter oder unklarer Flaggenregistrierung. Häufiges Muster zur Verschleierung/Umgehung.
             </p>
 
             <p><strong>Sanctions history (vessel itself):</strong></p>
             <p style="margin-left:10px; color:#666; margin-bottom:10px;">
-              The vessel itself is listed on sanctions lists.
+              Das Schiff selbst ist auf Sanktionslisten gelistet.
             </p>
 
             <p><strong>Sanctions evasion (cargo / trade):</strong></p>
             <p style="margin-left:10px; color:#666; margin-bottom:10px;">
-              The vessel is used to transport sanctioned goods (cargo/trade patterns).
+              Das Schiff wird für den Transport sanktionierter Güter genutzt (Cargo-/Trade-Pattern).
             </p>
 
             <div class="warning-box" style="margin-top:15px;">
-              <strong>⚡ Note:</strong><br>
-              If you only have AIS, set confidence low — AIS/GNSS can be disrupted/manipulated.
+              <strong>⚡ Hinweis:</strong><br>
+              Wenn du nur AIS hast: Confidence niedrig setzen – AIS/GNSS kann gestört oder manipuliert sein.
             </div>
           </div>
         </div>
@@ -694,7 +690,7 @@
         <div class="reference-list" id="crewingtab">
           <h3>🏢 Kaliningrad crewing agencies (high risk)</h3>
           <p style="font-size:12px; color:#666; margin-bottom:10px;">
-            Example list (verify/update according to your own sourcing):
+            Beispiel-Liste (bitte mit eigenen Quellen prüfen/aktualisieren):
           </p>
           <ul>
             <li><code>RUSAM Maritime Agency</code></li>
@@ -720,12 +716,12 @@
             <li><code>Tornado Shipping Company</code></li>
             <li><code>WESTRYBFLOT</code></li>
           </ul>
-          <div class="small">Note: This list is an “anchor” for your own maintenance.</div>
+          <div class="small">Hinweis: Diese Liste ist ein „Anker“ für die eigene Pflege.</div>
         </div>
 
         <div class="reference-list" id="pmctab">
           <h3>🎖️ Operators with PMC linkage</h3>
-          <p style="font-size:12px; color:#666; margin-bottom:10px;">Examples/placeholders — maintain with sources:</p>
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">Beispiele/Platzhalter – bitte mit Quellen pflegen:</p>
           <ul>
             <li><code>Oslo Bulk</code> - PMC presence documented</li>
             <li><code>Hav Shipping</code> - Military proximity</li>
@@ -737,7 +733,7 @@
         </div>
 
         <div class="reference-list">
-          <h3>🔗 External resources &amp; data sources</h3>
+          <h3>🔗 Externe Ressourcen &amp; Datenquellen</h3>
           <ul>
             <li><a href="https://war-sanctions.gur.gov.ua/en/transport/ships" target="_blank" rel="noreferrer">War Sanctions Ukraine (vessel list)</a></li>
             <li><a href="https://www.equasis.org" target="_blank" rel="noreferrer">Equasis</a></li>
@@ -753,33 +749,33 @@
   <div class="modal-backdrop" id="shipModalBackdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="shipModalTitle">
       <div class="modal-header">
-        <h3 id="shipModalTitle">Vessel details</h3>
+        <h3 id="shipModalTitle">Schiff-Details</h3>
         <button class="modal-close" onclick="closeShipModal()">✕</button>
       </div>
       <div class="modal-body">
         <div class="modal-grid">
           <div class="kv"><b>Name:</b> <span id="m_name"></span></div>
-          <div class="kv"><b>Type:</b> <span id="m_type"></span></div>
-          <div class="kv"><b>Structure (Y):</b> <span id="m_y"></span></div>
-          <div class="kv"><b>Operational (X):</b> <span id="m_x"></span></div>
-          <div class="kv"><b>Risk:</b> <span id="m_risk"></span></div>
+          <div class="kv"><b>Typ:</b> <span id="m_type"></span></div>
+          <div class="kv"><b>Struktur (Y):</b> <span id="m_y"></span></div>
+          <div class="kv"><b>Operativ (X):</b> <span id="m_x"></span></div>
+          <div class="kv"><b>Risiko:</b> <span id="m_risk"></span></div>
           <div class="kv"><b>Confidence:</b> <span id="m_conf"></span></div>
           <div class="kv" style="grid-column:1 / -1;">
-            <b>Top reasons:</b> <span id="m_reasons"></span>
+            <b>Top-Gründe:</b> <span id="m_reasons"></span>
           </div>
         </div>
 
-        <label for="m_notes"><b>Free text / notes</b> <span class="small">(stored per vessel)</span></label>
-        <textarea id="m_notes" placeholder="e.g., sources, AIS anomalies, actions, assessment..."></textarea>
+        <label for="m_notes"><b>Freitext / Notizen</b> <span class="small">(pro Schiff gespeichert)</span></label>
+        <textarea id="m_notes" placeholder="z. B. Quellenlage, AIS-Anomalien, Maßnahmen, Bewertung..."></textarea>
 
         <div class="modal-actions">
-          <button type="button" class="btn-calculate" onclick="saveShipNotes()">💾 Save note</button>
-          <button type="button" class="btn-secondary" onclick="closeShipModal()">Close</button>
-          <button type="button" class="btn-danger" onclick="removeCurrentShip()">🗑️ Remove vessel</button>
+          <button type="button" class="btn-calculate" onclick="saveShipNotes()">💾 Notiz speichern</button>
+          <button type="button" class="btn-secondary" onclick="closeShipModal()">Schließen</button>
+          <button type="button" class="btn-danger" onclick="removeCurrentShip()">🗑️ Schiff entfernen</button>
         </div>
 
         <div class="small" style="margin-top:10px;">
-          Tip: Clicking another badge opens its note; you can overwrite notes anytime.
+          Tipp: Klick auf ein anderes Badge öffnet dessen Notiz; du kannst Notizen jederzeit überschreiben.
         </div>
       </div>
     </div>
@@ -787,7 +783,7 @@
 
   <script>
     // ==========
-    // Data model
+    // Datenmodell
     // ==========
     let allShips = [];
     let currentShipId = null;
@@ -847,9 +843,10 @@
 
     function normalizeRiskClass(riskLevel) {
       const s = (riskLevel || '').toLowerCase().trim();
-      if (s === 'very high') return 'risk-sehr-hoch-text';
-      if (s === 'high') return 'risk-hoch-text';
-      if (s === 'medium') return 'risk-mittel-text';
+      if (s === 'very high' || s === 'sehr hoch') return 'risk-sehr-hoch-text';
+      if (s === 'high' || s === 'hoch') return 'risk-hoch-text';
+      if (s === 'medium' || s === 'mittel') return 'risk-mittel-text';
+      if (s === 'low' || s === 'niedrig') return 'risk-niedrig-text';
       return 'risk-niedrig-text';
     }
 
@@ -1006,13 +1003,13 @@
     // ==========
     function getRiskLevel(structure, probabilityRaw) {
       const matrix = {
-        '1,0':'Low','1,1':'Low','1,2':'Low','1,3':'Low','1,4':'Medium','1,5':'High',
-        '2,0':'Low','2,1':'Low','2,2':'Low','2,3':'Medium','2,4':'High','2,5':'High',
-        '3,0':'Low','3,1':'Medium','3,2':'Medium','3,3':'High','3,4':'High','3,5':'Very high',
-        '4,0':'Medium','4,1':'High','4,2':'High','4,3':'High','4,4':'Very high','4,5':'Very high',
-        '5,0':'High','5,1':'High','5,2':'Very high','5,3':'Very high','5,4':'Very high','5,5':'Very high'
+        '1,0':'Niedrig','1,1':'Niedrig','1,2':'Niedrig','1,3':'Niedrig','1,4':'Mittel','1,5':'Hoch',
+        '2,0':'Niedrig','2,1':'Niedrig','2,2':'Niedrig','2,3':'Mittel','2,4':'Hoch','2,5':'Hoch',
+        '3,0':'Niedrig','3,1':'Mittel','3,2':'Mittel','3,3':'Hoch','3,4':'Hoch','3,5':'Sehr hoch',
+        '4,0':'Mittel','4,1':'Hoch','4,2':'Hoch','4,3':'Hoch','4,4':'Sehr hoch','4,5':'Sehr hoch',
+        '5,0':'Hoch','5,1':'Hoch','5,2':'Sehr hoch','5,3':'Sehr hoch','5,4':'Sehr hoch','5,5':'Sehr hoch'
       };
-      return matrix[`${structure},${probabilityRaw}`] || 'Unknown';
+      return matrix[`${structure},${probabilityRaw}`] || 'Unbekannt';
     }
 
     // ==========
@@ -1024,12 +1021,12 @@
       const flagSelect = document.getElementById('shipFlag').value;
 
       const labels = {
-        grey_flag:"Grey-list flag",
-        black_flag:"Black-list flag",
-        flag_change:"Frequent flag changes",
-        opaque:"Opaque ownership structure",
+        grey_flag:"Grey-List-Flagge",
+        black_flag:"Black-List-Flagge",
+        flag_change:"Häufige Flaggenwechsel",
+        opaque:"Opake Eigentümer-/Betreiberstruktur",
         kaliningrad:"Kaliningrad crewing",
-        sanctions:"Sanctions history (vessel)",
+        sanctions:"Sanktionshistorie (vessel)",
         sanctions_evasion:"Sanctions evasion (cargo/trade)",
         class_issue:"Class/RO irregularities",
         pi_issue:"P&I/insurance irregularities",
@@ -1056,12 +1053,12 @@
       };
 
       const reasons = [];
-      if (flagSelect === "unknown-flag") reasons.push("Zombie vessel (unknown flag)");
+      if (flagSelect === "unknown-flag") reasons.push("Zombieschiff (unbekannte Flagge)");
       for (const s of struct) reasons.push(labels[s] ?? s);
       for (const i of indicators) reasons.push(labels[i] ?? i);
 
       const priority = {
-        "Zombie vessel (unknown flag)": 10,
+        "Zombieschiff (unbekannte Flagge)": 10,
         "AIS blackout": 9,
         "GNSS/AIS spoofing anomalies": 9,
         "Repeated loitering": 8,
@@ -1071,12 +1068,12 @@
         "Boarding": 8,
         "STS / rendezvous": 7,
         "Dark activity": 7,
-        "Sanctions history (vessel)": 7,
+        "Sanktionshistorie (vessel)": 7,
         "Uniformed personnel": 7,
         "PMC linkage": 7,
         "Survey / grid patterns": 7,
-        "Frequent flag changes": 6,
-        "Black-list flag": 6,
+        "Häufige Flaggenwechsel": 6,
+        "Black-List-Flagge": 6,
         "Russian ports (10 days)": 5,
         "Unnatural routes": 5,
         "CI corridor crossing": 5
@@ -1092,7 +1089,7 @@
     // ==========
     function calculateAndAdd() {
       const shipName = document.getElementById('shipName').value.trim();
-      if (!shipName) { alert('Please enter a vessel name!'); return; }
+      if (!shipName) { alert('Bitte einen Schiffsname eingeben!'); return; }
 
       const id = newId();
       const structure = calculateStructure();
@@ -1116,7 +1113,7 @@
         confidence,
         reasons,
         notes: draftNotes,
-        timestamp: new Date().toLocaleString('en-GB')
+        timestamp: new Date().toLocaleString('de-DE')
       };
 
       allShips.push(ship);
@@ -1128,7 +1125,6 @@
       document.getElementById('exportExcelBtn').style.display = 'inline-block';
       document.getElementById('snapshotBtn').style.display = 'inline-block';
       document.getElementById('exportExcelBtn').style.display = 'inline-block';
-
     }
 
     // ==========
@@ -1175,8 +1171,8 @@
               <span class="meta">
                 ${escapeHtml(ship.type)} | L${ship.structure} | X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix}) | conf ${(ship.confidence ?? 0.6).toFixed(1)}
               </span>
-              <div class="reasons">Reasons: ${(ship.reasons ?? []).map(escapeHtml).join(' · ')}</div>
-              ${hasNotes ? `<div class="notes-preview"><b>Note:</b><br>${notesToHtml(ship.notes)}</div>` : ``}
+              <div class="reasons">Gründe: ${(ship.reasons ?? []).map(escapeHtml).join(' · ')}</div>
+              ${hasNotes ? `<div class="notes-preview"><b>Notiz:</b><br>${notesToHtml(ship.notes)}</div>` : ``}
             </div>
             <div class="ship-risk ${normalizeRiskClass(ship.riskLevel)}">
               ${escapeHtml(ship.riskLevel)}
@@ -1190,7 +1186,7 @@
     // Export CSV (extended)
     // ==========
     function exportAllShipsCSV() {
-      if (allShips.length === 0) { alert('No vessels captured!'); return; }
+      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
 
       let csv = 'VesselName,Type,StructureY,OperationalRawX,OperationalMatrixX0_4,Risk,Confidence,TopReasons,Timestamp,Note\n';
       allShips.forEach(ship => {
@@ -1202,80 +1198,74 @@
       const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `maritime_phase_zero_risk_matrix_${new Date().toISOString().split('T')[0]}.csv`;
+      link.download = `maritime_risikomatrix_hybride_aktivitaeten_${new Date().toISOString().split('T')[0]}.csv`;
       link.click();
     }
 
     // ==========
-    // Export Excel-compatible (.xls) with matrix + vessel list + notes
+    // Export Excel-compatible (.xml) with matrix + vessel list + notes
     // ==========
     function exportMatrixAndShipsExcelXml() {
-  if (allShips.length === 0) { alert('No vessels captured!'); return; }
+      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
 
-  // --- helpers ---
-  const xmlEscape = (s) => String(s ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+      const xmlEscape = (s) => String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
 
-  // Excel line breaks inside cells: use &#10; (LF)
-  const excelLineBreaks = (s) => xmlEscape(String(s ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n'))
-    .replace(/\n/g, '&#10;');
+      const excelLineBreaks = (s) => xmlEscape(String(s ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n'))
+        .replace(/\n/g, '&#10;');
 
-  const today = new Date().toISOString().split('T')[0];
-  const stamp = new Date().toLocaleString('en-GB');
+      const today = new Date().toISOString().split('T')[0];
+      const stamp = new Date().toLocaleString('de-DE');
 
-  // --- Build matrix grid (names per cell) ---
-  const matrixGrid = {};
-  for (const ship of allShips) {
-    const key = `${ship.structure}_${ship.probabilityMatrix}`;
-    (matrixGrid[key] ||= []).push(ship.name);
-  }
-
-  const matrixCols = ["0 - None", "1 - Low", "2 - Moderate", "3 - Relevant", "4/5 - Critical"];
-
-  // Matrix sheet rows
-  const matrixRowsXml = [
-    // title row
-    rowXml([{ v: `Maritime Phase Zero Risk Matrix – Snapshot (${stamp})`, style: 'title', mergeAcross: 5 }]),
-    rowXml([{ v: 'Operational indicators (X-axis)', style: 'header', mergeAcross: 5 }]),
-    rowXml([{ v: 'Structure \\ Indicators', style: 'header' }, ...matrixCols.map(c => ({ v: c, style: 'header' }))]),
-    ...[1,2,3,4,5].map(s => {
-      const cells = [{ v: `L${s}`, style: 'subhead' }];
-      for (const p of [0,1,2,3,4]) {
-        const names = (matrixGrid[`${s}_${p}`] || []).join(', ');
-        cells.push({ v: names, style: 'cell' });
+      // Matrix grid (names per cell)
+      const matrixGrid = {};
+      for (const ship of allShips) {
+        const key = `${ship.structure}_${ship.probabilityMatrix}`;
+        (matrixGrid[key] ||= []).push(ship.name);
       }
-      return rowXml(cells);
-    })
-  ].join('');
 
-  // Vessels sheet rows
-  const vesselHeader = [
-    "Name","Type","Y","X raw","X matrix","Risk","Confidence","Top reasons","Timestamp","Note"
-  ];
+      const matrixCols = ["0 - Keine", "1 - Gering", "2 - Moderat", "3 - Relevant", "4/5 - Kritisch"];
 
-  const vesselsRowsXml = [
-    rowXml([{ v: `Captured vessels (including notes) – ${stamp}`, style: 'title', mergeAcross: 9 }]),
-    rowXml(vesselHeader.map(h => ({ v: h, style: 'header' }))),
-    ...allShips.map(s => rowXml([
-      { v: s.name, style: 'cell' },
-      { v: s.type, style: 'cell' },
-      { v: `L${s.structure}`, style: 'cell' },
-      { v: `X${s.probabilityRaw}`, style: 'cell' },
-      { v: String(s.probabilityMatrix), style: 'cell' },
-      { v: s.riskLevel, style: 'cell' },
-      { v: Number(s.confidence ?? 0.6).toFixed(1), style: 'cell' },
-      { v: (s.reasons ?? []).join(' · '), style: 'cell' },
-      { v: s.timestamp, style: 'cell' },
-      { v: s.notes ?? '', style: 'wrap' } // keeps line breaks + wrap
-    ], true))
-  ].join('');
+      const matrixRowsXml = [
+        rowXml([{ v: `Maritime Risikomatrix für Hybride Aktivitäten – Snapshot (${stamp})`, style: 'title', mergeAcross: 5 }]),
+        rowXml([{ v: 'Operative Indikatoren (X-Achse)', style: 'header', mergeAcross: 5 }]),
+        rowXml([{ v: 'Struktur \\ Indikatoren', style: 'header' }, ...matrixCols.map(c => ({ v: c, style: 'header' }))]),
+        ...[1,2,3,4,5].map(s => {
+          const cells = [{ v: `L${s}`, style: 'subhead' }];
+          for (const p of [0,1,2,3,4]) {
+            const names = (matrixGrid[`${s}_${p}`] || []).join(', ');
+            cells.push({ v: names, style: 'cell' });
+          }
+          return rowXml(cells);
+        })
+      ].join('');
 
-  // --- SpreadsheetML document ---
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      const vesselHeader = [
+        "Name","Typ","Y","X raw","X matrix","Risiko","Confidence","Top-Gründe","Zeitstempel","Notiz"
+      ];
+
+      const vesselsRowsXml = [
+        rowXml([{ v: `Erfasste Schiffe (inkl. Notizen) – ${stamp}`, style: 'title', mergeAcross: 9 }]),
+        rowXml(vesselHeader.map(h => ({ v: h, style: 'header' }))),
+        ...allShips.map(s => rowXml([
+          { v: s.name, style: 'cell' },
+          { v: s.type, style: 'cell' },
+          { v: `L${s.structure}`, style: 'cell' },
+          { v: `X${s.probabilityRaw}`, style: 'cell' },
+          { v: String(s.probabilityMatrix), style: 'cell' },
+          { v: s.riskLevel, style: 'cell' },
+          { v: Number(s.confidence ?? 0.6).toFixed(1), style: 'cell' },
+          { v: (s.reasons ?? []).join(' · '), style: 'cell' },
+          { v: s.timestamp, style: 'cell' },
+          { v: s.notes ?? '', style: 'wrap' }
+        ], true))
+      ].join('');
+
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
  xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -1349,51 +1339,41 @@
 
 </Workbook>`;
 
-  // --- row builder (supports mergeAcross) ---
-  function rowXml(cells, treatLastAsNotes=false) {
-    const xmlCells = cells.map((c, idx) => {
-      const style = c.style ? ` ss:StyleID="${c.style}"` : '';
-      const merge = (typeof c.mergeAcross === 'number') ? ` ss:MergeAcross="${c.mergeAcross}"` : '';
-      const isNotes = (treatLastAsNotes && idx === cells.length - 1 && c.style === 'wrap');
+      function rowXml(cells, treatLastAsNotes=false) {
+        const xmlCells = cells.map((c, idx) => {
+          const style = c.style ? ` ss:StyleID="${c.style}"` : '';
+          const merge = (typeof c.mergeAcross === 'number') ? ` ss:MergeAcross="${c.mergeAcross}"` : '';
+          const isNotes = (treatLastAsNotes && idx === cells.length - 1 && c.style === 'wrap');
+          const val = isNotes ? excelLineBreaks(c.v) : xmlEscape(c.v);
+          return `<Cell${style}${merge}><Data ss:Type="String">${val}</Data></Cell>`;
+        }).join('');
+        return `<Row>${xmlCells}</Row>`;
+      }
 
-      // notes: preserve line breaks
-      const val = isNotes ? excelLineBreaks(c.v) : xmlEscape(c.v);
-      return `<Cell${style}${merge}><Data ss:Type="String">${val}</Data></Cell>`;
-    }).join('');
+      const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
 
-    return `<Row>${xmlCells}</Row>`;
-  }
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `maritime_risikomatrix_report_${today}.xml`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
 
-  // Download as .xml (Excel opens it cleanly)
-  const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `maritime_phase_zero_matrix_report_${today}.xml`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
-}
-
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
 
     // ==========
     // Snapshot / Print view (matrix + list + full notes)
     // ==========
     function openSnapshotPrintView(){
-      if (allShips.length === 0) { alert('No vessels captured!'); return; }
+      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
 
-      // Reuse the Excel HTML (it’s already “static” + includes notes)
-      // but open it in a new window for printing/screenshotting.
       const w = window.open('', '_blank');
-      if (!w) { alert('Popup blocked. Please allow popups for snapshot view.'); return; }
+      if (!w) { alert('Popup blockiert. Bitte Popups für Snapshot-/Druckansicht erlauben.'); return; }
 
-      // Build a clean printable report
-      const reportTitle = `Maritime Phase Zero Risk Matrix – Snapshot (${new Date().toLocaleString('en-GB')})`;
+      const reportTitle = `Maritime Risikomatrix für Hybride Aktivitäten – Snapshot (${new Date().toLocaleString('de-DE')})`;
 
-      // Create static matrix in HTML
       const matrixGrid = {};
       for (const ship of allShips){
         const key = `${ship.structure}_${ship.probabilityMatrix}`;
@@ -1443,40 +1423,38 @@
             th,td{ border:1px solid #999; padding:8px; font-size:12px; }
             th{ background:#667eea; color:#fff; }
             .subhead{ background:#764ba2 !important; }
-            @media print{
-              button{ display:none; }
-            }
+            @media print{ button{ display:none; } }
           </style>
         </head>
         <body>
-          <button onclick="window.print()" style="padding:10px 14px; font-weight:700;">Print / Save as PDF</button>
-          <h2>Maritime Phase Zero Risk Matrix</h2>
-          <div class="small">${escapeHtml(new Date().toLocaleString('en-GB'))}</div>
+          <button onclick="window.print()" style="padding:10px 14px; font-weight:700;">Drucken / Als PDF speichern</button>
+          <h2>Maritime Risikomatrix für Hybride Aktivitäten</h2>
+          <div class="small">${escapeHtml(new Date().toLocaleString('de-DE'))}</div>
 
           <h3>Matrix</h3>
           <table>
             <tr>
-              <th colspan="6">Operational indicators (X-axis)</th>
+              <th colspan="6">Operative Indikatoren (X-Achse)</th>
             </tr>
             <tr>
-              <th>Structure \\ Indicators</th>
-              <th>0 - None</th>
-              <th>1 - Low</th>
-              <th>2 - Moderate</th>
+              <th>Struktur \\ Indikatoren</th>
+              <th>0 - Keine</th>
+              <th>1 - Gering</th>
+              <th>2 - Moderat</th>
               <th>3 - Relevant</th>
-              <th>4/5 - Critical</th>
+              <th>4/5 - Kritisch</th>
             </tr>
             ${tableRows}
           </table>
 
-          <h3 style="margin-top:18px;">Captured vessels (including notes)</h3>
+          <h3 style="margin-top:18px;">Erfasste Schiffe (inkl. Notizen)</h3>
           <table>
             <tr>
-              <th class="subhead" colspan="10">Captured vessels</th>
+              <th class="subhead" colspan="10">Erfasste Schiffe</th>
             </tr>
             <tr style="background:#f0f0f0;color:#000;">
-              <td><b>Name</b></td><td><b>Type</b></td><td><b>Y</b></td><td><b>X raw</b></td><td><b>X matrix</b></td>
-              <td><b>Risk</b></td><td><b>Confidence</b></td><td><b>Top reasons</b></td><td><b>Timestamp</b></td><td><b>Note</b></td>
+              <td><b>Name</b></td><td><b>Typ</b></td><td><b>Y</b></td><td><b>X raw</b></td><td><b>X matrix</b></td>
+              <td><b>Risiko</b></td><td><b>Confidence</b></td><td><b>Top-Gründe</b></td><td><b>Zeitstempel</b></td><td><b>Notiz</b></td>
             </tr>
             ${listRows}
           </table>
@@ -1549,7 +1527,6 @@
       }
     }
 
-    // Close modal on backdrop click / ESC
     document.getElementById('shipModalBackdrop').addEventListener('click', (e) => {
       if (e.target.id === 'shipModalBackdrop') closeShipModal();
     });
@@ -1560,10 +1537,7 @@
       }
     });
 
-    // Hook: sync flag checkboxes when flag changes
     document.getElementById('shipFlag').addEventListener('change', syncFlagCheckboxesFromSelect);
-
-    // Initial sync on load
     syncFlagCheckboxesFromSelect();
   </script>
 </body>

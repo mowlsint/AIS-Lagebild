@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-ancestors *">
-  <title>Maritime Hybridbedrohungs-Risiko-Matrix</title>
+        content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data:; frame-ancestors *">
+  <title>Maritime Risikomatrix für Hybride Aktivitäten</title>
 
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -22,12 +22,41 @@
       overflow:hidden;
     }
 
+    /* ===== HEADER (Logo right, content centered) ===== */
     .header{
+      position:relative;
       background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-      color:#fff; padding:30px; text-align:center;
+      color:#fff;
+      padding:30px;
+      text-align:center;
+    }
+    .header-content{
+      max-width:980px;
+      margin:0 auto;
     }
     .header h1{ font-size:28px; margin-bottom:10px; }
     .header p{ font-size:14px; opacity:0.9; }
+
+    .header-logo{
+      position:absolute;
+      right:18px;
+      top:18px;
+      width:220px;
+      height:auto;
+      border-radius:12px;
+      box-shadow:0 12px 28px rgba(0,0,0,0.25);
+      border:2px solid rgba(255,255,255,0.25);
+      background:rgba(255,255,255,0.08);
+    }
+    @media (max-width: 900px){
+      .header{ padding:22px 18px 18px 18px; }
+      .header-logo{
+        position:static;
+        display:block;
+        margin:0 auto 12px auto;
+        width:min(260px, 70vw);
+      }
+    }
 
     .tabs{ display:flex; border-bottom:2px solid #667eea; background:#f8f9fa; }
     .tab-button{
@@ -55,12 +84,12 @@
     .form-group{ margin-bottom:15px; }
     label{ display:block; margin-bottom:6px; color:#333; font-weight:500; font-size:13px; }
 
-    input[type="text"],input[type="number"],input[type="date"],select,textarea{
+    input[type="text"],select,textarea{
       width:100%; padding:8px; border:1px solid #ddd; border-radius:5px;
       font-size:13px; font-family:inherit;
     }
     textarea{ min-height:90px; resize:vertical; }
-    input[type="text"]:focus,input[type="number"]:focus,input[type="date"]:focus,select:focus,textarea:focus{
+    input[type="text"]:focus,select:focus,textarea:focus{
       outline:none; border-color:#667eea; box-shadow:0 0 5px rgba(102,126,234,0.3);
     }
 
@@ -89,6 +118,8 @@
     .btn-reset:hover{ background:#d0d0d0; }
     .btn-export{ background:#FF9800; color:#fff; }
     .btn-export:hover{ background:#F57C00; transform:translateY(-2px); }
+    .btn-secondary{ background:#e0e0e0; color:#333; }
+    .btn-secondary:hover{ background:#d0d0d0; }
 
     .matrix-container{ background:#f5f5f5; padding:20px; border-radius:10px; overflow-x:auto; }
     .matrix{
@@ -120,22 +151,42 @@
       background:#667eea; color:#fff; box-shadow:0 2px 6px rgba(102,126,234,0.3);
     }
 
+    /* ===== Captured vessels list: TALLER ===== */
     .ships-list{
       background:#f0f4ff; border-radius:10px; padding:15px; margin-top:20px;
-      max-height:320px; overflow-y:auto;
+      max-height:55vh;
+      min-height:220px;
+      overflow-y:auto;
     }
     .ships-list h3{ color:#333; font-size:14px; margin-bottom:10px; }
     .ship-item{
-      background:#fff; padding:8px; border-radius:5px; margin-bottom:8px;
+      background:#fff; padding:10px; border-radius:8px; margin-bottom:10px;
       border-left:4px solid #667eea;
-      display:flex; justify-content:space-between; align-items:center; font-size:12px;
+      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+      font-size:12px;
     }
     .ship-item .meta{ color:#555; }
-    .ship-item .reasons{ color:#666; font-size:11px; margin-top:2px; }
+    .ship-item .reasons{ color:#666; font-size:11px; margin-top:3px; }
+    .ship-item .notes-preview{
+      margin-top:6px;
+      font-size:11px;
+      color:#444;
+      background:#f6f7ff;
+      border:1px solid #e1e4ff;
+      border-radius:8px;
+      padding:8px;
+      line-height:1.35;
+
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:3;
+      overflow:hidden;
+    }
 
     .ship-risk{
       padding:2px 8px; border-radius:12px; font-weight:600;
       font-size:11px; color:#fff; white-space:nowrap;
+      margin-top:2px;
     }
     .risk-niedrig-text{ background:#4CAF50; }
     .risk-mittel-text{ background:#FFC107; color:#333; }
@@ -201,36 +252,40 @@
       font-size:12px;
     }
     .kv b{ color:#333; }
-    .pill{
-      display:inline-block; padding:2px 10px; border-radius:999px;
-      font-weight:700; font-size:12px;
-      border:1px solid rgba(0,0,0,0.08);
-      background:#fff;
-      margin-left:6px;
-    }
     .modal-actions{
       display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;
     }
     .btn-danger{ background:#F44336; color:#fff; }
-    .btn-secondary{ background:#e0e0e0; color:#333; }
+    .btn-danger:hover{ filter:brightness(0.95); }
 
-    .muted{ color:#666; font-size:12px; }
     .small{ font-size:11px; color:#777; }
+
+    @media print{
+      body{ background:#fff; padding:0; }
+      .container{ box-shadow:none; border-radius:0; }
+      .tabs{ display:none; }
+    }
   </style>
 </head>
 
 <body>
   <div class="container">
+
     <div class="header">
-      <h1>🚢 Maritime Hybridbedrohungs-Risiko-Matrix</h1>
-      <p>Mehrschiff-Bewertung mit visueller Matrix</p>
+      <img src="mowlsint_logo.jpg" alt="MOWLSINT Logo" class="header-logo">
+
+      <div class="header-content">
+        <h1>Maritime Risikomatrix für Hybride Aktivitäten</h1>
+        <p>Mehrschiff-Bewertung mit visueller Matrix</p>
+
+        <p style="margin-top:10px;">
+          <a href="README_matrix.html" target="_blank" rel="noreferrer"
+             style="display:inline-block;background:rgba(255,255,255,0.15);padding:8px 12px;border-radius:10px;color:white;">
+            📖 Anleitung / README öffnen
+          </a>
+        </p>
+      </div>
     </div>
-<p style="margin-top:10px;">
-  <a href="README_matrix.html" target="_blank" rel="noreferrer"
-     style="display:inline-block;background:rgba(255,255,255,0.15);padding:8px 12px;border-radius:10px;color:white;">
-    📖 Anleitung / README öffnen
-  </a>
-</p>
 
     <div class="tabs">
       <button class="tab-button active" onclick="switchTab('tool')">🔧 Bewertungstool</button>
@@ -239,16 +294,17 @@
 
     <!-- TOOL TAB -->
     <div class="content active" id="tool">
-      <!-- LINKE SPALTE: EINGABEFORMULAR -->
+      <!-- LEFT: FORM -->
       <div class="left-panel">
         <form id="assessmentForm">
-          <!-- SCHIFFSINFORMATIONEN -->
+
+          <!-- VESSEL -->
           <div class="section">
             <h2>📋 Schiff</h2>
 
             <div class="form-group">
               <label for="shipName">Schiffsname *</label>
-              <input type="text" id="shipName" required placeholder="z.B. MV Baltika">
+              <input type="text" id="shipName" required placeholder="z. B. MV Baltika">
             </div>
 
             <div class="form-group">
@@ -258,12 +314,12 @@
                 <option value="tanker">Tanker</option>
                 <option value="bulkcarrier">Bulk Carrier</option>
                 <option value="container_feeder">Container (Feeder)</option>
-                <option value="container_liner">Container (Linie)</option>
+                <option value="container_liner">Container (Liner)</option>
                 <option value="general">General Cargo</option>
                 <option value="roro">RoRo Vessel</option>
                 <option value="kms">Küstenmotorschiff</option>
                 <option value="inland">Binnenschiff</option>
-                <option value="fishing">Fischereischiff</option>
+                <option value="fishing">Fishing Vessel</option>
                 <option value="other">Sonstiges</option>
               </select>
             </div>
@@ -272,7 +328,7 @@
               <label for="shipFlag">Flaggenstaat *</label>
               <select id="shipFlag" required>
                 <option value="">-- Wählen --</option>
-                <optgroup label="🟢 EU-Staaten">
+                <optgroup label="🟢 EU States">
                   <option value="de">Deutschland</option>
                   <option value="nl">Niederlande</option>
                   <option value="fr">Frankreich</option>
@@ -313,37 +369,41 @@
                   <option value="tz-black">Tanzania (Black)</option>
                   <option value="cm-black">Cameroon (Black)</option>
                 </optgroup>
-                <optgroup label="⚪ Sonstige">
+                <optgroup label="⚪ Other">
                   <option value="mt">Malta</option>
                   <option value="cy">Zypern</option>
-                   <option value="lbr">Liberia</option>
-                   <option value="lbr">Antigua und Barbuda</option>
+                  <option value="lbr">Liberia</option>
+                  <option value="ag">Antigua and Barbuda</option>
                   <option value="other-flag">Sonstige Flagge</option>
                 </optgroup>
-                <optgroup label="⚠️ Besondere Fälle">
+                <optgroup label="⚠️ Special cases">
                   <option value="unknown-flag">Unbekannt (Zombieschiff)</option>
                 </optgroup>
               </select>
             </div>
 
-            <!-- Confidence / Datenqualität -->
             <div class="form-group">
               <label for="dataConfidence">Datenqualität / Confidence</label>
               <select id="dataConfidence">
-                <option value="0.9">hoch (AIS + weitere Quelle bestätigt)</option>
-                <option value="0.6" selected>mittel (AIS plausibel, teils bestätigt)</option>
-                <option value="0.3">niedrig (nur AIS/unsicher)</option>
+                <option value="0.9">hoch (AIS + zusätzliche Quelle bestätigt)</option>
+                <option value="0.6" selected>mittel (AIS plausibel, teilweise bestätigt)</option>
+                <option value="0.3">niedrig (nur AIS / unsicher)</option>
               </select>
               <div class="small">Wirkt auf die X-Achse (operative Evidenz) – reduziert Fehlalarme bei „nur AIS“.</div>
             </div>
+
+            <div class="form-group">
+              <label for="shipNotesDraft">Freitext / Notizen (optional)</label>
+              <textarea id="shipNotesDraft" placeholder="z. B. Quellenlage, AIS-Anomalien, Maßnahmen, Bewertung..."></textarea>
+              <div class="small">Wird im Schiffseintrag gespeichert, wenn du auf „Schiff hinzufügen“ klickst.</div>
+            </div>
           </div>
 
-          <!-- STRUKTURELLE MERKMALE -->
+          <!-- STRUCTURE -->
           <div class="section">
-            <h2>🏢 Struktur (Checkboxen)</h2>
+            <h2>🏢 Struktur (Signale)</h2>
 
             <div class="checkbox-group">
-              <!-- Hinweis: Grey/Black werden automatisch aus Flagge gesetzt, Checkboxen bleiben aber als Anzeige -->
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_grey_flag" name="struct" value="grey_flag">
                 <label for="cb_grey_flag">Grey-List-Flagge</label>
@@ -355,15 +415,19 @@
 
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_flag_change" name="struct" value="flag_change">
-                <label for="cb_flag_change">Häufiger Flaggenwechsel</label>
+                <label for="cb_flag_change">Häufige Flaggenwechsel</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_opaque" name="struct" value="opaque">
-                <label for="cb_opaque">Opake Eigentumsstruktur</label>
+                <label for="cb_opaque">Opake Eigentümer-/Betreiberstruktur</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_kaliningrad" name="struct" value="kaliningrad">
-                <label for="cb_kaliningrad"><a href="javascript:switchTab('info')" onclick="document.getElementById('crewingtab').scrollIntoView();">Kaliningrad-Crewing</a></label>
+                <label for="cb_kaliningrad">
+                  <a href="javascript:switchTab('info')" onclick="document.getElementById('crewingtab').scrollIntoView();">
+                    Kaliningrad crewing
+                  </a>
+                </label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_sanctions" name="struct" value="sanctions">
@@ -371,113 +435,112 @@
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_sanctions_evasion" name="struct" value="sanctions_evasion">
-                <label for="cb_sanctions_evasion">Sanktionsumgehung (Ladung)</label>
+                <label for="cb_sanctions_evasion">Sanktionsumgehung (Ladung / Handelsmuster)</label>
               </div>
 
-              <!-- NEU: Compliance/Versicherung/Class/Identity -->
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_class_issue" name="struct" value="class_issue">
-                <label for="cb_class_issue">Class/RO-Auffälligkeit (Wechsel/Lücke/fragwürdig)</label>
+                <label for="cb_class_issue">Class/RO irregularities (Switch/Gap/Questionable)</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_pi_issue" name="struct" value="pi_issue">
-                <label for="cb_pi_issue">P&amp;I/Versicherung auffällig (Lücke/unklar)</label>
+                <label for="cb_pi_issue">P&amp;I / Insurance irregularities (Gap/Unclear)</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_identity_churn" name="struct" value="identity_churn">
-                <label for="cb_identity_churn">Identity-Churn (Name/IMO/MMSI-„Hygiene“)</label>
+                <label for="cb_identity_churn">Identity churn (Name/IMO/MMSI “Hygiene”)</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_manager_churn" name="struct" value="manager_churn">
-                <label for="cb_manager_churn">Häufiger Owner/Manager-Wechsel</label>
+                <label for="cb_manager_churn">Häufige Owner/Manager changes</label>
               </div>
             </div>
 
             <div class="info-box" style="margin-top:10px;">
-              📋 <a href="https://war-sanctions.gur.gov.ua/en/transport/ships" target="_blank" rel="noreferrer">War Sanctions Liste</a>
+              📋 <a href="https://war-sanctions.gur.gov.ua/en/transport/ships" target="_blank" rel="noreferrer">War Sanctions list (Ukraine)</a>
             </div>
           </div>
 
-          <!-- OPERATIVE INDIKATOREN -->
+          <!-- OPERATIONAL INDICATORS -->
           <div class="section">
             <h2>📊 Operative Indikatoren</h2>
 
             <div class="checkbox-group">
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_russian_ports" name="indicators" value="russian_ports">
-                <label for="ind_russian_ports">Russische Häfen (10 Tage)</label>
+                <label for="ind_russian_ports">Russian ports (last 10 days)</label>
               </div>
 
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_ais_blackout" name="indicators" value="ais_blackout">
-                <label for="ind_ais_blackout">AIS-Blackout</label>
+                <label for="ind_ais_blackout">AIS blackout</label>
               </div>
 
-              <!-- NEU: GNSS/AIS Manipulation -->
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_gnss_spoofing" name="indicators" value="gnss_spoofing">
-                <label for="ind_gnss_spoofing">GNSS/AIS-Spoofing-Anomalien (Teleports/Duplikate/SOG)</label>
+                <label for="ind_gnss_spoofing">GNSS/AIS spoofing anomalies (teleports/duplicates/SOG)</label>
               </div>
 
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_ais_unnatural" name="indicators" value="ais_unnatural">
-                <label for="ind_ais_unnatural">Unnatürliche Routen</label>
+                <label for="ind_ais_unnatural">Unnatural routes</label>
               </div>
 
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_loitering" name="indicators" value="loitering">
-                <label for="ind_loitering">Loitering an Kabeln</label>
+                <label for="ind_loitering">Cable loitering</label>
               </div>
 
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_multi_loitering" name="indicators" value="multi_loitering">
-                <label for="ind_multi_loitering">Mehrfaches Loitering</label>
+                <label for="ind_multi_loitering">Repeated loitering</label>
               </div>
 
-              <!-- NEU: CI-Korridor-Muster -->
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_ci_corridor_crossing" name="indicators" value="ci_corridor_crossing">
-                <label for="ind_ci_corridor_crossing">Wiederholte Querung CI-Korridore (Kabel/Pipelines)</label>
+                <label for="ind_ci_corridor_crossing">Repeated crossing of CI corridors (cables/pipelines)</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_ci_anchoring" name="indicators" value="ci_anchoring">
-                <label for="ind_ci_anchoring">Ankern/Driften im CI-Schutzkorridor (wiederholt)</label>
+                <label for="ind_ci_anchoring">Anchoring/drifting in CI protection corridor (repeated)</label>
               </div>
 
-              <!-- NEU: Shadow-Fleet typische Operativsignale -->
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_sts" name="indicators" value="sts">
-                <label for="ind_sts">STS/Rendezvous (Ship-to-Ship) / ungewöhnliche Treffen</label>
+                <label for="ind_sts">STS / rendezvous (ship-to-ship) / unusual meetings</label>
               </div>
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_dark_activity" name="indicators" value="dark_activity">
-                <label for="ind_dark_activity">„Dark activity“ (Dark STS / Dark Port Calls)</label>
+                <label for="ind_dark_activity">“Dark activity” (dark STS / dark port calls)</label>
               </div>
 
-              <!-- NEU: Capability / Survey -->
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_survey_pattern" name="indicators" value="survey_pattern">
-                <label for="ind_survey_pattern">Survey-/Rasterfahrten (Mapping-Pattern)</label>
+                <label for="ind_survey_pattern">Survey / grid patterns (mapping behavior)</label>
               </div>
 
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_military" name="indicators" value="military">
-                <label for="ind_military">Nähe zu Militär</label>
+                <label for="ind_military">Proximity to military</label>
               </div>
 
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_uniformed" name="indicators" value="uniformed">
-                <label for="ind_uniformed">Uniformierte Personen</label>
+                <label for="ind_uniformed">Uniformed personnel observed</label>
               </div>
 
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_pmc" name="indicators" value="pmc">
-                <label for="ind_pmc"><a href="javascript:switchTab('info')" onclick="document.getElementById('pmctab').scrollIntoView();">PMC-Verbindung</a></label>
+                <label for="ind_pmc">
+                  <a href="javascript:switchTab('info')" onclick="document.getElementById('pmctab').scrollIntoView();">
+                    PMC linkage
+                  </a>
+                </label>
               </div>
 
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_drone" name="indicators" value="drone">
-                <label for="ind_drone">Drohnen-Aktivität</label>
+                <label for="ind_drone">Drone activity</label>
               </div>
 
               <div class="checkbox-item">
@@ -487,7 +550,7 @@
 
               <div class="checkbox-item">
                 <input type="checkbox" id="ind_known_incident" name="indicators" value="known_incident">
-                <label for="ind_known_incident">Nähe zu Vorfällen</label>
+                <label for="ind_known_incident">Proximity to known incidents</label>
               </div>
             </div>
 
@@ -501,15 +564,25 @@
             <button type="button" class="btn-calculate" onclick="calculateAndAdd()">🔍 Schiff hinzufügen</button>
             <button type="reset" class="btn-reset">🔄 Löschen</button>
           </div>
+
           <div class="button-group">
-            <button type="button" class="btn-export" onclick="exportAllShips()" id="exportBtn" style="display:none;">📥 Alle als CSV</button>
+            <button type="button" class="btn-export" onclick="exportAllShipsCSV()" id="exportBtn" style="display:none;">📥 Alle als CSV exportieren</button>
+            <button type="button"
+              class="btn-export"
+              onclick="exportMatrixAndShipsExcelXml()"
+              id="exportExcelBtn"
+              style="display:none;">
+              📗 Matrix + Liste exportieren (Excel)
+            </button>
+
+            <button type="button" class="btn-secondary" onclick="openSnapshotPrintView()" id="snapshotBtn" style="display:none;">🖨️ Snapshot / Druckansicht</button>
           </div>
         </form>
       </div>
 
-      <!-- RECHTE SPALTE: MATRIX -->
+      <!-- RIGHT: MATRIX + LIST -->
       <div class="right-panel">
-        <div class="matrix-container">
+        <div class="matrix-container" id="reportArea">
           <h2 style="margin-bottom:15px;">Risikomatrix</h2>
           <table class="matrix" id="riskMatrix">
             <thead>
@@ -517,8 +590,8 @@
                 <th colspan="6" style="text-align:center;">Operative Indikatoren (X-Achse)</th>
               </tr>
               <tr>
-                <th>Struktur\Indikatoren</th>
-                <th>0 - Unauffällig</th>
+                <th>Struktur \ Indikatoren</th>
+                <th>0 - Keine</th>
                 <th>1 - Gering</th>
                 <th>2 - Moderat</th>
                 <th>3 - Relevant</th>
@@ -535,7 +608,7 @@
                 <td class="risk-medium" id="cell_1_4"></td>
               </tr>
               <tr>
-                <th>L2 - Billigflagge</th>
+                <th>L2 - Convenience flag</th>
                 <td class="risk-low" id="cell_2_0"></td>
                 <td class="risk-low" id="cell_2_1"></td>
                 <td class="risk-low" id="cell_2_2"></td>
@@ -543,7 +616,7 @@
                 <td class="risk-high" id="cell_2_4"></td>
               </tr>
               <tr>
-                <th>L3 - Verdächtig</th>
+                <th>L3 - Suspicious</th>
                 <td class="risk-low" id="cell_3_0"></td>
                 <td class="risk-medium" id="cell_3_1"></td>
                 <td class="risk-medium" id="cell_3_2"></td>
@@ -551,7 +624,7 @@
                 <td class="risk-very-high" id="cell_3_4"></td>
               </tr>
               <tr>
-                <th>L4 - Hochverdächtig</th>
+                <th>L4 - Highly suspicious</th>
                 <td class="risk-medium" id="cell_4_0"></td>
                 <td class="risk-high" id="cell_4_1"></td>
                 <td class="risk-high" id="cell_4_2"></td>
@@ -559,7 +632,7 @@
                 <td class="risk-very-high" id="cell_4_4"></td>
               </tr>
               <tr>
-                <th>L5 - Kritisch</th>
+                <th>L5 - Critical</th>
                 <td class="risk-high" id="cell_5_0"></td>
                 <td class="risk-high" id="cell_5_1"></td>
                 <td class="risk-very-high" id="cell_5_2"></td>
@@ -570,56 +643,54 @@
           </table>
 
           <div class="info-box" style="margin-top:12px;">
-            Klick auf ein Schiff in der Matrix öffnet Details + Freitextnotiz (änderbar).
+            Klick auf ein Schiff-Badge in der Matrix öffnet Details + editierbare Notizen.
           </div>
-        </div>
 
-        <!-- SCHIFFSLISTE -->
-        <div class="ships-list" id="shipsList" style="display:none;">
-          <h3>📍 Erfasste Schiffe</h3>
-          <div id="shipsContainer"></div>
+          <!-- VESSEL LIST -->
+          <div class="ships-list" id="shipsList" style="display:none;">
+            <h3>📍 Erfasste Schiffe</h3>
+            <div id="shipsContainer"></div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- INFO TAB -->
     <div class="content-full" id="info">
-      <div style="max-width:1200px; margin:0 auto;">
+      <div style="max-width:1200px; margin:0 auto; padding:30px;">
         <h2 style="color:#333; margin-bottom:30px; padding-bottom:15px; border-bottom:3px solid #667eea;">
-          📚 Erklärungen, Listen & Ressourcen
+          📚 Erklärungen, Listen &amp; Ressourcen
         </h2>
 
-        <!-- ZOMBIESCHIFFE ERKLÄRUNG -->
         <div class="reference-list">
-          <h3>⚠️ Zombieschiffe &amp; Sanktionsumgehung</h3>
+          <h3>⚠️ Zombieschiffe &amp; sanctions evasion</h3>
           <div style="font-size:12px; line-height:1.8;">
             <p><strong>Zombieschiff:</strong></p>
             <p style="margin-left:10px; color:#666; margin-bottom:10px;">
-              Ein Schiff mit unbekannter oder unklar registrierter Flagge. Häufiges Muster bei Verschleierung/Umgehung.
+              Ein Schiff mit unbekannter oder unklarer Flaggenregistrierung. Häufiges Muster zur Verschleierung/Umgehung.
             </p>
 
-            <p><strong>Sanktionshistorie (Schiff selbst):</strong></p>
+            <p><strong>Sanctions history (vessel itself):</strong></p>
             <p style="margin-left:10px; color:#666; margin-bottom:10px;">
-              Das Schiff selbst steht auf Sanktionslisten.
+              Das Schiff selbst ist auf Sanktionslisten gelistet.
             </p>
 
-            <p><strong>Sanktionsumgehung (Ladung):</strong></p>
+            <p><strong>Sanctions evasion (cargo / trade):</strong></p>
             <p style="margin-left:10px; color:#666; margin-bottom:10px;">
-              Das Schiff wird verwendet, um sanktionierte Waren zu transportieren (Ladung/Handelsmuster).
+              Das Schiff wird für den Transport sanktionierter Güter genutzt (Cargo-/Trade-Pattern).
             </p>
 
             <div class="warning-box" style="margin-top:15px;">
               <strong>⚡ Hinweis:</strong><br>
-              Bei „nur AIS“ bitte Confidence niedrig setzen – AIS kann gestört/manipuliert sein.
+              Wenn du nur AIS hast: Confidence niedrig setzen – AIS/GNSS kann gestört oder manipuliert sein.
             </div>
           </div>
         </div>
 
-        <!-- KALININGRAD CREWING AGENTUREN -->
         <div class="reference-list" id="crewingtab">
-          <h3>🏢 Kaliningrad Crewing-Agenturen (Hochrisiko)</h3>
+          <h3>🏢 Kaliningrad crewing agencies (high risk)</h3>
           <p style="font-size:12px; color:#666; margin-bottom:10px;">
-            Beispielhafte Liste (prüfen/aktualisieren nach eigener Quellenlage):
+            Beispiel-Liste (bitte mit eigenen Quellen prüfen/aktualisieren):
           </p>
           <ul>
             <li><code>RUSAM Maritime Agency</code></li>
@@ -636,7 +707,7 @@
             <li><code>Captains Club Agency</code></li>
             <li><code>Green Management</code></li>
             <li><code>KSM Ltd</code></li>
-            <li><code>Marlow Navigation (Teil der Marlow Group)</code></li>
+            <li><code>Marlow Navigation (part of Marlow Group)</code></li>
             <li><code>Misje Rederi Ltd</code></li>
             <li><code>Novikontas Kaliningrad LLC</code></li>
             <li><code>PRUSMARME Ltd</code></li>
@@ -645,96 +716,36 @@
             <li><code>Tornado Shipping Company</code></li>
             <li><code>WESTRYBFLOT</code></li>
           </ul>
-          <div class="small">Hinweis: Liste ist nur „Anker“ für eigene Pflege.</div>
+          <div class="small">Hinweis: Diese Liste ist ein „Anker“ für die eigene Pflege.</div>
         </div>
 
-        <!-- PMC REEDEREIEN -->
         <div class="reference-list" id="pmctab">
-          <h3>🎖️ Reedereien mit PMC-Verbindung</h3>
-          <p style="font-size:12px; color:#666; margin-bottom:10px;">Beispiele/Platzhalter – bitte quellenbasiert pflegen:</p>
+          <h3>🎖️ Operators with PMC linkage</h3>
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">Beispiele/Platzhalter – bitte mit Quellen pflegen:</p>
           <ul>
-            <li><code>Oslo Bulk</code> - PMC-Präsenz dokumentiert</li>
-            <li><code>Hav Shipping</code> - Militärische Nähe</li>
-            <li><code>Moonlight Shipmanagement LLC-FZ Dubai</code> - Verdächtige Crew</li>
-            <li><code>Citrine Marine / Dreamer Shipmanagement Dubai</code> - Crew-Anomalien</li>
-            <li><code>Norebo JSC</code> - Russische Verbindung</li>
-            <li><code>Murman Sea Food (MSF)</code> - Militärische Struktur</li><li><code>Oslo Bulk</code> - PMC-Präsenz dokumentiert</li>
+            <li><code>Oslo Bulk</code> - PMC presence documented</li>
+            <li><code>Hav Shipping</code> - Military proximity</li>
+            <li><code>Moonlight Shipmanagement LLC-FZ Dubai</code> - Suspect crewing</li>
+            <li><code>Citrine Marine / Dreamer Shipmanagement Dubai</code> - Crewing anomalies</li>
+            <li><code>Norebo JSC</code> - Russian linkage</li>
+            <li><code>Murman Sea Food (MSF)</code> - Militarized structure</li>
           </ul>
         </div>
 
-        <!-- GREY LIST VS BLACK LIST -->
-        <div class="reference-list">
-          <h3>🚩 Flag-Listen Erklärung</h3>
-          <div style="font-size:12px; line-height:1.6;">
-            <p><strong>🟡 Grey List:</strong></p>
-            <p style="margin-left:10px; color:#666;">
-              Mängel/Beobachtung. In der Struktur-Score-Logik unterhalb Black.
-            </p>
-
-            <p style="margin-top:15px;"><strong>🔴 Black List:</strong></p>
-            <p style="margin-left:10px; color:#666;">
-              Schwerwiegende Mängel. In der Struktur-Score-Logik höher gewichtet als Grey.
-            </p>
-
-            <p style="margin-top:15px;"><strong>⚠️ Unbekannt (Zombieschiff):</strong></p>
-            <p style="margin-left:10px; color:#666;">
-              Unklare Verantwortlichkeit – strukturell riskant, aber X hängt von Evidenz/Confidence ab.
-            </p>
-          </div>
-        </div>
-
-        <!-- ALGORITHMUS DOKUMENTATION (AKTUALISIERT) -->
-        <div class="reference-list">
-          <h3>⚙️ Scoring-Algorithmus (Aktualisiert &amp; nachvollziehbar)</h3>
-          <div style="font-size:12px; line-height:1.7; font-family:'Courier New', monospace;">
-            <p><strong>Y-ACHSE (Struktur 1–5):</strong> Grey/Black klar getrennt + leichte Akkumulation mittelstarker Redflags.</p>
-            <pre style="background:#f0f0f0; padding:10px; border-radius:5px; overflow-x:auto; margin:10px 0;">
-Baseline:
-- Grey Flag -> mindestens 2
-- Black Flag -> mindestens 3
-- Zombie (unknown) -> mindestens 3 (plus höher bei sanctions_evasion / sanctions)
-
-Harte Trigger:
-- flag_change -> mindestens 4
-- sanctions (Schiff sanktioniert) -> mindestens 4
-- Kombis (Black + flag_change, Black + flag_change + kaliningrad, Zombie + sanctions) -> 5
-
-Akkumulation:
-- mehrere mittlere Strukturhinweise (opaque, class_issue, pi_issue, identity_churn, manager_churn, ...) -> +1 Level</pre>
-
-            <p style="margin-top:14px;"><strong>X-ACHSE (Operativ 0–5):</strong> maxSeverity + Summe×Confidence + Kombi-Boost (kein Hard-Override).</p>
-            <pre style="background:#f0f0f0; padding:10px; border-radius:5px; overflow-x:auto; margin:10px 0;">
-Inputs:
-- severity je Indikator (1..4)
-- confidence (0.3/0.6/0.9)
-
-effective = sum(severity) * confidence
-
-Mapping:
-- harte Signale (severity 4) -> schnell hoch
-- viele moderate Signale -> steigen über effective
-- Hybridmuster -> +1 Boost (gedeckelt auf 5)</pre>
-
-            <div class="info-box" style="margin-top:10px; font-family:inherit;">
-              Output enthält jetzt „Top-3 Gründe“ + Confidence und eine Freitextnotiz pro Schiff (editierbar).
-            </div>
-          </div>
-        </div>
-
-        <!-- EXTERNE RESSOURCEN -->
         <div class="reference-list">
           <h3>🔗 Externe Ressourcen &amp; Datenquellen</h3>
           <ul>
-            <li><a href="https://war-sanctions.gur.gov.ua/en/transport/ships" target="_blank" rel="noreferrer">War Sanctions Ukraine (Schiffsliste)</a></li>
+            <li><a href="https://war-sanctions.gur.gov.ua/en/transport/ships" target="_blank" rel="noreferrer">War Sanctions Ukraine (vessel list)</a></li>
             <li><a href="https://www.equasis.org" target="_blank" rel="noreferrer">Equasis</a></li>
             <li><a href="https://portal.emsa.europa.eu/web/thetis/home" target="_blank" rel="noreferrer">Thetis PSC</a></li>
           </ul>
         </div>
       </div>
     </div>
+
   </div>
 
-  <!-- MODAL: Ship details + editable notes -->
+  <!-- MODAL -->
   <div class="modal-backdrop" id="shipModalBackdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="shipModalTitle">
       <div class="modal-header">
@@ -754,8 +765,8 @@ Mapping:
           </div>
         </div>
 
-        <label for="m_notes"><b>Freitext / Notizen</b> <span class="small">(wird pro Schiff gespeichert)</span></label>
-        <textarea id="m_notes" placeholder="z.B. Quellenlage, AIS-Anomalien, Maßnahmen, Bewertung..."></textarea>
+        <label for="m_notes"><b>Freitext / Notizen</b> <span class="small">(pro Schiff gespeichert)</span></label>
+        <textarea id="m_notes" placeholder="z. B. Quellenlage, AIS-Anomalien, Maßnahmen, Bewertung..."></textarea>
 
         <div class="modal-actions">
           <button type="button" class="btn-calculate" onclick="saveShipNotes()">💾 Notiz speichern</button>
@@ -764,494 +775,770 @@ Mapping:
         </div>
 
         <div class="small" style="margin-top:10px;">
-          Tipp: Klick auf ein anderes Badge in der Matrix öffnet dessen Notiz; du kannst sie direkt überschreiben.
+          Tipp: Klick auf ein anderes Badge öffnet dessen Notiz; du kannst Notizen jederzeit überschreiben.
         </div>
       </div>
     </div>
   </div>
 
   <script>
-  // ==========
-  // Data model
-  // ==========
-  let allShips = [];
-  let currentShipId = null;
+    // ==========
+    // Datenmodell
+    // ==========
+    let allShips = [];
+    let currentShipId = null;
 
-  // ==========
-  // Tabs
-  // ==========
-  function switchTab(tabName) {
-    document.querySelectorAll('.content, .content-full').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+    // ==========
+    // Tabs
+    // ==========
+    function switchTab(tabName) {
+      document.querySelectorAll('.content, .content-full').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
 
-    if (tabName === 'tool') {
-      document.getElementById('tool').classList.add('active');
-      document.querySelector('.tab-button[onclick*="tool"]').classList.add('active');
-    } else {
-      document.getElementById('info').classList.add('active');
-      document.querySelector('.tab-button[onclick*="info"]').classList.add('active');
-    }
-  }
-
-  // ==========
-  // Flag weights
-  // ==========
-  const flagWeights = {
-    // black list
-    'kn-black': 3, 'tg-black': 3, 'pw-black': 3, 'gw-black': 3, 'bz-black': 3,
-    'vu-black': 3, 'ua-black': 3, 'km-black': 3, 'vn-black': 3, 'md-black': 3, 'tz-black': 3, 'cm-black': 3,
-    // grey list
-    'sa-grey': 2, 'hr-grey': 2, 'in-grey': 2, 'lv-grey': 2, 'kr-grey': 2, 'ma-grey': 2, 'ru-grey': 2,
-    'pa-grey': 2, 'lb-grey': 2, 'ck-grey': 2, 'ph-grey': 2, 'al-grey': 2, 'dz-grey': 2, 'vc-grey': 2,
-    'sl-grey': 2, 'tn-grey': 2, 'bd-grey': 2,
-    // special/other
-    'unknown-flag': 4,
-    'other-flag': 1
-  };
-
-  function getFlagWeight() {
-    const flagSelect = document.getElementById('shipFlag').value;
-    return flagWeights[flagSelect] ?? 0;
-  }
-
-  // ==========
-  // Auto-set Grey/Black checkboxes from selected flag
-  // ==========
-  function syncFlagCheckboxesFromSelect() {
-    const w = getFlagWeight();
-    const grey = document.getElementById('cb_grey_flag');
-    const black = document.getElementById('cb_black_flag');
-    if (grey) grey.checked = (w === 2);
-    if (black) black.checked = (w === 3);
-  }
-
-  // ==========
-  // Helpers
-  // ==========
-  function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
-
-  function normalizeRiskClass(riskLevel) {
-    // CSS-Klassen: risk-niedrig-text | risk-mittel-text | risk-hoch-text | risk-sehr-hoch-text
-    const s = (riskLevel || '').toLowerCase().trim();
-    if (s === 'sehr hoch') return 'risk-sehr-hoch-text';
-    if (s === 'hoch') return 'risk-hoch-text';
-    if (s === 'mittel') return 'risk-mittel-text';
-    return 'risk-niedrig-text';
-  }
-
-  function newId() {
-    return 'ship_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
-  }
-
-  function escapeHtml(s) {
-    return String(s ?? '')
-      .replaceAll('&','&amp;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;')
-      .replaceAll('"','&quot;')
-      .replaceAll("'","&#039;");
-  }
-
-  // ==========
-  // Scoring: Structure (Y)
-  // ==========
-  function calculateStructure() {
-    const struct = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
-    const flagWeight = getFlagWeight();
-
-    let score = 1;
-
-    const isZombie = flagWeight === 4;
-    const isBlack  = flagWeight === 3;
-    const isGrey   = flagWeight === 2;
-
-    // Baseline by flag
-    if (isGrey) score = Math.max(score, 2);
-    if (isBlack) score = Math.max(score, 3);
-
-    // Zombie logic
-    if (isZombie) {
-      score = Math.max(score, 3);
-      if (struct.includes('sanctions_evasion')) score = Math.max(score, 4);
-    }
-
-    // Hard triggers
-    if (struct.includes('flag_change')) score = Math.max(score, 4);
-    if (struct.includes('kaliningrad')) score = Math.max(score, 3);
-    if (struct.includes('sanctions')) score = Math.max(score, 4);
-
-    // Mid-level hints
-    if (struct.includes('sanctions_evasion')) score = Math.max(score, 3);
-    if (struct.includes('opaque')) score = Math.max(score, 3);
-    if (struct.includes('class_issue')) score = Math.max(score, 3);
-    if (struct.includes('pi_issue')) score = Math.max(score, 3);
-    if (struct.includes('identity_churn')) score = Math.max(score, 3);
-    if (struct.includes('manager_churn')) score = Math.max(score, 2);
-
-    // Accumulation
-    const accumKeys = ['opaque','kaliningrad','sanctions_evasion','class_issue','pi_issue','identity_churn','manager_churn'];
-    const accum = accumKeys.reduce((n,k)=> n + (struct.includes(k) ? 1 : 0), 0);
-    if (accum >= 3) score += 1;
-
-    // Level 5 combos
-    if (struct.includes('flag_change') && (isBlack || struct.includes('black_flag'))) score = 5;
-    if (isBlack && struct.includes('flag_change') && struct.includes('kaliningrad')) score = 5;
-    if (isZombie && struct.includes('sanctions')) score = 5;
-
-    return clamp(score, 1, 5);
-  }
-
-  // ==========
-  // Scoring: Operative (X)
-  // ==========
-  function calculateProbability() {
-    const indicators = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
-    const flagWeight = getFlagWeight();
-    const isZombie = flagWeight === 4;
-
-    const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
-
-    const sev = {
-      // very strong
-      multi_loitering: 4,
-      drone: 4,
-      military: 4,
-      uniformed: 4,
-      pmc: 4,
-      gnss_spoofing: 4,
-      survey_pattern: 4,
-
-      // strong
-      boarding: 3,
-      loitering: 3,
-      ais_blackout: 3,
-      known_incident: 3,
-      sts: 3,
-      dark_activity: 3,
-      ci_anchoring: 3,
-
-      // moderate
-      russian_ports: 2,
-      ais_unnatural: 2,
-      ci_corridor_crossing: 2
-    };
-
-    if (indicators.length === 0) {
-      if (isZombie) return (confidence >= 0.6) ? 1 : 0;
-      return 0;
-    }
-
-    let maxS = 0;
-    let sumS = 0;
-    for (const ind of indicators) {
-      const s = sev[ind] ?? 1;
-      maxS = Math.max(maxS, s);
-      sumS += s;
-    }
-
-    const effective = sumS * confidence;
-
-    let score = 0;
-    if (maxS >= 4 && effective >= 6) score = 5;
-    else if (maxS >= 4) score = 4;
-    else if (effective >= 6) score = 4;
-    else if (maxS >= 3 && effective >= 4) score = 3;
-    else if (maxS >= 3) score = 2;
-    else if (effective >= 3) score = 2;
-    else score = 1;
-
-    const has = (x) => indicators.includes(x);
-
-    // Hybrid boost (kein Hard-Override)
-    if (has('uniformed') && has('russian_ports') && (has('ais_blackout') || has('gnss_spoofing'))) {
-      score = Math.min(5, score + 1);
-    }
-
-    // CI boost
-    if ((has('loitering') || has('multi_loitering') || has('ci_anchoring')) &&
-        has('ci_corridor_crossing') &&
-        (has('ais_blackout') || has('gnss_spoofing'))) {
-      score = Math.min(5, score + 1);
-    }
-
-    // Shadow-fleet behavior
-    if (has('sts') && has('dark_activity')) {
-      score = Math.min(5, score + 1);
-    }
-
-    return clamp(score, 0, 5);
-  }
-
-  // ==========
-  // Risk matrix lookup (nutzt RAW X: 0..5)
-  // ==========
-  function getRiskLevel(structure, probabilityRaw) {
-    const matrix = {
-      '1,0':'Niedrig','1,1':'Niedrig','1,2':'Niedrig','1,3':'Niedrig','1,4':'Mittel','1,5':'Hoch',
-      '2,0':'Niedrig','2,1':'Niedrig','2,2':'Niedrig','2,3':'Mittel','2,4':'Hoch','2,5':'Hoch',
-      '3,0':'Niedrig','3,1':'Mittel','3,2':'Mittel','3,3':'Hoch','3,4':'Hoch','3,5':'Sehr hoch',
-      '4,0':'Mittel','4,1':'Hoch','4,2':'Hoch','4,3':'Hoch','4,4':'Sehr hoch','4,5':'Sehr hoch',
-      '5,0':'Hoch','5,1':'Hoch','5,2':'Sehr hoch','5,3':'Sehr hoch','5,4':'Sehr hoch','5,5':'Sehr hoch'
-    };
-    return matrix[`${structure},${probabilityRaw}`] || 'Unbekannt';
-  }
-
-  // ==========
-  // Reasons (Top 3)
-  // ==========
-  function getTopReasonsFromCurrentForm() {
-    const struct = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
-    const indicators = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
-    const flagSelect = document.getElementById('shipFlag').value;
-
-    const labels = {
-      grey_flag:"Grey-List-Flagge",
-      black_flag:"Black-List-Flagge",
-      flag_change:"Häufiger Flaggenwechsel",
-      opaque:"Opake Eigentumsstruktur",
-      kaliningrad:"Kaliningrad-Crewing",
-      sanctions:"Sanktionshistorie (Schiff)",
-      sanctions_evasion:"Sanktionsumgehung (Ladung)",
-      class_issue:"Class/RO-Auffälligkeit",
-      pi_issue:"P&I/Versicherung auffällig",
-      identity_churn:"Identity-Churn",
-      manager_churn:"Owner/Manager-Wechsel",
-
-      russian_ports:"Russische Häfen (10 Tage)",
-      ais_blackout:"AIS-Blackout",
-      gnss_spoofing:"GNSS/AIS-Spoofing-Anomalien",
-      ais_unnatural:"Unnatürliche Routen",
-      loitering:"Loitering an Kabeln",
-      multi_loitering:"Mehrfaches Loitering",
-      ci_corridor_crossing:"Querung CI-Korridore",
-      ci_anchoring:"Ankern/Driften im CI-Korridor",
-      sts:"STS/Rendezvous",
-      dark_activity:"Dark activity",
-      survey_pattern:"Survey-/Rasterfahrten",
-      military:"Nähe zu Militär",
-      uniformed:"Uniformierte Personen",
-      pmc:"PMC-Verbindung",
-      drone:"Drohnen-Aktivität",
-      boarding:"Boarding",
-      known_incident:"Nähe zu Vorfällen"
-    };
-
-    const reasons = [];
-    if (flagSelect === "unknown-flag") reasons.push("Zombieschiff (unbekannte Flagge)");
-    for (const s of struct) reasons.push(labels[s] ?? s);
-    for (const i of indicators) reasons.push(labels[i] ?? i);
-
-    const priority = {
-      "Zombieschiff (unbekannte Flagge)": 10,
-      "AIS-Blackout": 9,
-      "GNSS/AIS-Spoofing-Anomalien": 9,
-      "Mehrfaches Loitering": 8,
-      "Loitering an Kabeln": 8,
-      "Ankern/Driften im CI-Korridor": 8,
-      "Drohnen-Aktivität": 8,
-      "Boarding": 8,
-      "STS/Rendezvous": 7,
-      "Dark activity": 7,
-      "Sanktionshistorie (Schiff)": 7,
-      "Uniformierte Personen": 7,
-      "PMC-Verbindung": 7,
-      "Survey-/Rasterfahrten": 7,
-      "Häufiger Flaggenwechsel": 6,
-      "Black-List-Flagge": 6,
-      "Russische Häfen (10 Tage)": 5,
-      "Unnatürliche Routen": 5,
-      "Querung CI-Korridore": 5
-    };
-
-    const unique = Array.from(new Set(reasons));
-    unique.sort((a,b) => (priority[b] ?? 1) - (priority[a] ?? 1));
-    return unique.slice(0,3);
-  }
-
-  // ==========
-  // Add ship
-  // ==========
-  function calculateAndAdd() {
-    const shipName = document.getElementById('shipName').value.trim();
-    if (!shipName) { alert('Schiffsname eingeben!'); return; }
-
-    const id = newId();
-    const structure = calculateStructure();
-    const probabilityRaw = calculateProbability();
-    const probabilityMatrix = (probabilityRaw >= 4) ? 4 : probabilityRaw; // Matrix-Spalte 4 = 4/5
-
-    const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
-    const reasons = getTopReasonsFromCurrentForm();
-
-    const riskLevel = getRiskLevel(structure, probabilityRaw);
-
-    const ship = {
-      id,
-      name: shipName,
-      type: document.getElementById('shipType').options[document.getElementById('shipType').selectedIndex].text,
-      structure,
-      probabilityRaw,
-      probabilityMatrix,
-      riskLevel,
-      confidence,
-      reasons,
-      notes: "",
-      timestamp: new Date().toLocaleString('de-DE')
-    };
-
-    allShips.push(ship);
-    updateMatrix();
-    updateShipsList();
-    resetForm();
-    document.getElementById('exportBtn').style.display = 'inline-block';
-  }
-
-  // ==========
-  // Matrix update (clickable badges)
-  // ==========
-  function updateMatrix() {
-    for (let s=1; s<=5; s++) {
-      for (let p=0; p<=4; p++) {
-        const cell = document.getElementById(`cell_${s}_${p}`);
-        if (cell) cell.innerHTML = '';
+      if (tabName === 'tool') {
+        document.getElementById('tool').classList.add('active');
+        document.querySelector('.tab-button[onclick*="tool"]').classList.add('active');
+      } else {
+        document.getElementById('info').classList.add('active');
+        document.querySelector('.tab-button[onclick*="info"]').classList.add('active');
       }
     }
 
-    for (const ship of allShips) {
-      const cellId = `cell_${ship.structure}_${ship.probabilityMatrix}`;
-      const cell = document.getElementById(cellId);
-      if (!cell) continue;
+    // ==========
+    // Flag weights
+    // ==========
+    const flagWeights = {
+      // black list
+      'kn-black': 3, 'tg-black': 3, 'pw-black': 3, 'gw-black': 3, 'bz-black': 3,
+      'vu-black': 3, 'ua-black': 3, 'km-black': 3, 'vn-black': 3, 'md-black': 3, 'tz-black': 3, 'cm-black': 3,
+      // grey list
+      'sa-grey': 2, 'hr-grey': 2, 'in-grey': 2, 'lv-grey': 2, 'kr-grey': 2, 'ma-grey': 2, 'ru-grey': 2,
+      'pa-grey': 2, 'lb-grey': 2, 'ck-grey': 2, 'ph-grey': 2, 'al-grey': 2, 'dz-grey': 2, 'vc-grey': 2,
+      'sl-grey': 2, 'tn-grey': 2, 'bd-grey': 2,
+      // special/other
+      'unknown-flag': 4,
+      'other-flag': 1
+    };
 
-      const badge = document.createElement('div');
-      badge.className = 'ship-badge';
-      badge.textContent = ship.name;
-      badge.title = `${ship.name} – ${ship.riskLevel} (conf ${Number(ship.confidence ?? 0.6).toFixed(1)})`;
-      badge.addEventListener('click', () => openShipModal(ship.id));
-      cell.appendChild(badge);
+    function getFlagWeight() {
+      const flagSelect = document.getElementById('shipFlag').value;
+      return flagWeights[flagSelect] ?? 0;
     }
-  }
 
-  // ==========
-  // Ships list update (also clickable)
-  // ==========
-  function updateShipsList() {
-    const container = document.getElementById('shipsContainer');
-    const list = document.getElementById('shipsList');
+    // ==========
+    // Auto-set Grey/Black checkboxes from selected flag
+    // ==========
+    function syncFlagCheckboxesFromSelect() {
+      const w = getFlagWeight();
+      const grey = document.getElementById('cb_grey_flag');
+      const black = document.getElementById('cb_black_flag');
+      if (grey) grey.checked = (w === 2);
+      if (black) black.checked = (w === 3);
+    }
 
-    if (allShips.length === 0) { list.style.display = 'none'; return; }
+    // ==========
+    // Helpers
+    // ==========
+    function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
 
-    list.style.display = 'block';
-    container.innerHTML = allShips.map(ship => `
-      <div class="ship-item" style="cursor:pointer;" onclick="openShipModal('${ship.id}')">
-        <div>
-          <strong>${escapeHtml(ship.name)}</strong><br>
-          <span class="meta">
-            ${escapeHtml(ship.type)} | L${ship.structure} | X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix}) | conf ${(ship.confidence ?? 0.6).toFixed(1)}
-          </span>
-          <div class="reasons">Gründe: ${(ship.reasons ?? []).map(escapeHtml).join(' · ')}</div>
-        </div>
-        <div class="ship-risk ${normalizeRiskClass(ship.riskLevel)}">
-          ${escapeHtml(ship.riskLevel)}
-        </div>
-      </div>
-    `).join('');
-  }
+    function normalizeRiskClass(riskLevel) {
+      const s = (riskLevel || '').toLowerCase().trim();
+      if (s === 'very high' || s === 'sehr hoch') return 'risk-sehr-hoch-text';
+      if (s === 'high' || s === 'hoch') return 'risk-hoch-text';
+      if (s === 'medium' || s === 'mittel') return 'risk-mittel-text';
+      if (s === 'low' || s === 'niedrig') return 'risk-niedrig-text';
+      return 'risk-niedrig-text';
+    }
 
-  // ==========
-  // Export CSV (extended)
-  // ==========
-  function exportAllShips() {
-    if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+    function newId() {
+      return 'ship_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+    }
 
-    let csv = 'Schiffsname,Typ,Struktur (Y),Operativ Raw (X),Operativ Matrix (X0-4),Risiko,Confidence,TopGruende,Zeitstempel,Notiz\n';
-    allShips.forEach(ship => {
-      const reasons = (ship.reasons ?? []).join(' | ');
-      const notes = (ship.notes ?? '').replace(/\r?\n/g,' ');
-      csv += `"${String(ship.name).replace(/"/g,'""')}","${String(ship.type).replace(/"/g,'""')}",${ship.structure},${ship.probabilityRaw},${ship.probabilityMatrix},"${String(ship.riskLevel).replace(/"/g,'""')}",${Number(ship.confidence ?? 0.6).toFixed(1)},"${reasons.replace(/"/g,'""')}","${String(ship.timestamp).replace(/"/g,'""')}","${notes.replace(/"/g,'""')}"\n`;
+    function escapeHtml(s) {
+      return String(s ?? '')
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+
+    function notesToHtml(notes){
+      const safe = escapeHtml(notes ?? '');
+      return safe.replace(/\r?\n/g, '<br>');
+    }
+
+    // ==========
+    // Scoring: Structure (Y)
+    // ==========
+    function calculateStructure() {
+      const struct = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
+      const flagWeight = getFlagWeight();
+
+      let score = 1;
+
+      const isZombie = flagWeight === 4;
+      const isBlack  = flagWeight === 3;
+      const isGrey   = flagWeight === 2;
+
+      // Baseline by flag
+      if (isGrey) score = Math.max(score, 2);
+      if (isBlack) score = Math.max(score, 3);
+
+      // Zombie logic
+      if (isZombie) {
+        score = Math.max(score, 3);
+        if (struct.includes('sanctions_evasion')) score = Math.max(score, 4);
+      }
+
+      // Hard triggers
+      if (struct.includes('flag_change')) score = Math.max(score, 4);
+      if (struct.includes('kaliningrad')) score = Math.max(score, 3);
+      if (struct.includes('sanctions')) score = Math.max(score, 4);
+
+      // Mid-level hints
+      if (struct.includes('sanctions_evasion')) score = Math.max(score, 3);
+      if (struct.includes('opaque')) score = Math.max(score, 3);
+      if (struct.includes('class_issue')) score = Math.max(score, 3);
+      if (struct.includes('pi_issue')) score = Math.max(score, 3);
+      if (struct.includes('identity_churn')) score = Math.max(score, 3);
+      if (struct.includes('manager_churn')) score = Math.max(score, 2);
+
+      // Accumulation
+      const accumKeys = ['opaque','kaliningrad','sanctions_evasion','class_issue','pi_issue','identity_churn','manager_churn'];
+      const accum = accumKeys.reduce((n,k)=> n + (struct.includes(k) ? 1 : 0), 0);
+      if (accum >= 3) score += 1;
+
+      // Level 5 combos
+      if (struct.includes('flag_change') && (isBlack || struct.includes('black_flag'))) score = 5;
+      if (isBlack && struct.includes('flag_change') && struct.includes('kaliningrad')) score = 5;
+      if (isZombie && struct.includes('sanctions')) score = 5;
+
+      return clamp(score, 1, 5);
+    }
+
+    // ==========
+    // Scoring: Operational (X)
+    // ==========
+    function calculateProbability() {
+      const indicators = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
+      const flagWeight = getFlagWeight();
+      const isZombie = flagWeight === 4;
+
+      const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
+
+      const sev = {
+        // very strong
+        multi_loitering: 4,
+        drone: 4,
+        military: 4,
+        uniformed: 4,
+        pmc: 4,
+        gnss_spoofing: 4,
+        survey_pattern: 4,
+
+        // strong
+        boarding: 3,
+        loitering: 3,
+        ais_blackout: 3,
+        known_incident: 3,
+        sts: 3,
+        dark_activity: 3,
+        ci_anchoring: 3,
+
+        // moderate
+        russian_ports: 2,
+        ais_unnatural: 2,
+        ci_corridor_crossing: 2
+      };
+
+      if (indicators.length === 0) {
+        if (isZombie) return (confidence >= 0.6) ? 1 : 0;
+        return 0;
+      }
+
+      let maxS = 0;
+      let sumS = 0;
+      for (const ind of indicators) {
+        const s = sev[ind] ?? 1;
+        maxS = Math.max(maxS, s);
+        sumS += s;
+      }
+
+      const effective = sumS * confidence;
+
+      let score = 0;
+      if (maxS >= 4 && effective >= 6) score = 5;
+      else if (maxS >= 4) score = 4;
+      else if (effective >= 6) score = 4;
+      else if (maxS >= 3 && effective >= 4) score = 3;
+      else if (maxS >= 3) score = 2;
+      else if (effective >= 3) score = 2;
+      else score = 1;
+
+      const has = (x) => indicators.includes(x);
+
+      // Hybrid boost (no hard override)
+      if (has('uniformed') && has('russian_ports') && (has('ais_blackout') || has('gnss_spoofing'))) {
+        score = Math.min(5, score + 1);
+      }
+
+      // CI boost
+      if ((has('loitering') || has('multi_loitering') || has('ci_anchoring')) &&
+          has('ci_corridor_crossing') &&
+          (has('ais_blackout') || has('gnss_spoofing'))) {
+        score = Math.min(5, score + 1);
+      }
+
+      // Shadow-fleet behavior
+      if (has('sts') && has('dark_activity')) {
+        score = Math.min(5, score + 1);
+      }
+
+      return clamp(score, 0, 5);
+    }
+
+    // ==========
+    // Risk matrix lookup (uses RAW X: 0..5)
+    // ==========
+    function getRiskLevel(structure, probabilityRaw) {
+      const matrix = {
+        '1,0':'Niedrig','1,1':'Niedrig','1,2':'Niedrig','1,3':'Niedrig','1,4':'Mittel','1,5':'Hoch',
+        '2,0':'Niedrig','2,1':'Niedrig','2,2':'Niedrig','2,3':'Mittel','2,4':'Hoch','2,5':'Hoch',
+        '3,0':'Niedrig','3,1':'Mittel','3,2':'Mittel','3,3':'Hoch','3,4':'Hoch','3,5':'Sehr hoch',
+        '4,0':'Mittel','4,1':'Hoch','4,2':'Hoch','4,3':'Hoch','4,4':'Sehr hoch','4,5':'Sehr hoch',
+        '5,0':'Hoch','5,1':'Hoch','5,2':'Sehr hoch','5,3':'Sehr hoch','5,4':'Sehr hoch','5,5':'Sehr hoch'
+      };
+      return matrix[`${structure},${probabilityRaw}`] || 'Unbekannt';
+    }
+
+    // ==========
+    // Reasons (Top 3)
+    // ==========
+    function getTopReasonsFromCurrentForm() {
+      const struct = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
+      const indicators = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
+      const flagSelect = document.getElementById('shipFlag').value;
+
+      const labels = {
+        grey_flag:"Grey-List-Flagge",
+        black_flag:"Black-List-Flagge",
+        flag_change:"Häufige Flaggenwechsel",
+        opaque:"Opake Eigentümer-/Betreiberstruktur",
+        kaliningrad:"Kaliningrad crewing",
+        sanctions:"Sanktionshistorie (vessel)",
+        sanctions_evasion:"Sanctions evasion (cargo/trade)",
+        class_issue:"Class/RO irregularities",
+        pi_issue:"P&I/insurance irregularities",
+        identity_churn:"Identity churn",
+        manager_churn:"Owner/manager churn",
+
+        russian_ports:"Russian ports (10 days)",
+        ais_blackout:"AIS blackout",
+        gnss_spoofing:"GNSS/AIS spoofing anomalies",
+        ais_unnatural:"Unnatural routes",
+        loitering:"Cable loitering",
+        multi_loitering:"Repeated loitering",
+        ci_corridor_crossing:"CI corridor crossing",
+        ci_anchoring:"Anchoring/drifting in CI corridor",
+        sts:"STS / rendezvous",
+        dark_activity:"Dark activity",
+        survey_pattern:"Survey / grid patterns",
+        military:"Proximity to military",
+        uniformed:"Uniformed personnel",
+        pmc:"PMC linkage",
+        drone:"Drone activity",
+        boarding:"Boarding",
+        known_incident:"Proximity to incidents"
+      };
+
+      const reasons = [];
+      if (flagSelect === "unknown-flag") reasons.push("Zombieschiff (unbekannte Flagge)");
+      for (const s of struct) reasons.push(labels[s] ?? s);
+      for (const i of indicators) reasons.push(labels[i] ?? i);
+
+      const priority = {
+        "Zombieschiff (unbekannte Flagge)": 10,
+        "AIS blackout": 9,
+        "GNSS/AIS spoofing anomalies": 9,
+        "Repeated loitering": 8,
+        "Cable loitering": 8,
+        "Anchoring/drifting in CI corridor": 8,
+        "Drone activity": 8,
+        "Boarding": 8,
+        "STS / rendezvous": 7,
+        "Dark activity": 7,
+        "Sanktionshistorie (vessel)": 7,
+        "Uniformed personnel": 7,
+        "PMC linkage": 7,
+        "Survey / grid patterns": 7,
+        "Häufige Flaggenwechsel": 6,
+        "Black-List-Flagge": 6,
+        "Russian ports (10 days)": 5,
+        "Unnatural routes": 5,
+        "CI corridor crossing": 5
+      };
+
+      const unique = Array.from(new Set(reasons));
+      unique.sort((a,b) => (priority[b] ?? 1) - (priority[a] ?? 1));
+      return unique.slice(0,3);
+    }
+
+    // ==========
+    // Add vessel
+    // ==========
+    function calculateAndAdd() {
+      const shipName = document.getElementById('shipName').value.trim();
+      if (!shipName) { alert('Bitte einen Schiffsname eingeben!'); return; }
+
+      const id = newId();
+      const structure = calculateStructure();
+      const probabilityRaw = calculateProbability();
+      const probabilityMatrix = (probabilityRaw >= 4) ? 4 : probabilityRaw; // Matrix column 4 = 4/5
+
+      const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
+      const reasons = getTopReasonsFromCurrentForm();
+      const riskLevel = getRiskLevel(structure, probabilityRaw);
+
+      const draftNotes = document.getElementById('shipNotesDraft')?.value ?? '';
+
+      const ship = {
+        id,
+        name: shipName,
+        type: document.getElementById('shipType').options[document.getElementById('shipType').selectedIndex].text,
+        structure,
+        probabilityRaw,
+        probabilityMatrix,
+        riskLevel,
+        confidence,
+        reasons,
+        notes: draftNotes,
+        timestamp: new Date().toLocaleString('de-DE')
+      };
+
+      allShips.push(ship);
+      updateMatrix();
+      updateShipsList();
+
+      resetForm();
+      document.getElementById('exportBtn').style.display = 'inline-block';
+      document.getElementById('exportExcelBtn').style.display = 'inline-block';
+      document.getElementById('snapshotBtn').style.display = 'inline-block';
+      document.getElementById('exportExcelBtn').style.display = 'inline-block';
+    }
+
+    // ==========
+    // Matrix update (clickable badges)
+    // ==========
+    function updateMatrix() {
+      for (let s=1; s<=5; s++) {
+        for (let p=0; p<=4; p++) {
+          const cell = document.getElementById(`cell_${s}_${p}`);
+          if (cell) cell.innerHTML = '';
+        }
+      }
+
+      for (const ship of allShips) {
+        const cellId = `cell_${ship.structure}_${ship.probabilityMatrix}`;
+        const cell = document.getElementById(cellId);
+        if (!cell) continue;
+
+        const badge = document.createElement('div');
+        badge.className = 'ship-badge';
+        badge.textContent = ship.name;
+        badge.title = `${ship.name} – ${ship.riskLevel} (conf ${Number(ship.confidence ?? 0.6).toFixed(1)})`;
+        badge.addEventListener('click', () => openShipModal(ship.id));
+        cell.appendChild(badge);
+      }
+    }
+
+    // ==========
+    // Vessel list update (shows notes preview)
+    // ==========
+    function updateShipsList() {
+      const container = document.getElementById('shipsContainer');
+      const list = document.getElementById('shipsList');
+
+      if (allShips.length === 0) { list.style.display = 'none'; return; }
+
+      list.style.display = 'block';
+      container.innerHTML = allShips.map(ship => {
+        const hasNotes = (ship.notes ?? '').trim().length > 0;
+        return `
+          <div class="ship-item" style="cursor:pointer;" onclick="openShipModal('${ship.id}')">
+            <div style="flex:1;">
+              <strong>${escapeHtml(ship.name)}</strong><br>
+              <span class="meta">
+                ${escapeHtml(ship.type)} | L${ship.structure} | X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix}) | conf ${(ship.confidence ?? 0.6).toFixed(1)}
+              </span>
+              <div class="reasons">Gründe: ${(ship.reasons ?? []).map(escapeHtml).join(' · ')}</div>
+              ${hasNotes ? `<div class="notes-preview"><b>Notiz:</b><br>${notesToHtml(ship.notes)}</div>` : ``}
+            </div>
+            <div class="ship-risk ${normalizeRiskClass(ship.riskLevel)}">
+              ${escapeHtml(ship.riskLevel)}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==========
+    // Export CSV (extended)
+    // ==========
+    function exportAllShipsCSV() {
+      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+
+      let csv = 'VesselName,Type,StructureY,OperationalRawX,OperationalMatrixX0_4,Risk,Confidence,TopReasons,Timestamp,Note\n';
+      allShips.forEach(ship => {
+        const reasons = (ship.reasons ?? []).join(' | ');
+        const notes = (ship.notes ?? '').replace(/\r?\n/g,' ');
+        csv += `"${String(ship.name).replace(/"/g,'""')}","${String(ship.type).replace(/"/g,'""')}",${ship.structure},${ship.probabilityRaw},${ship.probabilityMatrix},"${String(ship.riskLevel).replace(/"/g,'""')}",${Number(ship.confidence ?? 0.6).toFixed(1)},"${reasons.replace(/"/g,'""')}","${String(ship.timestamp).replace(/"/g,'""')}","${notes.replace(/"/g,'""')}"\n`;
+      });
+
+      const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `maritime_risikomatrix_hybride_aktivitaeten_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+    }
+
+    // ==========
+    // Export Excel-compatible (.xml) with matrix + vessel list + notes
+    // ==========
+    function exportMatrixAndShipsExcelXml() {
+      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+
+      const xmlEscape = (s) => String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+
+      const excelLineBreaks = (s) => xmlEscape(String(s ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n'))
+        .replace(/\n/g, '&#10;');
+
+      const today = new Date().toISOString().split('T')[0];
+      const stamp = new Date().toLocaleString('de-DE');
+
+      // Matrix grid (names per cell)
+      const matrixGrid = {};
+      for (const ship of allShips) {
+        const key = `${ship.structure}_${ship.probabilityMatrix}`;
+        (matrixGrid[key] ||= []).push(ship.name);
+      }
+
+      const matrixCols = ["0 - Keine", "1 - Gering", "2 - Moderat", "3 - Relevant", "4/5 - Kritisch"];
+
+      const matrixRowsXml = [
+        rowXml([{ v: `Maritime Risikomatrix für Hybride Aktivitäten – Snapshot (${stamp})`, style: 'title', mergeAcross: 5 }]),
+        rowXml([{ v: 'Operative Indikatoren (X-Achse)', style: 'header', mergeAcross: 5 }]),
+        rowXml([{ v: 'Struktur \\ Indikatoren', style: 'header' }, ...matrixCols.map(c => ({ v: c, style: 'header' }))]),
+        ...[1,2,3,4,5].map(s => {
+          const cells = [{ v: `L${s}`, style: 'subhead' }];
+          for (const p of [0,1,2,3,4]) {
+            const names = (matrixGrid[`${s}_${p}`] || []).join(', ');
+            cells.push({ v: names, style: 'cell' });
+          }
+          return rowXml(cells);
+        })
+      ].join('');
+
+      const vesselHeader = [
+        "Name","Typ","Y","X raw","X matrix","Risiko","Confidence","Top-Gründe","Zeitstempel","Notiz"
+      ];
+
+      const vesselsRowsXml = [
+        rowXml([{ v: `Erfasste Schiffe (inkl. Notizen) – ${stamp}`, style: 'title', mergeAcross: 9 }]),
+        rowXml(vesselHeader.map(h => ({ v: h, style: 'header' }))),
+        ...allShips.map(s => rowXml([
+          { v: s.name, style: 'cell' },
+          { v: s.type, style: 'cell' },
+          { v: `L${s.structure}`, style: 'cell' },
+          { v: `X${s.probabilityRaw}`, style: 'cell' },
+          { v: String(s.probabilityMatrix), style: 'cell' },
+          { v: s.riskLevel, style: 'cell' },
+          { v: Number(s.confidence ?? 0.6).toFixed(1), style: 'cell' },
+          { v: (s.reasons ?? []).join(' · '), style: 'cell' },
+          { v: s.timestamp, style: 'cell' },
+          { v: s.notes ?? '', style: 'wrap' }
+        ], true))
+      ].join('');
+
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+
+  <Styles>
+    <Style ss:ID="title">
+      <Font ss:Bold="1" ss:Size="14"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+    </Style>
+    <Style ss:ID="header">
+      <Font ss:Bold="1" ss:Color="#FFFFFF"/>
+      <Interior ss:Color="#667EEA" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="subhead">
+      <Font ss:Bold="1"/>
+      <Interior ss:Color="#F0F4FF" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="cell">
+      <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="wrap">
+      <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+  </Styles>
+
+  <Worksheet ss:Name="Matrix">
+    <Table>
+      <Column ss:Width="160"/>
+      <Column ss:Width="180"/><Column ss:Width="180"/><Column ss:Width="180"/><Column ss:Width="180"/><Column ss:Width="180"/>
+      ${matrixRowsXml}
+    </Table>
+  </Worksheet>
+
+  <Worksheet ss:Name="Vessels">
+    <Table>
+      <Column ss:Width="160"/><Column ss:Width="160"/><Column ss:Width="60"/>
+      <Column ss:Width="70"/><Column ss:Width="70"/><Column ss:Width="90"/>
+      <Column ss:Width="80"/><Column ss:Width="240"/><Column ss:Width="140"/><Column ss:Width="380"/>
+      ${vesselsRowsXml}
+    </Table>
+  </Worksheet>
+
+</Workbook>`;
+
+      function rowXml(cells, treatLastAsNotes=false) {
+        const xmlCells = cells.map((c, idx) => {
+          const style = c.style ? ` ss:StyleID="${c.style}"` : '';
+          const merge = (typeof c.mergeAcross === 'number') ? ` ss:MergeAcross="${c.mergeAcross}"` : '';
+          const isNotes = (treatLastAsNotes && idx === cells.length - 1 && c.style === 'wrap');
+          const val = isNotes ? excelLineBreaks(c.v) : xmlEscape(c.v);
+          return `<Cell${style}${merge}><Data ss:Type="String">${val}</Data></Cell>`;
+        }).join('');
+        return `<Row>${xmlCells}</Row>`;
+      }
+
+      const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `maritime_risikomatrix_report_${today}.xml`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    // ==========
+    // Snapshot / Print view (matrix + list + full notes)
+    // ==========
+    function openSnapshotPrintView(){
+      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+
+      const w = window.open('', '_blank');
+      if (!w) { alert('Popup blockiert. Bitte Popups für Snapshot-/Druckansicht erlauben.'); return; }
+
+      const reportTitle = `Maritime Risikomatrix für Hybride Aktivitäten – Snapshot (${new Date().toLocaleString('de-DE')})`;
+
+      const matrixGrid = {};
+      for (const ship of allShips){
+        const key = `${ship.structure}_${ship.probabilityMatrix}`;
+        matrixGrid[key] = matrixGrid[key] || [];
+        matrixGrid[key].push(ship.name);
+      }
+
+      const tableRows = [1,2,3,4,5].map(s => `
+        <tr>
+          <th style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);">
+            L${s}
+          </th>
+          ${[0,1,2,3,4].map(p => {
+            const names = (matrixGrid[`${s}_${p}`] || []).map(escapeHtml).join(', ');
+            return `<td style="vertical-align:top;">${names}</td>`;
+          }).join('')}
+        </tr>
+      `).join('');
+
+      const listRows = allShips.map(s => `
+        <tr>
+          <td>${escapeHtml(s.name)}</td>
+          <td>${escapeHtml(s.type)}</td>
+          <td>L${s.structure}</td>
+          <td>X${s.probabilityRaw}</td>
+          <td>${s.probabilityMatrix}</td>
+          <td>${escapeHtml(s.riskLevel)}</td>
+          <td>${Number(s.confidence ?? 0.6).toFixed(1)}</td>
+          <td>${escapeHtml((s.reasons ?? []).join(' · '))}</td>
+          <td>${escapeHtml(s.timestamp)}</td>
+          <td>${notesToHtml(s.notes)}</td>
+        </tr>
+      `).join('');
+
+      w.document.open();
+      w.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>${escapeHtml(reportTitle)}</title>
+          <style>
+            body{ font-family:Segoe UI, Arial, sans-serif; padding:18px; }
+            h2{ margin:0 0 6px 0; }
+            .small{ color:#666; font-size:12px; margin-bottom:14px; }
+            table{ border-collapse:collapse; width:100%; }
+            th,td{ border:1px solid #999; padding:8px; font-size:12px; }
+            th{ background:#667eea; color:#fff; }
+            .subhead{ background:#764ba2 !important; }
+            @media print{ button{ display:none; } }
+          </style>
+        </head>
+        <body>
+          <button onclick="window.print()" style="padding:10px 14px; font-weight:700;">Drucken / Als PDF speichern</button>
+          <h2>Maritime Risikomatrix für Hybride Aktivitäten</h2>
+          <div class="small">${escapeHtml(new Date().toLocaleString('de-DE'))}</div>
+
+          <h3>Matrix</h3>
+          <table>
+            <tr>
+              <th colspan="6">Operative Indikatoren (X-Achse)</th>
+            </tr>
+            <tr>
+              <th>Struktur \\ Indikatoren</th>
+              <th>0 - Keine</th>
+              <th>1 - Gering</th>
+              <th>2 - Moderat</th>
+              <th>3 - Relevant</th>
+              <th>4/5 - Kritisch</th>
+            </tr>
+            ${tableRows}
+          </table>
+
+          <h3 style="margin-top:18px;">Erfasste Schiffe (inkl. Notizen)</h3>
+          <table>
+            <tr>
+              <th class="subhead" colspan="10">Erfasste Schiffe</th>
+            </tr>
+            <tr style="background:#f0f0f0;color:#000;">
+              <td><b>Name</b></td><td><b>Typ</b></td><td><b>Y</b></td><td><b>X raw</b></td><td><b>X matrix</b></td>
+              <td><b>Risiko</b></td><td><b>Confidence</b></td><td><b>Top-Gründe</b></td><td><b>Zeitstempel</b></td><td><b>Notiz</b></td>
+            </tr>
+            ${listRows}
+          </table>
+        </body>
+        </html>
+      `);
+      w.document.close();
+    }
+
+    // ==========
+    // Form reset
+    // ==========
+    function resetForm() {
+      document.getElementById('assessmentForm').reset();
+      syncFlagCheckboxesFromSelect();
+    }
+
+    // ==========
+    // Modal logic (editable notes)
+    // ==========
+    function openShipModal(shipId) {
+      const ship = allShips.find(s => s.id === shipId);
+      if (!ship) return;
+
+      currentShipId = shipId;
+
+      document.getElementById('m_name').textContent = ship.name;
+      document.getElementById('m_type').textContent = ship.type;
+      document.getElementById('m_y').textContent = 'L' + ship.structure;
+      document.getElementById('m_x').textContent = `X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix})`;
+      document.getElementById('m_risk').textContent = ship.riskLevel;
+      document.getElementById('m_conf').textContent = Number(ship.confidence ?? 0.6).toFixed(1);
+      document.getElementById('m_reasons').textContent = (ship.reasons ?? []).join(' · ');
+      document.getElementById('m_notes').value = ship.notes ?? '';
+
+      const backdrop = document.getElementById('shipModalBackdrop');
+      backdrop.classList.add('show');
+      backdrop.setAttribute('aria-hidden','false');
+
+      setTimeout(() => document.getElementById('m_notes').focus(), 50);
+    }
+
+    function closeShipModal() {
+      const backdrop = document.getElementById('shipModalBackdrop');
+      backdrop.classList.remove('show');
+      backdrop.setAttribute('aria-hidden','true');
+      currentShipId = null;
+    }
+
+    function saveShipNotes() {
+      if (!currentShipId) return;
+      const ship = allShips.find(s => s.id === currentShipId);
+      if (!ship) return;
+      ship.notes = document.getElementById('m_notes').value ?? '';
+      updateShipsList();
+    }
+
+    function removeCurrentShip() {
+      if (!currentShipId) return;
+      const idx = allShips.findIndex(s => s.id === currentShipId);
+      if (idx === -1) return;
+      allShips.splice(idx, 1);
+      closeShipModal();
+      updateMatrix();
+      updateShipsList();
+      if (allShips.length === 0){
+        document.getElementById('exportBtn').style.display = 'none';
+        document.getElementById('exportExcelBtn').style.display = 'none';
+        document.getElementById('snapshotBtn').style.display = 'none';
+      }
+    }
+
+    document.getElementById('shipModalBackdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'shipModalBackdrop') closeShipModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const backdrop = document.getElementById('shipModalBackdrop');
+        if (backdrop.classList.contains('show')) closeShipModal();
+      }
     });
 
-    const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `maritime_matrix_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-  }
-
-  // ==========
-  // Form reset
-  // ==========
-  function resetForm() {
-    document.getElementById('assessmentForm').reset();
+    document.getElementById('shipFlag').addEventListener('change', syncFlagCheckboxesFromSelect);
     syncFlagCheckboxesFromSelect();
-  }
-
-  // ==========
-  // Modal logic (editable notes)
-  // ==========
-  function openShipModal(shipId) {
-    const ship = allShips.find(s => s.id === shipId);
-    if (!ship) return;
-
-    currentShipId = shipId;
-
-    document.getElementById('m_name').textContent = ship.name;
-    document.getElementById('m_type').textContent = ship.type;
-    document.getElementById('m_y').textContent = 'L' + ship.structure;
-    document.getElementById('m_x').textContent = `X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix})`;
-    document.getElementById('m_risk').textContent = ship.riskLevel;
-    document.getElementById('m_conf').textContent = Number(ship.confidence ?? 0.6).toFixed(1);
-    document.getElementById('m_reasons').textContent = (ship.reasons ?? []).join(' · ');
-    document.getElementById('m_notes').value = ship.notes ?? '';
-
-    const backdrop = document.getElementById('shipModalBackdrop');
-    backdrop.classList.add('show');
-    backdrop.setAttribute('aria-hidden','false');
-
-    setTimeout(() => document.getElementById('m_notes').focus(), 50);
-  }
-
-  function closeShipModal() {
-    const backdrop = document.getElementById('shipModalBackdrop');
-    backdrop.classList.remove('show');
-    backdrop.setAttribute('aria-hidden','true');
-    currentShipId = null;
-  }
-
-  function saveShipNotes() {
-    if (!currentShipId) return;
-    const ship = allShips.find(s => s.id === currentShipId);
-    if (!ship) return;
-    ship.notes = document.getElementById('m_notes').value ?? '';
-    updateShipsList();
-  }
-
-  function removeCurrentShip() {
-    if (!currentShipId) return;
-    const idx = allShips.findIndex(s => s.id === currentShipId);
-    if (idx === -1) return;
-    allShips.splice(idx, 1);
-    closeShipModal();
-    updateMatrix();
-    updateShipsList();
-    if (allShips.length === 0) document.getElementById('exportBtn').style.display = 'none';
-  }
-
-  // Close modal on backdrop click / ESC
-  document.getElementById('shipModalBackdrop').addEventListener('click', (e) => {
-    if (e.target.id === 'shipModalBackdrop') closeShipModal();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      const backdrop = document.getElementById('shipModalBackdrop');
-      if (backdrop.classList.contains('show')) closeShipModal();
-    }
-  });
-
-  // Hook: sync flag checkboxes when flag changes
-  document.getElementById('shipFlag').addEventListener('change', syncFlagCheckboxesFromSelect);
-
-  // Initial sync on load
-  syncFlagCheckboxesFromSelect();
-</script>
+  </script>
 </body>
 </html>

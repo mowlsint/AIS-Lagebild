@@ -22,23 +22,35 @@
       overflow:hidden;
     }
 
-      position:relative;
+  .header{
+  position:relative; /* WICHTIG: damit das Logo absolut im Header sitzt */
   background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  color:#fff; padding:30px; text-align:center;
+  color:#fff;
+  padding:30px;
+  text-align:center;
 }
-.header h1{ font-size:28px; margin-bottom:10px; }
-.header p{ font-size:14px; opacity:0.9; }
 
-/* NEW: logo in header (top-right) */
+/* Optional: hält den Textblock stabil mittig */
+.header-content{
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+/* Logo oben rechts, beeinflusst Layout NICHT */
 .header-logo{
   position:absolute;
-  top:32px;
-  right:32px;
-  height:220px;
+  top:16px;
+  right:16px;
+  height:184px;   /* 4x groß */
   width:auto;
-  border-radius:32px;
+  border-radius:8px;
   background:rgba(255,255,255,0.15);
-  padding:12px;
+  padding:6px;
+}
+
+/* Optional: falls das große Logo Text überdecken könnte */
+@media (min-width: 900px){
+  .header{ padding-right: 240px; } /* schafft Platz rechts */
 }
 
 .tabs{ display:flex; border-bottom:2px solid #667eea; background:#f8f9fa; }
@@ -236,19 +248,22 @@
 </head>
 
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>🚢 Maritime Phase Zero Risk Matrix</h1>
-      <p>Multi-vessel triage with a visual risk matrix</p>
-      <img src="mowlsint_logo.jpg" alt="MOWLSINT" class="header-logo">
+  <div class="header">
+  <img src="mowlsint_logo.jpg" alt="MOWLSINT Logo" class="header-logo">
 
-      <p style="margin-top:10px;">
-        <a href="README_riskmatrix.html" target="_blank" rel="noreferrer"
-           style="display:inline-block;background:rgba(255,255,255,0.15);padding:8px 12px;border-radius:10px;color:white;">
-          📖 Open Guide / README
-        </a>
-      </p>
-    </div>
+  <div class="header-content">
+    <h1>🚢 Maritime Phase Zero Risk Matrix</h1>
+    <p>Multi-vessel assessment with a visual matrix</p>
+
+    <p style="margin-top:10px;">
+      <a href="README_riskmatrix.html" target="_blank" rel="noreferrer"
+         style="display:inline-block;background:rgba(255,255,255,0.15);padding:8px 12px;border-radius:10px;color:white;">
+        📖 Open Quick Guide / README
+      </a>
+    </p>
+  </div>
+</div>
+
 
     <div class="tabs">
       <button class="tab-button active" onclick="switchTab('tool')">🔧 Assessment Tool</button>

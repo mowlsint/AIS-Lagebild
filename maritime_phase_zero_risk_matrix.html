@@ -1402,7 +1402,9 @@
 
       const tableRows = [1,2,3,4,5].map(s => `
         <tr>
-          <th style="background:#eef2ff;">L${s}</th>
+          <th style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);">
+            L${s}
+          </th>
           ${[0,1,2,3,4].map(p => {
             const names = (matrixGrid[`${s}_${p}`] || []).map(escapeHtml).join(', ');
             return `<td style="vertical-align:top;">${names}</td>`;

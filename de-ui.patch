@@ -1,0 +1,510 @@
+--- a/Maritime_Risikomatrix.html
++++ b/Maritime_Risikomatrix.html
+@@
+-<!DOCTYPE html>
+-<html lang="en">
++<!DOCTYPE html>
++<html lang="de">
+ <head>
+@@
+-  <title>Maritime Phase Zero Risk Matrix</title>
++  <title>Maritime Risikomatrix für Hybride Aktivitäten</title>
+@@
+     <div class="header-content">
+-        <h1>🚢 Maritime Phase Zero Risk Matrix</h1>
+-        <p>Multi-vessel assessment with a visual matrix</p>
++        <h1>Maritime Risikomatrix für Hybride Aktivitäten</h1>
++        <p>Mehrschiff-Bewertung mit visueller Matrix</p>
+@@
+-          <a href="README_riskmatrix.html" target="_blank" rel="noreferrer"
++          <a href="README_matrix.html" target="_blank" rel="noreferrer"
+              style="display:inline-block;background:rgba(255,255,255,0.15);padding:8px 12px;border-radius:10px;color:white;">
+-            📖 Open Quick Guide / README
++            📖 Anleitung / README öffnen
+           </a>
+@@
+-    <div class="tabs">
+-      <button class="tab-button active" onclick="switchTab('tool')">🔧 Assessment Tool</button>
+-      <button class="tab-button" onclick="switchTab('info')">📚 Explanations & Lists</button>
+-    </div>
++    <div class="tabs">
++      <button class="tab-button active" onclick="switchTab('tool')">🔧 Bewertungstool</button>
++      <button class="tab-button" onclick="switchTab('info')">📚 Erklärungen & Listen</button>
++    </div>
+
+@@
+-            <h2>📋 Vessel</h2>
++            <h2>📋 Schiff</h2>
+
+             <div class="form-group">
+-              <label for="shipName">Vessel name *</label>
+-              <input type="text" id="shipName" required placeholder="e.g., MV Baltika">
++              <label for="shipName">Schiffsname *</label>
++              <input type="text" id="shipName" required placeholder="z. B. MV Baltika">
+             </div>
+
+             <div class="form-group">
+-              <label for="shipType">Vessel type *</label>
++              <label for="shipType">Schiffstyp *</label>
+               <select id="shipType" required>
+-                <option value="">-- Select --</option>
++                <option value="">-- Wählen --</option>
+                 <option value="tanker">Tanker</option>
+                 <option value="bulkcarrier">Bulk Carrier</option>
+                 <option value="container_feeder">Container (Feeder)</option>
+-                <option value="container_liner">Container (Liner)</option>
++                <option value="container_liner">Container (Linie)</option>
+                 <option value="general">General Cargo</option>
+                 <option value="roro">RoRo Vessel</option>
+-                <option value="kms">Coastal Motor Vessel</option>
+-                <option value="inland">Inland Vessel</option>
+-                <option value="fishing">Fishing Vessel</option>
+-                <option value="other">Other</option>
++                <option value="kms">Küstenmotorschiff</option>
++                <option value="inland">Binnenschiff</option>
++                <option value="fishing">Fischereischiff</option>
++                <option value="other">Sonstiges</option>
+               </select>
+             </div>
+
+             <div class="form-group">
+-              <label for="shipFlag">Flag state *</label>
++              <label for="shipFlag">Flaggenstaat *</label>
+               <select id="shipFlag" required>
+-                <option value="">-- Select --</option>
+-                <optgroup label="🟢 EU States">
+-                  <option value="de">Germany</option>
+-                  <option value="nl">Netherlands</option>
+-                  <option value="fr">France</option>
+-                  <option value="pl">Poland</option>
+-                  <option value="se">Sweden</option>
+-                  <option value="dk">Denmark</option>
++                <option value="">-- Wählen --</option>
++                <optgroup label="🟢 EU States">
++                  <option value="de">Deutschland</option>
++                  <option value="nl">Niederlande</option>
++                  <option value="fr">Frankreich</option>
++                  <option value="pl">Polen</option>
++                  <option value="se">Schweden</option>
++                  <option value="dk">Dänemark</option>
+                 </optgroup>
+                 <optgroup label="🟡 Grey List (IMO)">
+@@
+                 <optgroup label="⚪ Other">
+-                  <option value="mt">Malta</option>
+-                  <option value="cy">Cyprus</option>
++                  <option value="mt">Malta</option>
++                  <option value="cy">Zypern</option>
+                   <option value="lbr">Liberia</option>
+-                  <option value="ag">Antigua and Barbuda</option>
+-                  <option value="other-flag">Other flag</option>
++                  <option value="ag">Antigua und Barbuda</option>
++                  <option value="other-flag">Sonstige Flagge</option>
+                 </optgroup>
+                 <optgroup label="⚠️ Special cases">
+-                  <option value="unknown-flag">Unknown (Zombie vessel)</option>
++                  <option value="unknown-flag">Unbekannt (Zombieschiff)</option>
+                 </optgroup>
+               </select>
+             </div>
+
+             <div class="form-group">
+-              <label for="dataConfidence">Data quality / Confidence</label>
++              <label for="dataConfidence">Datenqualität / Confidence</label>
+               <select id="dataConfidence">
+-                <option value="0.9">high (AIS + additional source confirmed)</option>
+-                <option value="0.6" selected>medium (AIS plausible, partly confirmed)</option>
+-                <option value="0.3">low (AIS only / uncertain)</option>
++                <option value="0.9">hoch (AIS + weitere Quelle bestätigt)</option>
++                <option value="0.6" selected>mittel (AIS plausibel, teils bestätigt)</option>
++                <option value="0.3">niedrig (nur AIS/unsicher)</option>
+               </select>
+-              <div class="small">Affects the X-axis (operational evidence) — reduces false positives for “AIS-only”.</div>
++              <div class="small">Wirkt auf die X-Achse (operative Evidenz) – reduziert Fehlalarme bei „nur AIS“.</div>
+             </div>
+
+             <div class="form-group">
+-              <label for="shipNotesDraft">Free text / notes (optional)</label>
+-              <textarea id="shipNotesDraft" placeholder="e.g., sources, AIS anomalies, actions, assessment..."></textarea>
+-              <div class="small">Saved into the vessel record when you click “Add vessel”.</div>
++              <label for="shipNotesDraft">Freitext / Notizen (optional)</label>
++              <textarea id="shipNotesDraft" placeholder="z. B. Quellenlage, AIS-Anomalien, Maßnahmen, Bewertung..."></textarea>
++              <div class="small">Wird im Schiffseintrag gespeichert, wenn du auf „Schiff hinzufügen“ klickst.</div>
+             </div>
+
+@@
+-            <h2>🏢 Structure (signals)</h2>
++            <h2>🏢 Struktur (Checkboxen)</h2>
+@@
+-                <label for="cb_grey_flag">Grey-list flag</label>
++                <label for="cb_grey_flag">Grey-List-Flagge</label>
+@@
+-                <label for="cb_black_flag">Black-list flag</label>
++                <label for="cb_black_flag">Black-List-Flagge</label>
+@@
+-                <label for="cb_flag_change">Frequent flag changes</label>
++                <label for="cb_flag_change">Häufiger Flaggenwechsel</label>
+@@
+-                <label for="cb_opaque">Opaque ownership structure</label>
++                <label for="cb_opaque">Opake Eigentumsstruktur</label>
+@@
+-                    Kaliningrad crewing
++                    Kaliningrad-Crewing
+@@
+-                <label for="cb_sanctions">Sanctions history (vessel itself)</label>
++                <label for="cb_sanctions">Sanktionshistorie (Schiff selbst)</label>
+@@
+-                <label for="cb_sanctions_evasion">Sanctions evasion (cargo / trade pattern)</label>
++                <label for="cb_sanctions_evasion">Sanktionsumgehung (Ladung)</label>
+@@
+-                <label for="cb_class_issue">Class/RO irregularities (switch/gap/questionable)</label>
++                <label for="cb_class_issue">Class/RO-Auffälligkeit (Wechsel/Lücke/fragwürdig)</label>
+@@
+-                <label for="cb_pi_issue">P&amp;I / insurance irregularities (gap/unclear)</label>
++                <label for="cb_pi_issue">P&amp;I/Versicherung auffällig (Lücke/unklar)</label>
+@@
+-                <label for="cb_identity_churn">Identity churn (name/IMO/MMSI “hygiene”)</label>
++                <label for="cb_identity_churn">Identity-Churn (Name/IMO/MMSI-„Hygiene“)</label>
+@@
+-                <label for="cb_manager_churn">Frequent owner/manager changes</label>
++                <label for="cb_manager_churn">Häufiger Owner/Manager-Wechsel</label>
+
+@@
+-            <h2>📊 Operational indicators</h2>
++            <h2>📊 Operative Indikatoren</h2>
+@@
+-                <label for="ind_russian_ports">Russian ports (last 10 days)</label>
++                <label for="ind_russian_ports">Russische Häfen (10 Tage)</label>
+@@
+-                <label for="ind_ais_blackout">AIS blackout</label>
++                <label for="ind_ais_blackout">AIS-Blackout</label>
+@@
+-                <label for="ind_gnss_spoofing">GNSS/AIS spoofing anomalies (teleports/duplicates/SOG)</label>
++                <label for="ind_gnss_spoofing">GNSS/AIS-Spoofing-Anomalien (Teleports/Duplikate/SOG)</label>
+@@
+-                <label for="ind_ais_unnatural">Unnatural routes</label>
++                <label for="ind_ais_unnatural">Unnatürliche Routen</label>
+@@
+-                <label for="ind_loitering">Cable loitering</label>
++                <label for="ind_loitering">Loitering an Kabeln</label>
+@@
+-                <label for="ind_multi_loitering">Repeated loitering</label>
++                <label for="ind_multi_loitering">Mehrfaches Loitering</label>
+@@
+-                <label for="ind_ci_corridor_crossing">Repeated crossing of CI corridors (cables/pipelines)</label>
++                <label for="ind_ci_corridor_crossing">Wiederholte Querung CI-Korridore (Kabel/Pipelines)</label>
+@@
+-                <label for="ind_ci_anchoring">Anchoring/drifting in CI protection corridor (repeated)</label>
++                <label for="ind_ci_anchoring">Ankern/Driften im CI-Schutzkorridor (wiederholt)</label>
+@@
+-                <label for="ind_sts">STS / rendezvous (ship-to-ship) / unusual meetings</label>
++                <label for="ind_sts">STS/Rendezvous (Ship-to-Ship) / ungewöhnliche Treffen</label>
+@@
+-                <label for="ind_dark_activity">“Dark activity” (dark STS / dark port calls)</label>
++                <label for="ind_dark_activity">„Dark activity“ (Dark STS / Dark Port Calls)</label>
+@@
+-                <label for="ind_survey_pattern">Survey / grid patterns (mapping behavior)</label>
++                <label for="ind_survey_pattern">Survey-/Rasterfahrten (Mapping-Pattern)</label>
+@@
+-                <label for="ind_military">Proximity to military</label>
++                <label for="ind_military">Nähe zu Militär</label>
+@@
+-                <label for="ind_uniformed">Uniformed personnel observed</label>
++                <label for="ind_uniformed">Uniformierte Personen</label>
+@@
+-                    PMC linkage
++                    PMC-Verbindung
+@@
+-                <label for="ind_drone">Drone activity</label>
++                <label for="ind_drone">Drohnen-Aktivität</label>
+@@
+-                <label for="ind_known_incident">Proximity to known incidents</label>
++                <label for="ind_known_incident">Nähe zu Vorfällen</label>
+
+@@
+-            <button type="button" class="btn-calculate" onclick="calculateAndAdd()">🔍 Add vessel</button>
+-            <button type="reset" class="btn-reset">🔄 Clear</button>
++            <button type="button" class="btn-calculate" onclick="calculateAndAdd()">🔍 Schiff hinzufügen</button>
++            <button type="reset" class="btn-reset">🔄 Löschen</button>
+@@
+-            <button type="button" class="btn-export" onclick="exportAllShipsCSV()" id="exportBtn" style="display:none;">📥 Export all as CSV</button>
++            <button type="button" class="btn-export" onclick="exportAllShipsCSV()" id="exportBtn" style="display:none;">📥 Alle als CSV</button>
+@@
+-  📗 Export matrix + list (Excel)
++  📗 Matrix + Liste (Excel)
+@@
+-            <button type="button" class="btn-secondary" onclick="openSnapshotPrintView()" id="snapshotBtn" style="display:none;">🖨️ Snapshot / Print view</button>
++            <button type="button" class="btn-secondary" onclick="openSnapshotPrintView()" id="snapshotBtn" style="display:none;">🖨️ Snapshot / Druckansicht</button>
+
+@@
+-          <h2 style="margin-bottom:15px;">Risk matrix</h2>
++          <h2 style="margin-bottom:15px;">Risikomatrix</h2>
+@@
+-                <th colspan="6" style="text-align:center;">Operational indicators (X-axis)</th>
++                <th colspan="6" style="text-align:center;">Operative Indikatoren (X-Achse)</th>
+@@
+-                <th>Structure \ Indicators</th>
+-                <th>0 - None</th>
+-                <th>1 - Low</th>
+-                <th>2 - Moderate</th>
+-                <th>3 - Relevant</th>
+-                <th>4/5 - Critical</th>
++                <th>Struktur\Indikatoren</th>
++                <th>0 - Unauffällig</th>
++                <th>1 - Gering</th>
++                <th>2 - Moderat</th>
++                <th>3 - Relevant</th>
++                <th>4/5 - Kritisch</th>
+@@
+-                <th>L2 - Convenience flag</th>
++                <th>L2 - Billigflagge</th>
+@@
+-                <th>L3 - Suspicious</th>
++                <th>L3 - Verdächtig</th>
+@@
+-                <th>L4 - Highly suspicious</th>
++                <th>L4 - Hochverdächtig</th>
+@@
+-          <div class="info-box" style="margin-top:12px;">
+-            Click a vessel badge in the matrix to open details + editable notes.
+-          </div>
++          <div class="info-box" style="margin-top:12px;">
++            Klick auf ein Schiff in der Matrix öffnet Details + Freitextnotiz (änderbar).
++          </div>
+@@
+-            <h3>📍 Captured vessels</h3>
++            <h3>📍 Erfasste Schiffe</h3>
+
+@@
+-        <h2 style="color:#333; margin-bottom:30px; padding-bottom:15px; border-bottom:3px solid #667eea;">
+-          📚 Explanations, lists &amp; resources
+-        </h2>
++        <h2 style="color:#333; margin-bottom:30px; padding-bottom:15px; border-bottom:3px solid #667eea;">
++          📚 Erklärungen, Listen &amp; Ressourcen
++        </h2>
+
+@@
+-        <div class="reference-list">
+-          <h3>⚠️ Zombie vessels &amp; sanctions evasion</h3>
++        <div class="reference-list">
++          <h3>⚠️ Zombieschiffe &amp; Sanktionsumgehung</h3>
+@@
+-              <strong>⚡ Note:</strong><br>
+-              If you only have AIS, set confidence low — AIS/GNSS can be disrupted/manipulated.
++              <strong>⚡ Hinweis:</strong><br>
++              Bei „nur AIS“ bitte Confidence niedrig setzen – AIS kann gestört/manipuliert sein.
+             </div>
+
+@@
+-          <h3>🏢 Kaliningrad crewing agencies (high risk)</h3>
++          <h3>🏢 Kaliningrad Crewing-Agenturen (Hochrisiko)</h3>
+@@
+-          <div class="small">Note: This list is an “anchor” for your own maintenance.</div>
++          <div class="small">Hinweis: Liste ist nur „Anker“ für eigene Pflege.</div>
+
+@@
+-          <h3>🎖️ Operators with PMC linkage</h3>
++          <h3>🎖️ Reedereien mit PMC-Verbindung</h3>
+@@
+-          <p style="font-size:12px; color:#666; margin-bottom:10px;">Examples/placeholders — maintain with sources:</p>
++          <p style="font-size:12px; color:#666; margin-bottom:10px;">Beispiele/Platzhalter – bitte quellenbasiert pflegen:</p>
+
+@@
+-          <h3>🔗 External resources &amp; data sources</h3>
++          <h3>🔗 Externe Ressourcen &amp; Datenquellen</h3>
+
+@@
+-        <h3 id="shipModalTitle">Vessel details</h3>
++        <h3 id="shipModalTitle">Schiff-Details</h3>
+@@
+-          <div class="kv"><b>Name:</b> <span id="m_name"></span></div>
+-          <div class="kv"><b>Type:</b> <span id="m_type"></span></div>
+-          <div class="kv"><b>Structure (Y):</b> <span id="m_y"></span></div>
+-          <div class="kv"><b>Operational (X):</b> <span id="m_x"></span></div>
+-          <div class="kv"><b>Risk:</b> <span id="m_risk"></span></div>
++          <div class="kv"><b>Name:</b> <span id="m_name"></span></div>
++          <div class="kv"><b>Typ:</b> <span id="m_type"></span></div>
++          <div class="kv"><b>Struktur (Y):</b> <span id="m_y"></span></div>
++          <div class="kv"><b>Operativ (X):</b> <span id="m_x"></span></div>
++          <div class="kv"><b>Risiko:</b> <span id="m_risk"></span></div>
+           <div class="kv"><b>Confidence:</b> <span id="m_conf"></span></div>
+-          <div class="kv" style="grid-column:1 / -1;">
+-            <b>Top reasons:</b> <span id="m_reasons"></span>
+-          </div>
++          <div class="kv" style="grid-column:1 / -1;">
++            <b>Top-Gründe:</b> <span id="m_reasons"></span>
++          </div>
+@@
+-        <label for="m_notes"><b>Free text / notes</b> <span class="small">(stored per vessel)</span></label>
+-        <textarea id="m_notes" placeholder="e.g., sources, AIS anomalies, actions, assessment..."></textarea>
++        <label for="m_notes"><b>Freitext / Notizen</b> <span class="small">(wird pro Schiff gespeichert)</span></label>
++        <textarea id="m_notes" placeholder="z. B. Quellenlage, AIS-Anomalien, Maßnahmen, Bewertung..."></textarea>
+@@
+-          <button type="button" class="btn-calculate" onclick="saveShipNotes()">💾 Save note</button>
+-          <button type="button" class="btn-secondary" onclick="closeShipModal()">Close</button>
+-          <button type="button" class="btn-danger" onclick="removeCurrentShip()">🗑️ Remove vessel</button>
++          <button type="button" class="btn-calculate" onclick="saveShipNotes()">💾 Notiz speichern</button>
++          <button type="button" class="btn-secondary" onclick="closeShipModal()">Schließen</button>
++          <button type="button" class="btn-danger" onclick="removeCurrentShip()">🗑️ Schiff entfernen</button>
+@@
+-        <div class="small" style="margin-top:10px;">
+-          Tip: Clicking another badge opens its note; you can overwrite notes anytime.
+-        </div>
++        <div class="small" style="margin-top:10px;">
++          Tipp: Klick auf ein anderes Badge in der Matrix öffnet dessen Notiz; du kannst sie direkt überschreiben.
++        </div>
+
+@@
+-    function normalizeRiskClass(riskLevel) {
++    function normalizeRiskClass(riskLevel) {
+       const s = (riskLevel || '').toLowerCase().trim();
+-      if (s === 'very high') return 'risk-sehr-hoch-text';
+-      if (s === 'high') return 'risk-hoch-text';
+-      if (s === 'medium') return 'risk-mittel-text';
++      if (s === 'very high' || s === 'sehr hoch') return 'risk-sehr-hoch-text';
++      if (s === 'high' || s === 'hoch') return 'risk-hoch-text';
++      if (s === 'medium' || s === 'mittel') return 'risk-mittel-text';
+       return 'risk-niedrig-text';
+     }
+
+@@
+-    function getRiskLevel(structure, probabilityRaw) {
++    // UI: deutsche Labels (intern/Export bleibt aber stabil über das Label)
++    function getRiskLevel(structure, probabilityRaw) {
+       const matrix = {
+-        '1,0':'Low','1,1':'Low','1,2':'Low','1,3':'Low','1,4':'Medium','1,5':'High',
+-        '2,0':'Low','2,1':'Low','2,2':'Low','2,3':'Medium','2,4':'High','2,5':'High',
+-        '3,0':'Low','3,1':'Medium','3,2':'Medium','3,3':'High','3,4':'High','3,5':'Very high',
+-        '4,0':'Medium','4,1':'High','4,2':'High','4,3':'High','4,4':'Very high','4,5':'Very high',
+-        '5,0':'High','5,1':'High','5,2':'Very high','5,3':'Very high','5,4':'Very high','5,5':'Very high'
++        '1,0':'Niedrig','1,1':'Niedrig','1,2':'Niedrig','1,3':'Niedrig','1,4':'Mittel','1,5':'Hoch',
++        '2,0':'Niedrig','2,1':'Niedrig','2,2':'Niedrig','2,3':'Mittel','2,4':'Hoch','2,5':'Hoch',
++        '3,0':'Niedrig','3,1':'Mittel','3,2':'Mittel','3,3':'Hoch','3,4':'Hoch','3,5':'Sehr hoch',
++        '4,0':'Mittel','4,1':'Hoch','4,2':'Hoch','4,3':'Hoch','4,4':'Sehr hoch','4,5':'Sehr hoch',
++        '5,0':'Hoch','5,1':'Hoch','5,2':'Sehr hoch','5,3':'Sehr hoch','5,4':'Sehr hoch','5,5':'Sehr hoch'
+       };
+-      return matrix[`${structure},${probabilityRaw}`] || 'Unknown';
++      return matrix[`${structure},${probabilityRaw}`] || 'Unbekannt';
+     }
+
+@@
+-      const labels = {
+-        grey_flag:"Grey-list flag",
+-        black_flag:"Black-list flag",
+-        flag_change:"Frequent flag changes",
+-        opaque:"Opaque ownership structure",
+-        kaliningrad:"Kaliningrad crewing",
+-        sanctions:"Sanctions history (vessel)",
+-        sanctions_evasion:"Sanctions evasion (cargo/trade)",
+-        class_issue:"Class/RO irregularities",
+-        pi_issue:"P&I/insurance irregularities",
+-        identity_churn:"Identity churn",
+-        manager_churn:"Owner/manager churn",
+-
+-        russian_ports:"Russian ports (10 days)",
+-        ais_blackout:"AIS blackout",
+-        gnss_spoofing:"GNSS/AIS spoofing anomalies",
+-        ais_unnatural:"Unnatural routes",
+-        loitering:"Cable loitering",
+-        multi_loitering:"Repeated loitering",
+-        ci_corridor_crossing:"CI corridor crossing",
+-        ci_anchoring:"Anchoring/drifting in CI corridor",
+-        sts:"STS / rendezvous",
+-        dark_activity:"Dark activity",
+-        survey_pattern:"Survey / grid patterns",
+-        military:"Proximity to military",
+-        uniformed:"Uniformed personnel",
+-        pmc:"PMC linkage",
+-        drone:"Drone activity",
+-        boarding:"Boarding",
+-        known_incident:"Proximity to incidents"
+-      };
++      const labels = {
++        grey_flag:"Grey-List-Flagge",
++        black_flag:"Black-List-Flagge",
++        flag_change:"Häufiger Flaggenwechsel",
++        opaque:"Opake Eigentumsstruktur",
++        kaliningrad:"Kaliningrad-Crewing",
++        sanctions:"Sanktionshistorie (Schiff selbst)",
++        sanctions_evasion:"Sanktionsumgehung (Ladung)",
++        class_issue:"Class/RO-Auffälligkeit (Wechsel/Lücke/fragwürdig)",
++        pi_issue:"P&I/Versicherung auffällig (Lücke/unklar)",
++        identity_churn:"Identity-Churn (Name/IMO/MMSI-„Hygiene“)",
++        manager_churn:"Häufiger Owner/Manager-Wechsel",
++
++        russian_ports:"Russische Häfen (10 Tage)",
++        ais_blackout:"AIS-Blackout",
++        gnss_spoofing:"GNSS/AIS-Spoofing-Anomalien (Teleports/Duplikate/SOG)",
++        ais_unnatural:"Unnatürliche Routen",
++        loitering:"Loitering an Kabeln",
++        multi_loitering:"Mehrfaches Loitering",
++        ci_corridor_crossing:"Wiederholte Querung CI-Korridore (Kabel/Pipelines)",
++        ci_anchoring:"Ankern/Driften im CI-Schutzkorridor (wiederholt)",
++        sts:"STS/Rendezvous (Ship-to-Ship) / ungewöhnliche Treffen",
++        dark_activity:"„Dark activity“ (Dark STS / Dark Port Calls)",
++        survey_pattern:"Survey-/Rasterfahrten (Mapping-Pattern)",
++        military:"Nähe zu Militär",
++        uniformed:"Uniformierte Personen",
++        pmc:"PMC-Verbindung",
++        drone:"Drohnen-Aktivität",
++        boarding:"Boarding",
++        known_incident:"Nähe zu Vorfällen"
++      };
+@@
+-      if (flagSelect === "unknown-flag") reasons.push("Zombie vessel (unknown flag)");
++      if (flagSelect === "unknown-flag") reasons.push("Zombieschiff (unbekannte Flagge)");
+
+@@
+-      const priority = {
+-        "Zombie vessel (unknown flag)": 10,
++      const priority = {
++        "Zombieschiff (unbekannte Flagge)": 10,
+         "AIS blackout": 9,
+         "GNSS/AIS spoofing anomalies": 9,
+@@
+-      if (!shipName) { alert('Please enter a vessel name!'); return; }
++      if (!shipName) { alert('Bitte einen Schiffsname eingeben!'); return; }
+@@
+-        timestamp: new Date().toLocaleString('en-GB')
++        timestamp: new Date().toLocaleString('de-DE')
+       };
+@@
+-      if (allShips.length === 0) { alert('No vessels captured!'); return; }
++      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+@@
+-      link.download = `maritime_phase_zero_risk_matrix_${new Date().toISOString().split('T')[0]}.csv`;
++      link.download = `maritime_risikomatrix_hybride_aktivitaeten_${new Date().toISOString().split('T')[0]}.csv`;
+@@
+-  if (allShips.length === 0) { alert('No vessels captured!'); return; }
++  if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+@@
+-  const stamp = new Date().toLocaleString('en-GB');
++  const stamp = new Date().toLocaleString('de-DE');
+@@
+-  a.download = `maritime_phase_zero_matrix_report_${today}.xml`;
++  a.download = `maritime_risikomatrix_report_${today}.xml`;
+@@
+-      if (allShips.length === 0) { alert('No vessels captured!'); return; }
++      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+@@
+-      const w = window.open('', '_blank');
+-      if (!w) { alert('Popup blocked. Please allow popups for snapshot view.'); return; }
++      const w = window.open('', '_blank');
++      if (!w) { alert('Popup blockiert. Bitte Popups für die Snapshot-/Druckansicht erlauben.'); return; }
+@@
+-      const reportTitle = `Maritime Phase Zero Risk Matrix – Snapshot (${new Date().toLocaleString('en-GB')})`;
++      const reportTitle = `Maritime Risikomatrix für Hybride Aktivitäten – Snapshot (${new Date().toLocaleString('de-DE')})`;
+@@
+-          <h2>Maritime Phase Zero Risk Matrix</h2>
+-          <div class="small">${escapeHtml(new Date().toLocaleString('en-GB'))}</div>
++          <h2>Maritime Risikomatrix für Hybride Aktivitäten</h2>
++          <div class="small">${escapeHtml(new Date().toLocaleString('de-DE'))}</div>
+@@
+-          <button onclick="window.print()" style="padding:10px 14px; font-weight:700;">Print / Save as PDF</button>
++          <button onclick="window.print()" style="padding:10px 14px; font-weight:700;">Drucken / Als PDF speichern</button>
+@@
+-          <h3>Matrix</h3>
++          <h3>Matrix</h3>
+@@
+-          <h3 style="margin-top:18px;">Captured vessels (including notes)</h3>
++          <h3 style="margin-top:18px;">Erfasste Schiffe (inkl. Notizen)</h3>

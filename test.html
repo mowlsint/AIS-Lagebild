@@ -5,218 +5,238 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data:; frame-ancestors *">
-  <title>Maritime Risikomatrix für Hybride Aktivitäten</title>
+  <title>Kontroll-Prioritätenmatrix (Revier)</title>
 
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
+    *{ margin:0; padding:0; box-sizing:border-box; }
 
+    /* === NEW background (distinct from old purple) === */
     body{
       font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
-      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-      min-height:100vh; padding:20px;
+      background:linear-gradient(135deg,#0b3d91 0%, #0aa6a6 55%, #d6f5f3 100%);
+      min-height:100vh;
+      padding:20px;
     }
 
     .container{
-      max-width:1400px; margin:0 auto; background:#fff;
-      border-radius:10px; box-shadow:0 10px 40px rgba(0,0,0,0.2);
+      max-width:1500px;
+      margin:0 auto;
+      background:#fff;
+      border-radius:14px;
+      box-shadow:0 14px 48px rgba(0,0,0,0.22);
       overflow:hidden;
     }
 
-    /* ===== HEADER (Logo right, content centered) ===== */
     .header{
       position:relative;
-      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      padding:28px 22px;
+      background:linear-gradient(135deg,#062a61 0%, #0aa6a6 100%);
       color:#fff;
-      padding:30px;
       text-align:center;
     }
-    .header-content{
-      max-width:980px;
-      margin:0 auto;
-    }
-    .header h1{ font-size:28px; margin-bottom:10px; }
-    .header p{ font-size:14px; opacity:0.9; }
+    .header h1{ font-size:26px; margin-bottom:8px; }
+    .header p{ font-size:13px; opacity:0.92; }
 
-    .header-logo{
-      position:absolute;
-      right:18px;
-      top:18px;
-      width:220px;
-      height:auto;
-      border-radius:12px;
-      box-shadow:0 12px 28px rgba(0,0,0,0.25);
-      border:2px solid rgba(255,255,255,0.25);
-      background:rgba(255,255,255,0.08);
-    }
-    @media (max-width: 900px){
-      .header{ padding:22px 18px 18px 18px; }
-      .header-logo{
-        position:static;
-        display:block;
-        margin:0 auto 12px auto;
-        width:min(260px, 70vw);
-      }
-    }
-
-    .tabs{ display:flex; border-bottom:2px solid #667eea; background:#f8f9fa; }
+    .tabs{ display:flex; border-bottom:2px solid #0aa6a6; background:#f4fbfb; }
     .tab-button{
-      flex:1; padding:15px; background:none; border:none; cursor:pointer;
-      font-weight:600; color:#666; transition:all .3s ease;
+      flex:1; padding:14px; background:none; border:none; cursor:pointer;
+      font-weight:700; color:#4d6b6b; transition:all .25s ease;
       border-bottom:3px solid transparent;
     }
     .tab-button.active{
-      color:#667eea; border-bottom-color:#667eea; background:#fff;
+      color:#0aa6a6; border-bottom-color:#0aa6a6; background:#fff;
     }
     .tab-button:hover{ background:#fff; }
 
-    .content{ display:none; padding:30px; }
-    .content.active{ display:grid; grid-template-columns:1fr 2fr; gap:30px; }
-    .content-full.active{ display:block; }
+    .content{ display:none; padding:26px; }
+    .content.active{ display:grid; grid-template-columns:1fr 2fr; gap:26px; }
+    .content-full.active{ display:block; padding:26px; }
 
-    .left-panel,.right-panel{ display:flex; flex-direction:column; }
+    @media (max-width:1200px){ .content.active{ grid-template-columns:1fr; } }
 
-    .section{ margin-bottom:30px; }
+    .section{ margin-bottom:22px; }
     .section h2{
-      color:#333; font-size:16px; margin-bottom:15px;
-      padding-bottom:10px; border-bottom:2px solid #667eea;
+      color:#123; font-size:15px; margin-bottom:12px;
+      padding-bottom:10px; border-bottom:2px solid #0aa6a6;
     }
 
-    .form-group{ margin-bottom:15px; }
-    label{ display:block; margin-bottom:6px; color:#333; font-weight:500; font-size:13px; }
+    .form-group{ margin-bottom:12px; }
+    label{ display:block; margin-bottom:6px; color:#123; font-weight:600; font-size:12.5px; }
 
-    input[type="text"],select,textarea{
-      width:100%; padding:8px; border:1px solid #ddd; border-radius:5px;
-      font-size:13px; font-family:inherit;
+    input[type="text"], input[type="number"], select, textarea{
+      width:100%;
+      padding:8px 10px;
+      border:1px solid #d7e7e7;
+      border-radius:8px;
+      font-size:13px;
+      font-family:inherit;
+      background:#fff;
     }
     textarea{ min-height:90px; resize:vertical; }
-    input[type="text"]:focus,select:focus,textarea:focus{
-      outline:none; border-color:#667eea; box-shadow:0 0 5px rgba(102,126,234,0.3);
+    input:focus, select:focus, textarea:focus{
+      outline:none; border-color:#0aa6a6;
+      box-shadow:0 0 0 3px rgba(10,166,166,0.15);
     }
+
+    .small{ font-size:11px; color:#5a6b6b; margin-top:6px; line-height:1.35; }
 
     .checkbox-group{ display:flex; flex-direction:column; gap:8px; }
-    .checkbox-item{ display:flex; align-items:flex-start; gap:8px; }
-    input[type="checkbox"]{ width:16px; height:16px; cursor:pointer; margin-top:2px; flex-shrink:0; }
-    .checkbox-item label{ margin-bottom:0; cursor:pointer; font-size:12px; }
-
-    a{ color:#667eea; text-decoration:none; font-weight:500; }
-    a:hover{ text-decoration:underline; }
-
-    .button-group{ display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
-    button{
-      padding:10px 20px; font-size:13px; font-weight:600; border:none;
-      border-radius:5px; cursor:pointer; transition:all .3s ease;
+    .checkbox-item{ display:flex; align-items:flex-start; gap:10px; }
+    input[type="checkbox"]{
+      width:16px; height:16px; cursor:pointer; margin-top:2px; flex-shrink:0;
     }
-    .btn-calculate{
-      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    .checkbox-item label{ margin:0; cursor:pointer; font-size:12px; font-weight:600; color:#234; }
+
+    .pill{
+      display:inline-block;
+      padding:2px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:0.2px;
+      border:1px solid rgba(255,255,255,0.25);
+    }
+    .pill-green{ background:#1e8e3e; color:#fff; }
+    .pill-yellow{ background:#fbbc04; color:#1a1a1a; }
+    .pill-orange{ background:#f29900; color:#fff; }
+    .pill-red{ background:#d93025; color:#fff; }
+    .pill-gray{ background:#607d8b; color:#fff; }
+
+    .button-group{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+    button{
+      padding:10px 16px;
+      font-size:13px;
+      font-weight:800;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      transition:all .2s ease;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,#0aa6a6 0%, #0b3d91 100%);
       color:#fff; flex:1;
     }
-    .btn-calculate:hover{
-      transform:translateY(-2px);
-      box-shadow:0 5px 15px rgba(102,126,234,0.4);
-    }
-    .btn-reset{ background:#e0e0e0; color:#333; }
-    .btn-reset:hover{ background:#d0d0d0; }
-    .btn-export{ background:#FF9800; color:#fff; }
-    .btn-export:hover{ background:#F57C00; transform:translateY(-2px); }
-    .btn-secondary{ background:#e0e0e0; color:#333; }
-    .btn-secondary:hover{ background:#d0d0d0; }
+    .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(10,166,166,0.28); }
+    .btn-reset{ background:#e6eeee; color:#123; }
+    .btn-reset:hover{ background:#d7e7e7; }
+    .btn-export{ background:#f29900; color:#fff; }
+    .btn-export:hover{ filter:brightness(0.97); transform:translateY(-1px); }
+    .btn-secondary{ background:#e6eeee; color:#123; }
+    .btn-secondary:hover{ background:#d7e7e7; }
+    .btn-danger{ background:#d93025; color:#fff; }
+    .btn-danger:hover{ filter:brightness(0.95); }
 
-    .matrix-container{ background:#f5f5f5; padding:20px; border-radius:10px; overflow-x:auto; }
+    .info-box{
+      background:#eaf7ff;
+      border-left:4px solid #0b3d91;
+      padding:10px;
+      margin:12px 0;
+      border-radius:10px;
+      font-size:12px;
+      color:#0b3d91;
+      line-height:1.45;
+    }
+
+    .matrix-container{
+      background:#f4fbfb;
+      padding:18px;
+      border-radius:14px;
+      overflow-x:auto;
+      border:1px solid #d7e7e7;
+    }
     .matrix{
-      border-collapse:collapse; width:100%; background:#fff;
-      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+      border-collapse:collapse;
+      width:100%;
+      background:#fff;
+      box-shadow:0 2px 10px rgba(0,0,0,0.08);
+      border-radius:12px;
+      overflow:hidden;
     }
     .matrix th,.matrix td{
-      border:2px solid #667eea; padding:15px; text-align:center;
-      font-size:12px; min-width:120px;
+      border:2px solid #0aa6a6;
+      padding:12px;
+      text-align:center;
+      font-size:12px;
+      min-width:118px;
     }
     .matrix th{
-      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-      color:#fff; font-weight:600;
+      background:linear-gradient(135deg,#0aa6a6 0%, #0b3d91 100%);
+      color:#fff;
+      font-weight:900;
     }
-    .matrix td{ height:100px; vertical-align:top; position:relative; }
+    .matrix td{
+      height:98px; vertical-align:top; position:relative;
+    }
 
-    .risk-low{ background:#c8e6c9; }
-    .risk-medium{ background:#fff9c4; }
-    .risk-high{ background:#ffe0b2; }
-    .risk-very-high{ background:#ffcdd2; }
+    /* Matrix background by priority color */
+    .cell-green{ background:#d9f7e2; }
+    .cell-yellow{ background:#fff4cc; }
+    .cell-orange{ background:#ffe2bf; }
+    .cell-red{ background:#ffd2cf; }
 
-    .ship-badge{
-      display:inline-block; background:#fff; border:1px solid #667eea;
-      padding:4px 8px; margin:2px; border-radius:12px; font-size:11px;
-      font-weight:600; color:#333; cursor:pointer; transition:all .2s ease;
+    .badge{
+      display:inline-block;
+      background:#fff;
+      border:1px solid #0aa6a6;
+      padding:4px 8px;
+      margin:2px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:900;
+      color:#123;
+      cursor:pointer;
+      transition:all .15s ease;
       user-select:none;
+      max-width:180px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
     }
-    .ship-badge:hover{
-      background:#667eea; color:#fff; box-shadow:0 2px 6px rgba(102,126,234,0.3);
+    .badge:hover{
+      background:#0aa6a6; color:#fff;
+      box-shadow:0 6px 14px rgba(10,166,166,0.22);
     }
 
-    /* ===== Captured vessels list: TALLER ===== */
     .ships-list{
-      background:#f0f4ff; border-radius:10px; padding:15px; margin-top:20px;
-      max-height:55vh;
-      min-height:220px;
+      background:#ffffff;
+      border-radius:14px;
+      padding:14px;
+      margin-top:14px;
+      max-height:52vh;
       overflow-y:auto;
+      border:1px solid #d7e7e7;
     }
-    .ships-list h3{ color:#333; font-size:14px; margin-bottom:10px; }
-    .ship-item{
-      background:#fff; padding:10px; border-radius:8px; margin-bottom:10px;
-      border-left:4px solid #667eea;
+    .ships-list h3{ color:#123; font-size:13.5px; margin-bottom:10px; }
+    .item{
+      background:#f9ffff;
+      padding:10px;
+      border-radius:12px;
+      margin-bottom:10px;
+      border-left:5px solid #0aa6a6;
       display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
       font-size:12px;
+      cursor:pointer;
     }
-    .ship-item .meta{ color:#555; }
-    .ship-item .reasons{ color:#666; font-size:11px; margin-top:3px; }
-    .ship-item .notes-preview{
+    .item:hover{ background:#f0ffff; }
+    .item .meta{ color:#345; opacity:0.9; }
+    .item .reasons{ color:#567; font-size:11px; margin-top:4px; line-height:1.35; }
+    .item .notes-preview{
       margin-top:6px;
       font-size:11px;
-      color:#444;
-      background:#f6f7ff;
-      border:1px solid #e1e4ff;
-      border-radius:8px;
+      color:#234;
+      background:#f1fbfb;
+      border:1px solid #d7e7e7;
+      border-radius:12px;
       padding:8px;
       line-height:1.35;
-
       display:-webkit-box;
       -webkit-box-orient:vertical;
       -webkit-line-clamp:3;
       overflow:hidden;
     }
 
-    .ship-risk{
-      padding:2px 8px; border-radius:12px; font-weight:600;
-      font-size:11px; color:#fff; white-space:nowrap;
-      margin-top:2px;
-    }
-    .risk-niedrig-text{ background:#4CAF50; }
-    .risk-mittel-text{ background:#FFC107; color:#333; }
-    .risk-hoch-text{ background:#FF9800; }
-    .risk-sehr-hoch-text{ background:#F44336; }
-
-    .info-box{
-      background:#e3f2fd; border-left:4px solid #2196F3; padding:10px;
-      margin:10px 0; border-radius:3px; font-size:12px; color:#1565c0;
-    }
-    .warning-box{
-      background:#fff3e0; border-left:4px solid #FF9800; padding:10px;
-      margin:10px 0; border-radius:3px; font-size:12px; color:#e65100;
-    }
-    .reference-list{
-      background:#f9f9f9; border:1px solid #ddd; border-radius:8px;
-      padding:15px; margin:15px 0;
-    }
-    .reference-list h3{
-      color:#333; font-size:14px; margin-bottom:10px;
-      border-bottom:2px solid #667eea; padding-bottom:8px;
-    }
-    .reference-list ul{ list-style:none; padding:0; }
-    .reference-list li{ padding:6px 0; font-size:12px; border-bottom:1px solid #eee; }
-    .reference-list li:last-child{ border-bottom:none; }
-    .reference-list code{
-      background:#f0f0f0; padding:2px 6px; border-radius:3px; font-size:11px;
-    }
-
-    @media (max-width:1200px){ .content.active{ grid-template-columns:1fr; } }
+    a{ color:#0b3d91; text-decoration:none; font-weight:800; }
+    a:hover{ text-decoration:underline; }
 
     /* MODAL */
     .modal-backdrop{
@@ -225,21 +245,20 @@
     }
     .modal-backdrop.show{ display:flex; }
     .modal{
-      width:min(760px, 95vw);
-      background:#fff; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.35);
+      width:min(860px, 96vw);
+      background:#fff; border-radius:16px; box-shadow:0 22px 64px rgba(0,0,0,0.35);
       overflow:hidden;
     }
     .modal-header{
-      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      background:linear-gradient(135deg,#0aa6a6 0%, #0b3d91 100%);
       color:#fff; padding:14px 16px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
     }
-    .modal-header h3{ font-size:16px; margin:0; }
+    .modal-header h3{ font-size:15.5px; margin:0; font-weight:900; }
     .modal-close{
-      background:rgba(255,255,255,0.2); color:#fff;
-      border:none; border-radius:8px; padding:6px 10px; cursor:pointer;
-      font-weight:700;
+      background:rgba(255,255,255,0.18); color:#fff;
+      border:none; border-radius:10px; padding:6px 10px; cursor:pointer;
+      font-weight:900;
     }
     .modal-body{ padding:16px; }
     .modal-grid{
@@ -247,436 +266,335 @@
       margin-bottom:12px;
     }
     .kv{
-      background:#f6f7ff; border:1px solid #e1e4ff; border-radius:10px;
-      padding:10px;
-      font-size:12px;
+      background:#f1fbfb; border:1px solid #d7e7e7; border-radius:14px;
+      padding:10px; font-size:12px;
     }
-    .kv b{ color:#333; }
-    .modal-actions{
-      display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;
-    }
-    .btn-danger{ background:#F44336; color:#fff; }
-    .btn-danger:hover{ filter:brightness(0.95); }
+    .kv b{ color:#123; }
 
-    .small{ font-size:11px; color:#777; }
+    .module-box{
+      background:#f9ffff;
+      border:1px solid #d7e7e7;
+      border-radius:14px;
+      padding:12px;
+      margin:12px 0;
+    }
+    .module-box h4{ font-size:13px; margin-bottom:8px; color:#123; }
+    .module-list{ list-style:none; padding:0; margin:0; }
+    .module-list li{
+      padding:8px 10px;
+      border-radius:12px;
+      margin:6px 0;
+      background:#f1fbfb;
+      border:1px solid #d7e7e7;
+      font-size:12px;
+      color:#123;
+      line-height:1.35;
+    }
+
+    .warn{
+      background:#fff4cc !important;
+      border-color:#fbbc04 !important;
+    }
+    .hard{
+      background:#ffd2cf !important;
+      border-color:#d93025 !important;
+      font-weight:900;
+    }
 
     @media print{
       body{ background:#fff; padding:0; }
       .container{ box-shadow:none; border-radius:0; }
-      .tabs{ display:none; }
+      .tabs, .button-group { display:none !important; }
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-
     <div class="header">
-      <img src="mowlsint_logo.jpg" alt="MOWLSINT Logo" class="header-logo">
-
-      <div class="header-content">
-        <h1>Maritime Risikomatrix für Hybride Aktivitäten</h1>
-        <p>Mehrschiff-Bewertung mit visueller Matrix</p>
-
-        <p style="margin-top:10px;">
-          <a href="README_matrix.html" target="_blank" rel="noreferrer"
-             style="display:inline-block;background:rgba(255,255,255,0.15);padding:8px 12px;border-radius:10px;color:white;">
-            📖 Anleitung / README öffnen
-          </a>
-        </p>
-      </div>
+      <h1>Kontroll-Prioritätenmatrix (Revier)</h1>
+      <p>Matrix (X/Y) mit Ampel + automatische Kontrollempfehlungen (MARPOL/ISM/MLC/…)</p>
     </div>
 
     <div class="tabs">
-      <button class="tab-button active" onclick="switchTab('tool')">🔧 Bewertungstool</button>
-      <button class="tab-button" onclick="switchTab('info')">📚 Erklärungen & Listen</button>
+      <button class="tab-button active" onclick="switchTab('tool')">🔧 Tool</button>
+      <button class="tab-button" onclick="switchTab('info')">📚 Hinweise</button>
     </div>
 
-    <!-- TOOL TAB -->
+    <!-- TOOL -->
     <div class="content active" id="tool">
-      <!-- LEFT: FORM -->
       <div class="left-panel">
         <form id="assessmentForm">
 
-          <!-- VESSEL -->
+          <!-- SHIP -->
           <div class="section">
-            <h2>📋 Schiff</h2>
+            <h2>🚢 Schiffsdaten</h2>
 
             <div class="form-group">
-              <label for="shipName">Schiffsname *</label>
-              <input type="text" id="shipName" required placeholder="z. B. MV Baltika">
+              <label for="shipName">Name *</label>
+              <input type="text" id="shipName" required placeholder="z. B. MV Example">
             </div>
 
             <div class="form-group">
-              <label for="shipType">Schiffstyp *</label>
-              <select id="shipType" required>
-                <option value="">-- Wählen --</option>
-                <option value="tanker">Tanker</option>
-                <option value="bulkcarrier">Bulk Carrier</option>
-                <option value="container_feeder">Container (Feeder)</option>
-                <option value="container_liner">Container (Liner)</option>
-                <option value="general">General Cargo</option>
-                <option value="roro">RoRo Vessel</option>
-                <option value="kms">Küstenmotorschiff</option>
-                <option value="inland">Binnenschiff</option>
-                <option value="fishing">Fishing Vessel</option>
-                <option value="other">Sonstiges</option>
-              </select>
+              <label for="imo">IMO (optional)</label>
+              <input type="text" id="imo" placeholder="z. B. 9390587">
             </div>
 
             <div class="form-group">
-              <label for="shipFlag">Flaggenstaat *</label>
+              <label for="shipFlag">Flagge / Flaggenkategorie *</label>
               <select id="shipFlag" required>
                 <option value="">-- Wählen --</option>
-                <optgroup label="🟢 EU States">
-                  <option value="de">Deutschland</option>
-                  <option value="nl">Niederlande</option>
-                  <option value="fr">Frankreich</option>
-                  <option value="pl">Polen</option>
-                  <option value="se">Schweden</option>
-                  <option value="dk">Dänemark</option>
+                <optgroup label="🟡 Grey List">
+                  <option value="grey">Grey List (IMO)</option>
                 </optgroup>
-                <optgroup label="🟡 Grey List (IMO)">
-                  <option value="sa-grey">Saudi Arabia (Grey)</option>
-                  <option value="hr-grey">Croatia (Grey)</option>
-                  <option value="in-grey">India (Grey)</option>
-                  <option value="lv-grey">Latvia (Grey)</option>
-                  <option value="kr-grey">Korea (Grey)</option>
-                  <option value="ma-grey">Morocco (Grey)</option>
-                  <option value="ru-grey">Russian Federation (Grey)</option>
-                  <option value="pa-grey">Panama (Grey)</option>
-                  <option value="lb-grey">Lebanon (Grey)</option>
-                  <option value="ck-grey">Cook Islands (Grey)</option>
-                  <option value="ph-grey">Philippines (Grey)</option>
-                  <option value="al-grey">Albania (Grey)</option>
-                  <option value="dz-grey">Algeria (Grey)</option>
-                  <option value="vc-grey">Saint Vincent and the Grenadines (Grey)</option>
-                  <option value="sl-grey">Sierra Leone (Grey)</option>
-                  <option value="tn-grey">Tunisia (Grey)</option>
-                  <option value="bd-grey">Bangladesh (Grey)</option>
+                <optgroup label="🔴 Black List">
+                  <option value="black">Black List (IMO)</option>
                 </optgroup>
-                <optgroup label="🔴 Black List (IMO)">
-                  <option value="kn-black">Saint Kitts and Nevis (Black)</option>
-                  <option value="tg-black">Togo (Black)</option>
-                  <option value="pw-black">Palau (Black)</option>
-                  <option value="gw-black">Guinea-Bissau (Black)</option>
-                  <option value="bz-black">Belize (Black)</option>
-                  <option value="vu-black">Vanuatu (Black)</option>
-                  <option value="ua-black">Ukraine (Black)</option>
-                  <option value="km-black">Comoros (Black)</option>
-                  <option value="vn-black">Vietnam (Black)</option>
-                  <option value="md-black">Moldova (Black)</option>
-                  <option value="tz-black">Tanzania (Black)</option>
-                  <option value="cm-black">Cameroon (Black)</option>
-                </optgroup>
-                <optgroup label="⚪ Other">
-                  <option value="mt">Malta</option>
-                  <option value="cy">Zypern</option>
-                  <option value="lbr">Liberia</option>
-                  <option value="ag">Antigua and Barbuda</option>
-                  <option value="other-flag">Sonstige Flagge</option>
-                </optgroup>
-                <optgroup label="⚠️ Special cases">
-                  <option value="unknown-flag">Unbekannt (Zombieschiff)</option>
+                <optgroup label="⚪ Sonstige">
+                  <option value="other">Sonstige</option>
                 </optgroup>
               </select>
+              <div class="small">Grey/Black wird automatisch als Struktur-Signal übernommen.</div>
             </div>
 
             <div class="form-group">
-              <label for="dataConfidence">Datenqualität / Confidence</label>
-              <select id="dataConfidence">
-                <option value="0.9">hoch (AIS + zusätzliche Quelle bestätigt)</option>
-                <option value="0.6" selected>mittel (AIS plausibel, teilweise bestätigt)</option>
-                <option value="0.3">niedrig (nur AIS / unsicher)</option>
+              <label for="externalHint">Externer Hinweis vorhanden</label>
+              <select id="externalHint">
+                <option value="no" selected>nein</option>
+                <option value="yes">ja</option>
               </select>
-              <div class="small">Wirkt auf die X-Achse (operative Evidenz) – reduziert Fehlalarme bei „nur AIS“.</div>
             </div>
 
-            <div class="form-group">
-              <label for="shipNotesDraft">Freitext / Notizen (optional)</label>
-              <textarea id="shipNotesDraft" placeholder="z. B. Quellenlage, AIS-Anomalien, Maßnahmen, Bewertung..."></textarea>
-              <div class="small">Wird im Schiffseintrag gespeichert, wenn du auf „Schiff hinzufügen“ klickst.</div>
-            </div>
-          </div>
+            <div class="section" style="margin-top:10px;">
+              <h2>🧾 Technische / betriebliche Merkmale</h2>
 
-          <!-- STRUCTURE -->
-          <div class="section">
-            <h2>🏢 Struktur (Signale)</h2>
+              <div class="checkbox-group">
+                <div class="checkbox-item">
+                  <input type="checkbox" id="cb_hfo">
+                  <label for="cb_hfo">Schweröl (HFO) / HFO-Betrieb relevant</label>
+                </div>
 
-            <div class="checkbox-group">
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_grey_flag" name="struct" value="grey_flag">
-                <label for="cb_grey_flag">Grey-List-Flagge</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_black_flag" name="struct" value="black_flag">
-                <label for="cb_black_flag">Black-List-Flagge</label>
-              </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="cb_scrubber">
+                  <label for="cb_scrubber">Scrubber / EGCS vorhanden</label>
+                </div>
 
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_flag_change" name="struct" value="flag_change">
-                <label for="cb_flag_change">Häufige Flaggenwechsel</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_opaque" name="struct" value="opaque">
-                <label for="cb_opaque">Opake Eigentümer-/Betreiberstruktur</label>
-              </div>
+                <div class="form-group" style="margin-left:26px; margin-top:6px;">
+                  <label for="egcsType">EGCS-Typ (wenn Scrubber)</label>
+                  <select id="egcsType">
+                    <option value="n/a" selected>k. A.</option>
+                    <option value="open">Open loop</option>
+                    <option value="closed">Closed loop</option>
+                    <option value="hybrid">Hybrid</option>
+                  </select>
+                  <div class="small">Wird in MARPOL Ann. VI-Empfehlung ausgegeben.</div>
+                </div>
 
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_kaliningrad" name="struct" value="kaliningrad">
-                <label for="cb_kaliningrad">
-                  <a href="javascript:switchTab('info')" onclick="document.getElementById('crewingtab').scrollIntoView();">
-                    Kaliningrad crewing
-                  </a>
-                </label>
-              </div>
-
-              <!-- NEW: Russia/Crimea/Crew-nationality signals -->
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_russland_crewing" name="struct" value="russland_crewing">
-                <label for="cb_russland_crewing">
-                  <a href="javascript:switchTab('info')" onclick="document.getElementById('ruscrewingtab').scrollIntoView();">
-                    Russland Crewing
-                  </a>
-                </label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_krim_crewing" name="struct" value="krim_crewing">
-                <label for="cb_krim_crewing">
-                  <a href="javascript:switchTab('info')" onclick="document.getElementById('crimcrewingtab').scrollIntoView();">
-                    Krim Crewing
-                  </a>
-                </label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_crew_rus_ukr" name="struct" value="crew_rus_ukr">
-                <label for="cb_crew_rus_ukr">
-                  <a href="javascript:switchTab('info')" onclick="document.getElementById('crewNatTab').scrollIntoView();">
-                    Crew RUS/UKR
-                  </a>
-                </label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_sanctions" name="struct" value="sanctions">
-                <label for="cb_sanctions">Sanktionshistorie (Schiff selbst)</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_sanctions_evasion" name="struct" value="sanctions_evasion">
-                <label for="cb_sanctions_evasion">Sanktionsumgehung (Ladung / Handelsmuster)</label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_class_issue" name="struct" value="class_issue">
-                <label for="cb_class_issue">Class/RO irregularities (Switch/Gap/Questionable)</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_pi_issue" name="struct" value="pi_issue">
-                <label for="cb_pi_issue">P&amp;I / Insurance irregularities (Gap/Unclear)</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_identity_churn" name="struct" value="identity_churn">
-                <label for="cb_identity_churn">Identity churn (Name/IMO/MMSI “Hygiene”)</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="cb_manager_churn" name="struct" value="manager_churn">
-                <label for="cb_manager_churn">Häufige Owner/Manager changes</label>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="cb_tanker">
+                  <label for="cb_tanker">Tankschiff</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="cb_bulker">
+                  <label for="cb_bulker">Schüttgut / Bulker</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="cb_ballast_in">
+                  <label for="cb_ballast_in">Einlauf in Ballast</label>
+                </div>
               </div>
             </div>
 
-            <div class="info-box" style="margin-top:10px;">
-              📋 <a href="https://war-sanctions.gur.gov.ua/en/transport/ships" target="_blank" rel="noreferrer">War Sanctions list (Ukraine)</a>
+            <div class="form-group" style="margin-top:10px;">
+              <label for="shipNotesDraft">Freitext (optional)</label>
+              <textarea id="shipNotesDraft" placeholder="z. B. Besonderheiten, Quelle, Absprachen, Maßnahmen..."></textarea>
             </div>
           </div>
 
-          <!-- OPERATIONAL INDICATORS -->
+          <!-- STRUCTURE (Y) -->
           <div class="section">
-            <h2>📊 Operative Indikatoren</h2>
+            <h2>🏢 Struktur (Y-Achse)</h2>
 
             <div class="checkbox-group">
               <div class="checkbox-item">
-                <input type="checkbox" id="ind_russian_ports" name="indicators" value="russian_ports">
-                <label for="ind_russian_ports">Russian ports (last 10 days)</label>
+                <input type="checkbox" id="cb_grey_flag" disabled>
+                <label for="cb_grey_flag">Grey-List-Flagge (automatisch)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_black_flag" disabled>
+                <label for="cb_black_flag">Black-List-Flagge (automatisch)</label>
               </div>
 
               <div class="checkbox-item">
-                <input type="checkbox" id="ind_ais_blackout" name="indicators" value="ais_blackout">
-                <label for="ind_ais_blackout">AIS blackout</label>
+                <input type="checkbox" id="cb_other_regime">
+                <label for="cb_other_regime">Andere Kontrollregime (Tokyo MOU / USCG etc.)</label>
               </div>
 
               <div class="checkbox-item">
-                <input type="checkbox" id="ind_gnss_spoofing" name="indicators" value="gnss_spoofing">
-                <label for="ind_gnss_spoofing">GNSS/AIS spoofing anomalies (teleports/duplicates/SOG)</label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_ais_unnatural" name="indicators" value="ais_unnatural">
-                <label for="ind_ais_unnatural">Unnatural routes</label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_loitering" name="indicators" value="loitering">
-                <label for="ind_loitering">Cable loitering</label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_multi_loitering" name="indicators" value="multi_loitering">
-                <label for="ind_multi_loitering">Repeated loitering</label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_ci_corridor_crossing" name="indicators" value="ci_corridor_crossing">
-                <label for="ind_ci_corridor_crossing">Repeated crossing of CI corridors (cables/pipelines)</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_ci_anchoring" name="indicators" value="ci_anchoring">
-                <label for="ind_ci_anchoring">Anchoring/drifting in CI protection corridor (repeated)</label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_sts" name="indicators" value="sts">
-                <label for="ind_sts">STS / rendezvous (ship-to-ship) / unusual meetings</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_dark_activity" name="indicators" value="dark_activity">
-                <label for="ind_dark_activity">“Dark activity” (dark STS / dark port calls)</label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_survey_pattern" name="indicators" value="survey_pattern">
-                <label for="ind_survey_pattern">Survey / grid patterns (mapping behavior)</label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_military" name="indicators" value="military">
-                <label for="ind_military">Proximity to military</label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_uniformed" name="indicators" value="uniformed">
-                <label for="ind_uniformed">Uniformed personnel observed</label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_pmc" name="indicators" value="pmc">
-                <label for="ind_pmc">
-                  <a href="javascript:switchTab('info')" onclick="document.getElementById('pmctab').scrollIntoView();">
-                    PMC linkage
-                  </a>
-                </label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_drone" name="indicators" value="drone">
-                <label for="ind_drone">Drone activity</label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_boarding" name="indicators" value="boarding">
-                <label for="ind_boarding">Boarding</label>
-              </div>
-
-              <div class="checkbox-item">
-                <input type="checkbox" id="ind_known_incident" name="indicators" value="known_incident">
-                <label for="ind_known_incident">Proximity to known incidents</label>
+                <input type="checkbox" id="cb_older_10">
+                <label for="cb_older_10">Schiff älter als 10 Jahre</label>
               </div>
             </div>
 
-            <div class="info-box" style="margin-top:10px;">
-              📌 <a href="https://www.equasis.org" target="_blank" rel="noreferrer">Equasis</a>
+            <div class="info-box">
+              <b>Hinweis:</b> Y bildet Grundrisiko/Grundaufwand ab (Flagge/Regime/Alter).
+            </div>
+          </div>
+
+          <!-- OPERATIONAL (X) -->
+          <div class="section">
+            <h2>📊 Operativ (X-Achse)</h2>
+
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_tbs">
+                <label for="ind_tbs">Kontrollwürdig laut TBS (3-Monatsregel)</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_aquatrack">
+                <label for="ind_aquatrack">Aquatrack (MARPOL-Auffälligkeiten)</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_psc_recent">
+                <label for="ind_psc_recent">PSC &lt; 1/2 Jahr</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_psc_defects">
+                <label for="ind_psc_defects">PSC-Mängel innerhalb eines Jahres</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_routing">
+                <label for="ind_routing">Auffällige Fahrtrouten</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_incidents">
+                <label for="ind_incidents">Gemeldete Incidents</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_russia">
+                <label for="ind_russia">Gemeldeter Russland-Bezug</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_suspicion">
+                <label for="ind_suspicion">Verdachtsmeldung WSP Leitstelle (kein Security Report vorgelegt)</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_sl2">
+                <label for="ind_sl2">Aus SL2-Hafen (ISPS Security Level)</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_overseas">
+                <label for="ind_overseas">Übersee (Fuel-Switch relevant)</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_crew_change">
+                <label for="ind_crew_change">Crewwechsel vor Ort</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_port_auth">
+                <label for="ind_port_auth">Schriftverkehr Hafenbehörde vorhanden</label>
+              </div>
+            </div>
+
+            <div class="info-box">
+              <b>Gate-Regel:</b> Ist ein Schiff <b>nicht</b> kontrollwürdig laut TBS, werden Kontrollempfehlungen nur ausgegeben,
+              wenn <b>Verdachtsmeldung</b> oder <b>Aquatrack</b> oder <b>Externer Hinweis</b> vorliegt.
             </div>
           </div>
 
           <!-- BUTTONS -->
           <div class="button-group">
-            <button type="button" class="btn-calculate" onclick="calculateAndAdd()">🔍 Schiff hinzufügen</button>
-            <button type="reset" class="btn-reset">🔄 Löschen</button>
+            <button type="button" class="btn-primary" onclick="calculateAndAdd()">➕ Schiff hinzufügen</button>
+            <button type="reset" class="btn-reset" onclick="resetForm()">🔄 Löschen</button>
           </div>
 
           <div class="button-group">
-            <button type="button" class="btn-export" onclick="exportAllShipsCSV()" id="exportBtn" style="display:none;">📥 Alle als CSV exportieren</button>
-            <button type="button"
-              class="btn-export"
-              onclick="exportMatrixAndShipsExcelXml()"
-              id="exportExcelBtn"
-              style="display:none;">
-              📗 Matrix + Liste exportieren (Excel)
-            </button>
-
-            <button type="button" class="btn-secondary" onclick="openSnapshotPrintView()" id="snapshotBtn" style="display:none;">🖨️ Snapshot / Druckansicht</button>
+            <button type="button" class="btn-export" onclick="exportAllShipsCSV()" id="exportBtn" style="display:none;">📥 CSV exportieren</button>
+            <button type="button" class="btn-export" onclick="exportExcelXml()" id="exportExcelBtn" style="display:none;">📗 Excel exportieren</button>
+            <button type="button" class="btn-secondary" onclick="openSnapshotPrintView()" id="snapshotBtn" style="display:none;">🖨️ Snapshot / Druckansicht (PDF)</button>
           </div>
+
         </form>
       </div>
 
-      <!-- RIGHT: MATRIX + LIST -->
+      <!-- RIGHT -->
       <div class="right-panel">
         <div class="matrix-container" id="reportArea">
-          <h2 style="margin-bottom:15px;">Risikomatrix</h2>
+          <h2 style="margin-bottom:12px; color:#123;">Prioritätenmatrix (Ampel)</h2>
+
           <table class="matrix" id="riskMatrix">
             <thead>
               <tr>
-                <th colspan="6" style="text-align:center;">Operative Indikatoren (X-Achse)</th>
+                <th colspan="6" style="text-align:center;">Operativ (X-Achse)</th>
               </tr>
               <tr>
-                <th>Struktur \ Indikatoren</th>
-                <th>0 - Keine</th>
-                <th>1 - Gering</th>
-                <th>2 - Moderat</th>
-                <th>3 - Relevant</th>
-                <th>4/5 - Kritisch</th>
+                <th>Struktur (Y) \ X</th>
+                <th>0 – keine</th>
+                <th>1 – gering</th>
+                <th>2 – moderat</th>
+                <th>3 – relevant</th>
+                <th>4/5 – kritisch</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <th>L1 - Transparent</th>
-                <td class="risk-low" id="cell_1_0"></td>
-                <td class="risk-low" id="cell_1_1"></td>
-                <td class="risk-low" id="cell_1_2"></td>
-                <td class="risk-low" id="cell_1_3"></td>
-                <td class="risk-medium" id="cell_1_4"></td>
+                <th>L1</th>
+                <td id="cell_1_0"></td>
+                <td id="cell_1_1"></td>
+                <td id="cell_1_2"></td>
+                <td id="cell_1_3"></td>
+                <td id="cell_1_4"></td>
               </tr>
               <tr>
-                <th>L2 - Convenience flag</th>
-                <td class="risk-low" id="cell_2_0"></td>
-                <td class="risk-low" id="cell_2_1"></td>
-                <td class="risk-low" id="cell_2_2"></td>
-                <td class="risk-medium" id="cell_2_3"></td>
-                <td class="risk-high" id="cell_2_4"></td>
+                <th>L2</th>
+                <td id="cell_2_0"></td>
+                <td id="cell_2_1"></td>
+                <td id="cell_2_2"></td>
+                <td id="cell_2_3"></td>
+                <td id="cell_2_4"></td>
               </tr>
               <tr>
-                <th>L3 - Suspicious</th>
-                <td class="risk-low" id="cell_3_0"></td>
-                <td class="risk-medium" id="cell_3_1"></td>
-                <td class="risk-medium" id="cell_3_2"></td>
-                <td class="risk-high" id="cell_3_3"></td>
-                <td class="risk-very-high" id="cell_3_4"></td>
+                <th>L3</th>
+                <td id="cell_3_0"></td>
+                <td id="cell_3_1"></td>
+                <td id="cell_3_2"></td>
+                <td id="cell_3_3"></td>
+                <td id="cell_3_4"></td>
               </tr>
               <tr>
-                <th>L4 - Highly suspicious</th>
-                <td class="risk-medium" id="cell_4_0"></td>
-                <td class="risk-high" id="cell_4_1"></td>
-                <td class="risk-high" id="cell_4_2"></td>
-                <td class="risk-high" id="cell_4_3"></td>
-                <td class="risk-very-high" id="cell_4_4"></td>
+                <th>L4</th>
+                <td id="cell_4_0"></td>
+                <td id="cell_4_1"></td>
+                <td id="cell_4_2"></td>
+                <td id="cell_4_3"></td>
+                <td id="cell_4_4"></td>
               </tr>
               <tr>
-                <th>L5 - Critical</th>
-                <td class="risk-high" id="cell_5_0"></td>
-                <td class="risk-high" id="cell_5_1"></td>
-                <td class="risk-very-high" id="cell_5_2"></td>
-                <td class="risk-very-high" id="cell_5_3"></td>
-                <td class="risk-very-high" id="cell_5_4"></td>
+                <th>L5</th>
+                <td id="cell_5_0"></td>
+                <td id="cell_5_1"></td>
+                <td id="cell_5_2"></td>
+                <td id="cell_5_3"></td>
+                <td id="cell_5_4"></td>
               </tr>
             </tbody>
           </table>
 
           <div class="info-box" style="margin-top:12px;">
-            Klick auf ein Schiff-Badge in der Matrix öffnet Details + editierbare Notizen.
+            Klick auf ein Schiff-Badge öffnet Details, Ampel-Logik, Notizen und Kontrollempfehlungen.
           </div>
 
-          <!-- VESSEL LIST -->
           <div class="ships-list" id="shipsList" style="display:none;">
             <h3>📍 Erfasste Schiffe</h3>
             <div id="shipsContainer"></div>
@@ -687,145 +605,23 @@
 
     <!-- INFO TAB -->
     <div class="content-full" id="info">
-      <div style="max-width:1200px; margin:0 auto; padding:30px;">
-        <h2 style="color:#333; margin-bottom:30px; padding-bottom:15px; border-bottom:3px solid #667eea;">
-          📚 Erklärungen, Listen &amp; Ressourcen
+      <div style="max-width:1200px; margin:0 auto;">
+        <h2 style="color:#123; margin-bottom:12px; padding-bottom:10px; border-bottom:2px solid #0aa6a6;">
+          📚 Hinweise zur Logik
         </h2>
 
-        <div class="reference-list">
-          <h3>⚠️ Zombieschiffe &amp; sanctions evasion</h3>
-          <div style="font-size:12px; line-height:1.8;">
-            <p><strong>Zombieschiff:</strong></p>
-            <p style="margin-left:10px; color:#666; margin-bottom:10px;">
-              Ein Schiff mit unbekannter oder unklarer Flaggenregistrierung. Häufiges Muster zur Verschleierung/Umgehung.
-            </p>
-
-            <p><strong>Sanctions history (vessel itself):</strong></p>
-            <p style="margin-left:10px; color:#666; margin-bottom:10px;">
-              Das Schiff selbst ist auf Sanktionslisten gelistet.
-            </p>
-
-            <p><strong>Sanctions evasion (cargo / trade):</strong></p>
-            <p style="margin-left:10px; color:#666; margin-bottom:10px;">
-              Das Schiff wird für den Transport sanktionierter Güter genutzt (Cargo-/Trade-Pattern).
-            </p>
-
-            <div class="warning-box" style="margin-top:15px;">
-              <strong>⚡ Hinweis:</strong><br>
-              Wenn du nur AIS hast: Confidence niedrig setzen – AIS/GNSS kann gestört oder manipuliert sein.
-            </div>
-          </div>
+        <div class="info-box">
+          <b>Y (Struktur)</b> basiert auf Flaggenkategorie (Grey/Black), “andere Kontrollregime” und Alter &gt; 10 Jahre. <br>
+          <b>X (operativ)</b> basiert auf Triggern (TBS, Aquatrack, Incidents, Verdachtsmeldung, etc.). <br>
+          <b>Gate:</b> Ohne TBS-Kontrollwürdigkeit werden Empfehlungen nur bei Verdachtsmeldung/Aquatrack/Externem Hinweis ausgegeben.
         </div>
 
-        <div class="reference-list" id="crewingtab">
-          <h3>🏢 Kaliningrad crewing agencies (high risk)</h3>
-          <p style="font-size:12px; color:#666; margin-bottom:10px;">
-            Beispiel-Liste (bitte mit eigenen Quellen prüfen/aktualisieren):
-          </p>
-          <ul>
-            <li><code>RUSAM Maritime Agency</code></li>
-            <li><code>Baltic Group International (BGI)</code></li>
-            <li><code>NORDVEGR LTD / Severnyi Put</code></li>
-            <li><code>Marine Crewing Agency (MTS)</code></li>
-            <li><code>ALL CREW LLC</code></li>
-            <li><code>Acheon Shipping-West</code></li>
-            <li><code>Akon Ltd</code></li>
-            <li><code>ALIOT</code></li>
-            <li><code>Baltic Sea Stock Ltd</code></li>
-            <li><code>Baltmarco Ltd</code></li>
-            <li><code>Bernhard Schulte Shipmanagement Kaliningrad</code></li>
-            <li><code>Captains Club Agency</code></li>
-            <li><code>Green Management</code></li>
-            <li><code>KSM Ltd</code></li>
-            <li><code>Marlow Navigation (part of Marlow Group)</code></li>
-            <li><code>Misje Rederi Ltd</code></li>
-            <li><code>Novikontas Kaliningrad LLC</code></li>
-            <li><code>PRUSMARME Ltd</code></li>
-            <li><code>SKOV Shipping LTD</code></li>
-            <li><code>Topsail Ltd</code></li>
-            <li><code>Tornado Shipping Company</code></li>
-            <li><code>WESTRYBFLOT</code></li>
-          </ul>
-          <div class="small">Hinweis: Diese Liste ist ein „Anker“ für die eigene Pflege.</div>
+        <div class="info-box">
+          <b>Snapshot/PDF:</b> In der Snapshot-Ansicht oben auf <b>Drucken</b> klicken → <b>Als PDF speichern</b>.  
         </div>
 
-        <!-- NEW: Russland Crewing -->
-        <div class="reference-list" id="ruscrewingtab">
-          <h3>🏢 Russland Crewing (westliche Operatoren/Shipmanager mit RU-Crewing-Struktur)</h3>
-          <p style="font-size:12px; color:#666; margin-bottom:10px;">
-            Zweck: Struktur-Signal, wenn (1) eigenes Crewing-/Manning-Büro in Russland, oder (2) konzernnahe Crewing-Tochter in Russland.
-            Diese Liste ist OSINT-basiert und nicht abschließend – sie dient als „Trefferanker“.
-          </p>
-          <ul>
-            <li><code>Wilson (NOR) – Crewing office Arkhangelsk</code></li>
-            <li><code>Royal Wagenborg (NL) – Wagenborg Saint Petersburg (crewing/local office)</code></li>
-            <li><code>Spliethoff (NL) – Crewing office Russia (St. Petersburg)</code></li>
-            <li><code>Marlow Navigation / Marlow Group (EU) – Marlow Navigation Russia (manning/crewing)</code></li>
-            <li><code>Bernhard Schulte Shipmanagement (DE) – RU Standorte / Crew Service (u. a. Kaliningrad genannt in eigenen Kontakten)</code></li>
-            <li><code>Columbia Group / Columbia Shipmanagement (EU) – RU Branch/Office (u. a. Novorossiysk/St. Petersburg)</code></li>
-            <li><code>OSM Thome (NOR/EU) – OSM Crew Management St. Petersburg (in Konzernunterlagen geführt)</code></li>
-            <li><code>V.Group / BGI (UK/EU) – St. Petersburg Crewing/Operations (BGI)</code></li>
-          </ul>
-          <div class="warning-box" style="margin-top:10px;">
-            <strong>Interpretation:</strong><br>
-            „Russland Crewing“ ist <em>weniger stark</em> gewichtet als „Kaliningrad crewing“, aber relevant als strukturierter Rekrutierungs-/Manning-Anker.
-          </div>
-        </div>
-
-        <!-- NEW: Krim Crewing -->
-        <div class="reference-list" id="crimcrewingtab">
-          <h3>🏴 Krim Crewing (Crewing-Agenturen / Offices auf der Krim)</h3>
-          <p style="font-size:12px; color:#666; margin-bottom:10px;">
-            Hinweis: Kundenlisten solcher Agenturen sind öffentlich oft nicht verfügbar; daher ist das Signal primär: „Recruitment/Placement-Office auf der Krim“.
-            Das Feld ist absichtlich schwächer gewichtet als „Russland Crewing“.
-          </p>
-          <ul>
-            <li><code>Tenet Marine Company Ltd – Simferopol (Crimea)</code></li>
-            <li><code>MIT-Ocean Ltd – Simferopol (Crimea) (Head office)</code></li>
-            <li><code>Sea Breeze Shipping Co. – Simferopol (Crimea) (Office/License-Angaben)</code></li>
-          </ul>
-          <div class="small">Praxis: Wenn möglich immer mit Primärdokument (Crew List/Agenturunterlagen/MLC-License) gegenprüfen.</div>
-        </div>
-
-        <!-- NEW: Crew nationality -->
-        <div class="reference-list" id="crewNatTab">
-          <h3>👥 Crew RUS/UKR (Nationalität in der Besatzung – ohne eigene RU/UA-Crewingstruktur)</h3>
-          <p style="font-size:12px; color:#666; margin-bottom:10px;">
-            Dieses Feld ist absichtlich am schwächsten gewichtet: Viele westliche Operatoren beschäftigen RU/UA-Seeleute über Sub-Crewing.
-            Setze das Feld nur, wenn du eine belastbare Quelle hast (Crew List, Master’s particulars, Agenturunterlagen, PSC-/Accident-Report, verifizierte Crew-Statements).
-          </p>
-          <div class="info-box">
-            Typische Belege: <b>Crew List</b> (Port/Agent), <b>MLC Recruitment &amp; Placement License</b>, <b>PSC/Incident Reports</b>, <b>verifizierte HR/Crewing-Kommunikation</b>.
-          </div>
-          <p style="font-size:12px; color:#666; margin:10px 0 6px 0;"><strong>Beispielhafte OSINT-Anker (nicht abschließend):</strong></p>
-          <ul>
-            <li><code>Nordic Hamburg – berichtet über ukrainische Seeleute im Pool (öffentlich in Sustainability/Report erwähnt)</code></li>
-            <li><code>MSC Crewing Services (Ukraine) – UA Crewing-Unit (Konzernstruktur/Service)</code></li>
-            <li><code>Wilhelmsen Ship Management – Crew-Management Ukraine (Recruitment/Support)</code></li>
-            <li><code>Marlow Navigation Russia / V.Group St. Petersburg / OSM St. Petersburg – als RU Crew-Pipelines (Crewing/Manning)</code></li>
-          </ul>
-        </div>
-
-        <div class="reference-list" id="pmctab">
-          <h3>🎖️ Operators with PMC linkage</h3>
-          <p style="font-size:12px; color:#666; margin-bottom:10px;">Beispiele/Platzhalter – bitte mit Quellen pflegen:</p>
-          <ul>
-            <li><code>Oslo Bulk</code> - PMC presence documented</li>
-            <li><code>Hav Shipping</code> - Military proximity</li>
-            <li><code>Moonlight Shipmanagement LLC-FZ Dubai</code> - Suspect crewing</li>
-            <li><code>Citrine Marine / Dreamer Shipmanagement Dubai</code> - Crewing anomalies</li>
-            <li><code>Norebo JSC</code> - Russian linkage</li>
-            <li><code>Murman Sea Food (MSF)</code> - Militarized structure</li>
-          </ul>
-        </div>
-
-        <div class="reference-list">
-          <h3>🔗 Externe Ressourcen &amp; Datenquellen</h3>
-          <ul>
-            <li><a href="https://war-sanctions.gur.gov.ua/en/transport/ships" target="_blank" rel="noreferrer">War Sanctions Ukraine (vessel list)</a></li>
-            <li><a href="https://www.equasis.org" target="_blank" rel="noreferrer">Equasis</a></li>
-            <li><a href="https://portal.emsa.europa.eu/web/thetis/home" target="_blank" rel="noreferrer">Thetis PSC</a></li>
-          </ul>
+        <div class="info-box">
+          <b>Hybrid-Hinweis:</b> Bei Routing/Incidents/Russland-Bezug wird automatisch ein Hinweis auf die separate “Risikomatrix Hybride Bedrohungen” ausgegeben (Link anpassbar im Code).
         </div>
       </div>
     </div>
@@ -842,106 +638,57 @@
       <div class="modal-body">
         <div class="modal-grid">
           <div class="kv"><b>Name:</b> <span id="m_name"></span></div>
-          <div class="kv"><b>Typ:</b> <span id="m_type"></span></div>
-          <div class="kv"><b>Struktur (Y):</b> <span id="m_y"></span></div>
-          <div class="kv"><b>Operativ (X):</b> <span id="m_x"></span></div>
-          <div class="kv"><b>Risiko:</b> <span id="m_risk"></span></div>
-          <div class="kv"><b>Confidence:</b> <span id="m_conf"></span></div>
+          <div class="kv"><b>IMO:</b> <span id="m_imo"></span></div>
+          <div class="kv"><b>Flagge:</b> <span id="m_flag"></span></div>
+          <div class="kv"><b>Y-Level:</b> <span id="m_y"></span></div>
+          <div class="kv"><b>X-Stufe:</b> <span id="m_x"></span></div>
+          <div class="kv"><b>Ampel:</b> <span id="m_ampel"></span></div>
           <div class="kv" style="grid-column:1 / -1;">
             <b>Top-Gründe:</b> <span id="m_reasons"></span>
           </div>
         </div>
 
-        <label for="m_notes"><b>Freitext / Notizen</b> <span class="small">(pro Schiff gespeichert)</span></label>
-        <textarea id="m_notes" placeholder="z. B. Quellenlage, AIS-Anomalien, Maßnahmen, Bewertung..."></textarea>
+        <div class="module-box">
+          <h4>✅ Kontrollempfehlungen / Module</h4>
+          <ul class="module-list" id="m_modules"></ul>
+        </div>
 
-        <div class="modal-actions">
-          <button type="button" class="btn-calculate" onclick="saveShipNotes()">💾 Notiz speichern</button>
+        <label for="m_notes"><b>Freitext / Notizen</b> <span class="small">(pro Schiff gespeichert)</span></label>
+        <textarea id="m_notes" placeholder="z. B. Feststellungen, Dokumente, Maßnahmen..."></textarea>
+
+        <div class="button-group" style="margin-top:12px;">
+          <button type="button" class="btn-primary" onclick="saveShipNotes()">💾 Notiz speichern</button>
           <button type="button" class="btn-secondary" onclick="closeShipModal()">Schließen</button>
-          <button type="button" class="btn-danger" onclick="removeCurrentShip()">🗑️ Schiff entfernen</button>
+          <button type="button" class="btn-danger" onclick="removeCurrentShip()">🗑️ Entfernen</button>
         </div>
 
         <div class="small" style="margin-top:10px;">
-          Tipp: Klick auf ein anderes Badge öffnet dessen Notiz; du kannst Notizen jederzeit überschreiben.
+          Tipp: Empfehlungen werden aus den Kreuzen abgeleitet (Gate-Regel TBS beachten).
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // ==========
-    // Datenmodell
-    // ==========
+    // =========================
+    // Data model
+    // =========================
     let allShips = [];
     let currentShipId = null;
 
-    // ==========
-    // Tabs
-    // ==========
-    function switchTab(tabName) {
-      document.querySelectorAll('.content, .content-full').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+    // Link to your hybrid matrix (adjust to your file/path)
+    const HYBRID_MATRIX_LINK = "hybrid_risikomatrix.html";
 
-      if (tabName === 'tool') {
-        document.getElementById('tool').classList.add('active');
-        document.querySelector('.tab-button[onclick*="tool"]').classList.add('active');
-      } else {
-        document.getElementById('info').classList.add('active');
-        document.querySelector('.tab-button[onclick*="info"]').classList.add('active');
-      }
-    }
+    // =========================
+    // Utilities
+    // =========================
+    function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
 
-    // ==========
-    // Flag weights
-    // ==========
-    const flagWeights = {
-      // black list
-      'kn-black': 3, 'tg-black': 3, 'pw-black': 3, 'gw-black': 3, 'bz-black': 3,
-      'vu-black': 3, 'ua-black': 3, 'km-black': 3, 'vn-black': 3, 'md-black': 3, 'tz-black': 3, 'cm-black': 3,
-      // grey list
-      'sa-grey': 2, 'hr-grey': 2, 'in-grey': 2, 'lv-grey': 2, 'kr-grey': 2, 'ma-grey': 2, 'ru-grey': 2,
-      'pa-grey': 2, 'lb-grey': 2, 'ck-grey': 2, 'ph-grey': 2, 'al-grey': 2, 'dz-grey': 2, 'vc-grey': 2,
-      'sl-grey': 2, 'tn-grey': 2, 'bd-grey': 2,
-      // special/other
-      'unknown-flag': 4,
-      'other-flag': 1
-    };
-
-    function getFlagWeight() {
-      const flagSelect = document.getElementById('shipFlag').value;
-      return flagWeights[flagSelect] ?? 0;
-    }
-
-    // ==========
-    // Auto-set Grey/Black checkboxes from selected flag
-    // ==========
-    function syncFlagCheckboxesFromSelect() {
-      const w = getFlagWeight();
-      const grey = document.getElementById('cb_grey_flag');
-      const black = document.getElementById('cb_black_flag');
-      if (grey) grey.checked = (w === 2);
-      if (black) black.checked = (w === 3);
-    }
-
-    // ==========
-    // Helpers
-    // ==========
-    function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
-
-    function normalizeRiskClass(riskLevel) {
-      const s = (riskLevel || '').toLowerCase().trim();
-      if (s === 'very high' || s === 'sehr hoch') return 'risk-sehr-hoch-text';
-      if (s === 'high' || s === 'hoch') return 'risk-hoch-text';
-      if (s === 'medium' || s === 'mittel') return 'risk-mittel-text';
-      if (s === 'low' || s === 'niedrig') return 'risk-niedrig-text';
-      return 'risk-niedrig-text';
-    }
-
-    function newId() {
+    function newId(){
       return 'ship_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
     }
 
-    function escapeHtml(s) {
+    function escapeHtml(s){
       return String(s ?? '')
         .replaceAll('&','&amp;')
         .replaceAll('<','&lt;')
@@ -955,392 +702,664 @@
       return safe.replace(/\r?\n/g, '<br>');
     }
 
-    // ==========
-    // Scoring: Structure (Y)
-    // ==========
-    function calculateStructure() {
-      const struct = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
-      const flagWeight = getFlagWeight();
-
-      let score = 1;
-
-      const isZombie = flagWeight === 4;
-      const isBlack  = flagWeight === 3;
-      const isGrey   = flagWeight === 2;
-
-      // Baseline by flag
-      if (isGrey) score = Math.max(score, 2);
-      if (isBlack) score = Math.max(score, 3);
-
-      // Zombie logic
-      if (isZombie) {
-        score = Math.max(score, 3);
-        if (struct.includes('sanctions_evasion')) score = Math.max(score, 4);
-      }
-
-      // Hard triggers
-      if (struct.includes('flag_change')) score = Math.max(score, 4);
-      if (struct.includes('kaliningrad')) score = Math.max(score, 3);
-      if (struct.includes('sanctions')) score = Math.max(score, 4);
-
-      // NEW: crewing weights (relative to Kaliningrad)
-      // Kaliningrad = 1.00 baseline
-      // Russland Crewing = < Kaliningrad (hier: 0.80)
-      // Krim Crewing = 0.5 * Russland
-      // Crew RUS/UKR = 0.75 * Krim
-      const crewingWeight = {
-        kaliningrad: 1.00,
-        russland_crewing: 0.80,
-        krim_crewing: 0.40,
-        crew_rus_ukr: 0.30
-      };
-
-      // Soft-minimums for new fields:
-      // - Russland Crewing: mindestens L2, aber schwächer als Kaliningrad
-      // - Krim Crewing: keine harte Mindeststufe (läuft über Gewicht/Accumulation)
-      // - Crew RUS/UKR: nur leichter Hinweis (läuft über Gewicht/Accumulation)
-      if (struct.includes('russland_crewing')) score = Math.max(score, 2);
-
-      // Mid-level hints
-      if (struct.includes('sanctions_evasion')) score = Math.max(score, 3);
-      if (struct.includes('opaque')) score = Math.max(score, 3);
-      if (struct.includes('class_issue')) score = Math.max(score, 3);
-      if (struct.includes('pi_issue')) score = Math.max(score, 3);
-      if (struct.includes('identity_churn')) score = Math.max(score, 3);
-      if (struct.includes('manager_churn')) score = Math.max(score, 2);
-
-      // Accumulation (weighted)
-      // Standard hints count as 1.0; manager_churn lighter; crewing indicators per your weighting.
-      const accumWeights = {
-        opaque: 1.0,
-        sanctions_evasion: 1.0,
-        class_issue: 1.0,
-        pi_issue: 1.0,
-        identity_churn: 1.0,
-        manager_churn: 0.6,
-        kaliningrad: crewingWeight.kaliningrad,
-        russland_crewing: crewingWeight.russland_crewing,
-        krim_crewing: crewingWeight.krim_crewing,
-        crew_rus_ukr: crewingWeight.crew_rus_ukr
-      };
-
-      const accumKeys = Object.keys(accumWeights);
-      const accum = accumKeys.reduce((sum,k)=> sum + (struct.includes(k) ? accumWeights[k] : 0), 0);
-
-      // Schwelle: ab ~3 "normalen" Hinweisen oder äquivalentem gewichteten Mix -> +1 Level
-      if (accum >= 3.0) score += 1;
-
-      // Level 5 combos
-      if (struct.includes('flag_change') && (isBlack || struct.includes('black_flag'))) score = 5;
-      if (isBlack && struct.includes('flag_change') && struct.includes('kaliningrad')) score = 5;
-      if (isZombie && struct.includes('sanctions')) score = 5;
-
-      // Extra combo: Kaliningrad + Russland/Krim-Crewing + opake Struktur/Identity churn -> härter
-      const anyCrewing = struct.includes('kaliningrad') || struct.includes('russland_crewing') || struct.includes('krim_crewing');
-      if (anyCrewing && (struct.includes('opaque') || struct.includes('identity_churn')) && (isBlack || struct.includes('sanctions_evasion'))) {
-        score = Math.max(score, 5);
-      }
-
-      return clamp(score, 1, 5);
+    function setPill(el, colorClass, text){
+      el.innerHTML = `<span class="pill ${colorClass}">${escapeHtml(text)}</span>`;
     }
 
-    // ==========
-    // Scoring: Operational (X)
-    // ==========
-    function calculateProbability() {
-      const indicators = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
-      const flagWeight = getFlagWeight();
-      const isZombie = flagWeight === 4;
+    // =========================
+    // Tabs
+    // =========================
+    function switchTab(tabName){
+      document.querySelectorAll('.content, .content-full').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
 
-      const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
+      if(tabName === 'tool'){
+        document.getElementById('tool').classList.add('active');
+        document.querySelector('.tab-button[onclick*="tool"]').classList.add('active');
+      }else{
+        document.getElementById('info').classList.add('active');
+        document.querySelector('.tab-button[onclick*="info"]').classList.add('active');
+      }
+    }
 
-      const sev = {
-        // very strong
-        multi_loitering: 4,
-        drone: 4,
-        military: 4,
-        uniformed: 4,
-        pmc: 4,
-        gnss_spoofing: 4,
-        survey_pattern: 4,
+    // =========================
+    // Flag auto-sync
+    // =========================
+    function syncFlagCheckboxesFromSelect(){
+      const v = document.getElementById('shipFlag').value;
+      const grey = document.getElementById('cb_grey_flag');
+      const black = document.getElementById('cb_black_flag');
+      grey.checked = (v === 'grey');
+      black.checked = (v === 'black');
+    }
 
-        // strong
-        boarding: 3,
-        loitering: 3,
-        ais_blackout: 3,
-        known_incident: 3,
-        sts: 3,
-        dark_activity: 3,
-        ci_anchoring: 3,
+    // =========================
+    // Scoring Y (structure)
+    // =========================
+    function calcYPoints(){
+      const flag = document.getElementById('shipFlag').value;
+      const otherRegime = document.getElementById('cb_other_regime').checked;
+      const older10 = document.getElementById('cb_older_10').checked;
 
-        // moderate
-        russian_ports: 2,
-        ais_unnatural: 2,
-        ci_corridor_crossing: 2
+      let pts = 0;
+      if(flag === 'grey') pts += 2;
+      if(flag === 'black') pts += 4;
+      if(otherRegime) pts += 1;
+      if(older10) pts += 1;
+      return pts;
+    }
+
+    function yLevelFromPoints(pts){
+      if(pts <= 1) return 1;
+      if(pts === 2) return 2;
+      if(pts === 3) return 3;
+      if(pts <= 5) return 4;
+      return 5; // 6+
+    }
+
+    // =========================
+    // Scoring X (operational)
+    // =========================
+    function getOperationalFlags(){
+      return {
+        tbs: document.getElementById('ind_tbs').checked,
+        aquatrack: document.getElementById('ind_aquatrack').checked,
+        psc_recent: document.getElementById('ind_psc_recent').checked, // PSC < 1/2 year (kept as requested)
+        psc_defects: document.getElementById('ind_psc_defects').checked,
+        routing: document.getElementById('ind_routing').checked,
+        incidents: document.getElementById('ind_incidents').checked,
+        russia: document.getElementById('ind_russia').checked,
+        suspicion: document.getElementById('ind_suspicion').checked,
+        sl2: document.getElementById('ind_sl2').checked,
+        overseas: document.getElementById('ind_overseas').checked,
+        crew_change: document.getElementById('ind_crew_change').checked,
+        port_auth: document.getElementById('ind_port_auth').checked
       };
+    }
 
-      if (indicators.length === 0) {
-        if (isZombie) return (confidence >= 0.6) ? 1 : 0;
+    function getShipTraits(){
+      return {
+        externalHint: (document.getElementById('externalHint').value === 'yes'),
+        hfo: document.getElementById('cb_hfo').checked,
+        scrubber: document.getElementById('cb_scrubber').checked,
+        egcsType: document.getElementById('egcsType').value,
+        tanker: document.getElementById('cb_tanker').checked,
+        bulker: document.getElementById('cb_bulker').checked,
+        ballastIn: document.getElementById('cb_ballast_in').checked,
+        older10: document.getElementById('cb_older_10').checked
+      };
+    }
+
+    function calcXPoints(op, traits){
+      let pts = 0;
+
+      // weights as agreed
+      if(op.tbs) pts += 3;
+      if(op.aquatrack) pts += 5;
+      // PSC < 1/2 year -> 0 points (informational)
+      if(op.psc_defects) pts += 4;
+      if(op.routing) pts += 3;
+      if(op.incidents) pts += 4;
+      if(op.russia) pts += 3;
+      if(op.suspicion) pts += 6;
+      if(op.sl2) pts += 3;
+      if(op.overseas) pts += 2;
+      if(op.crew_change) pts += 1;
+      if(op.port_auth) pts += 1;
+      if(traits.externalHint) pts += 4;
+
+      // Gate: if NOT TBS and no (suspicion/aquatrack/external) => force X=0
+      if(!op.tbs && !op.suspicion && !op.aquatrack && !traits.externalHint){
         return 0;
       }
 
-      let maxS = 0;
-      let sumS = 0;
-      for (const ind of indicators) {
-        const s = sev[ind] ?? 1;
-        maxS = Math.max(maxS, s);
-        sumS += s;
-      }
-
-      const effective = sumS * confidence;
-
-      let score = 0;
-      if (maxS >= 4 && effective >= 6) score = 5;
-      else if (maxS >= 4) score = 4;
-      else if (effective >= 6) score = 4;
-      else if (maxS >= 3 && effective >= 4) score = 3;
-      else if (maxS >= 3) score = 2;
-      else if (effective >= 3) score = 2;
-      else score = 1;
-
-      const has = (x) => indicators.includes(x);
-
-      // Hybrid boost (no hard override)
-      if (has('uniformed') && has('russian_ports') && (has('ais_blackout') || has('gnss_spoofing'))) {
-        score = Math.min(5, score + 1);
-      }
-
-      // CI boost
-      if ((has('loitering') || has('multi_loitering') || has('ci_anchoring')) &&
-          has('ci_corridor_crossing') &&
-          (has('ais_blackout') || has('gnss_spoofing'))) {
-        score = Math.min(5, score + 1);
-      }
-
-      // Shadow-fleet behavior
-      if (has('sts') && has('dark_activity')) {
-        score = Math.min(5, score + 1);
-      }
-
-      return clamp(score, 0, 5);
+      return pts;
     }
 
-    // ==========
-    // Risk matrix lookup (uses RAW X: 0..5)
-    // ==========
-    function getRiskLevel(structure, probabilityRaw) {
-      const matrix = {
-        '1,0':'Niedrig','1,1':'Niedrig','1,2':'Niedrig','1,3':'Niedrig','1,4':'Mittel','1,5':'Hoch',
-        '2,0':'Niedrig','2,1':'Niedrig','2,2':'Niedrig','2,3':'Mittel','2,4':'Hoch','2,5':'Hoch',
-        '3,0':'Niedrig','3,1':'Mittel','3,2':'Mittel','3,3':'Hoch','3,4':'Hoch','3,5':'Sehr hoch',
-        '4,0':'Mittel','4,1':'Hoch','4,2':'Hoch','4,3':'Hoch','4,4':'Sehr hoch','4,5':'Sehr hoch',
-        '5,0':'Hoch','5,1':'Hoch','5,2':'Sehr hoch','5,3':'Sehr hoch','5,4':'Sehr hoch','5,5':'Sehr hoch'
-      };
-      return matrix[`${structure},${probabilityRaw}`] || 'Unbekannt';
+    function xStageFromPoints(pts){
+      if(pts <= 2) return 0;
+      if(pts <= 5) return 1;
+      if(pts <= 8) return 2;
+      if(pts <= 11) return 3;
+      if(pts <= 15) return 4;
+      return 5;
     }
 
-    // ==========
+    // =========================
+    // Ampel logic (color)
+    // =========================
+    function ampelFromXY(yLevel, xStage, op){
+      // Hard triggers:
+      // suspicion -> min orange
+      // suspicion + (sl2 or incidents or russia) -> red
+      if(op.suspicion && (op.sl2 || op.incidents || op.russia)) return 'Rot';
+      if(op.suspicion) return 'Orange';
+
+      // general matrix rule
+      if(xStage <= 1 && yLevel <= 2) return 'Grün';
+
+      if((xStage === 2 && yLevel <= 3) || (xStage <= 1 && yLevel === 3)) return 'Gelb';
+
+      if(xStage === 3 || (xStage === 2 && yLevel >= 4)) return 'Orange';
+
+      if(xStage >= 4 || (xStage === 3 && yLevel >= 4)) return 'Rot';
+
+      // fallback
+      return 'Gelb';
+    }
+
+    function ampelToCellClass(ampel){
+      const s = (ampel || '').toLowerCase();
+      if(s === 'grün') return 'cell-green';
+      if(s === 'gelb') return 'cell-yellow';
+      if(s === 'orange') return 'cell-orange';
+      if(s === 'rot') return 'cell-red';
+      return 'cell-yellow';
+    }
+
+    function ampelToPillClass(ampel){
+      const s = (ampel || '').toLowerCase();
+      if(s === 'grün') return 'pill-green';
+      if(s === 'gelb') return 'pill-yellow';
+      if(s === 'orange') return 'pill-orange';
+      if(s === 'rot') return 'pill-red';
+      return 'pill-gray';
+    }
+
+    // =========================
     // Reasons (Top 3)
-    // ==========
-    function getTopReasonsFromCurrentForm() {
-      const struct = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
-      const indicators = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
-      const flagSelect = document.getElementById('shipFlag').value;
-
-      const labels = {
-        grey_flag:"Grey-List-Flagge",
-        black_flag:"Black-List-Flagge",
-        flag_change:"Häufige Flaggenwechsel",
-        opaque:"Opake Eigentümer-/Betreiberstruktur",
-        kaliningrad:"Kaliningrad crewing",
-        russland_crewing:"Russland Crewing",
-        krim_crewing:"Krim Crewing",
-        crew_rus_ukr:"Crew RUS/UKR",
-        sanctions:"Sanktionshistorie (vessel)",
-        sanctions_evasion:"Sanctions evasion (cargo/trade)",
-        class_issue:"Class/RO irregularities",
-        pi_issue:"P&I/insurance irregularities",
-        identity_churn:"Identity churn",
-        manager_churn:"Owner/manager churn",
-
-        russian_ports:"Russian ports (10 days)",
-        ais_blackout:"AIS blackout",
-        gnss_spoofing:"GNSS/AIS spoofing anomalies",
-        ais_unnatural:"Unnatural routes",
-        loitering:"Cable loitering",
-        multi_loitering:"Repeated loitering",
-        ci_corridor_crossing:"CI corridor crossing",
-        ci_anchoring:"Anchoring/drifting in CI corridor",
-        sts:"STS / rendezvous",
-        dark_activity:"Dark activity",
-        survey_pattern:"Survey / grid patterns",
-        military:"Proximity to military",
-        uniformed:"Uniformed personnel",
-        pmc:"PMC linkage",
-        drone:"Drone activity",
-        boarding:"Boarding",
-        known_incident:"Proximity to incidents"
-      };
-
+    // =========================
+    function getTopReasons(op, traits, flag){
       const reasons = [];
-      if (flagSelect === "unknown-flag") reasons.push("Zombieschiff (unbekannte Flagge)");
-      for (const s of struct) reasons.push(labels[s] ?? s);
-      for (const i of indicators) reasons.push(labels[i] ?? i);
 
-      const priority = {
-        "Zombieschiff (unbekannte Flagge)": 10,
-        "AIS blackout": 9,
-        "GNSS/AIS spoofing anomalies": 9,
-        "Repeated loitering": 8,
-        "Cable loitering": 8,
-        "Anchoring/drifting in CI corridor": 8,
-        "Drone activity": 8,
-        "Boarding": 8,
-        "STS / rendezvous": 7,
-        "Dark activity": 7,
-        "Sanktionshistorie (vessel)": 7,
-        "Uniformed personnel": 7,
-        "PMC linkage": 7,
-        "Survey / grid patterns": 7,
-        "Häufige Flaggenwechsel": 6,
-        "Black-List-Flagge": 6,
-        "Kaliningrad crewing": 6,
-        "Russland Crewing": 5,
-        "Krim Crewing": 4,
-        "Crew RUS/UKR": 3,
-        "Russian ports (10 days)": 5,
-        "Unnatural routes": 5,
-        "CI corridor crossing": 5
+      // labels
+      const labels = {
+        suspicion: "Verdachtsmeldung Leitstelle (kein Security Report)",
+        aquatrack: "Aquatrack (MARPOL-Auffälligkeiten)",
+        external: "Externer Hinweis vorhanden",
+        psc_defects: "PSC-Mängel < 1 Jahr",
+        incidents: "Gemeldete Incidents",
+        sl2: "Aus SL2-Hafen (ISPS)",
+        russia: "Russland-Bezug gemeldet",
+        routing: "Auffällige Fahrtrouten",
+        overseas: "Übersee (Fuel-Switch)",
+        crew_change: "Crewwechsel vor Ort",
+        port_auth: "Schriftverkehr Hafenbehörde",
+        tbs: "Kontrollwürdig laut TBS",
+        flag_black: "Black List Flagge",
+        flag_grey: "Grey List Flagge",
+        older10: "Schiff >10 Jahre",
+        other_regime: "Andere Kontrollregime"
       };
+
+      // priority weights
+      const prio = {
+        "Verdachtsmeldung Leitstelle (kein Security Report)": 100,
+        "Aquatrack (MARPOL-Auffälligkeiten)": 85,
+        "Externer Hinweis vorhanden": 80,
+        "PSC-Mängel < 1 Jahr": 70,
+        "Gemeldete Incidents": 70,
+        "Aus SL2-Hafen (ISPS)": 60,
+        "Russland-Bezug gemeldet": 55,
+        "Auffällige Fahrtrouten": 50,
+        "Kontrollwürdig laut TBS": 40,
+        "Übersee (Fuel-Switch)": 35,
+        "Crewwechsel vor Ort": 25,
+        "Schriftverkehr Hafenbehörde": 20,
+        "Black List Flagge": 40,
+        "Grey List Flagge": 25,
+        "Schiff >10 Jahre": 20,
+        "Andere Kontrollregime": 15
+      };
+
+      if(op.suspicion) reasons.push(labels.suspicion);
+      if(op.aquatrack) reasons.push(labels.aquatrack);
+      if(traits.externalHint) reasons.push(labels.external);
+      if(op.psc_defects) reasons.push(labels.psc_defects);
+      if(op.incidents) reasons.push(labels.incidents);
+      if(op.sl2) reasons.push(labels.sl2);
+      if(op.russia) reasons.push(labels.russia);
+      if(op.routing) reasons.push(labels.routing);
+      if(op.overseas) reasons.push(labels.overseas);
+      if(op.crew_change) reasons.push(labels.crew_change);
+      if(op.port_auth) reasons.push(labels.port_auth);
+      if(op.tbs) reasons.push(labels.tbs);
+
+      if(flag === 'black') reasons.push(labels.flag_black);
+      if(flag === 'grey') reasons.push(labels.flag_grey);
+      if(traits.older10) reasons.push(labels.older10);
+      if(document.getElementById('cb_other_regime').checked) reasons.push(labels.other_regime);
 
       const unique = Array.from(new Set(reasons));
-      unique.sort((a,b) => (priority[b] ?? 1) - (priority[a] ?? 1));
+      unique.sort((a,b)=>(prio[b] ?? 1) - (prio[a] ?? 1));
       return unique.slice(0,3);
     }
 
-    // ==========
-    // Add vessel
-    // ==========
-    function calculateAndAdd() {
-      const shipName = document.getElementById('shipName').value.trim();
-      if (!shipName) { alert('Bitte einen Schiffsname eingeben!'); return; }
+    // =========================
+    // Module engine
+    // =========================
+    function computeModules(ship){
+      const modules = [];
+      const warnings = [];
 
-      const id = newId();
-      const structure = calculateStructure();
-      const probabilityRaw = calculateProbability();
-      const probabilityMatrix = (probabilityRaw >= 4) ? 4 : probabilityRaw; // Matrix column 4 = 4/5
+      const op = ship.op;
+      const traits = ship.traits;
+      const flag = ship.flag;
 
-      const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
-      const reasons = getTopReasonsFromCurrentForm();
-      const riskLevel = getRiskLevel(structure, probabilityRaw);
+      // Gate: if NOT TBS controllable and not suspicion/aquatrack/external => no modules
+      const gateBlocked = (!op.tbs && !op.suspicion && !op.aquatrack && !traits.externalHint);
+      if(gateBlocked){
+        modules.push({ text: "Keine Kontrollempfehlungen (TBS: nicht kontrollwürdig, kein Verdacht/Aquatrack/extern).", cls: "" });
+        return { modules, warnings, gateBlocked:true };
+      }
 
-      const draftNotes = document.getElementById('shipNotesDraft')?.value ?? '';
+      // Hard / Pflicht
+      if(op.suspicion){
+        modules.push({ text:"KONTROLLE: PFLICHT (Verdachtsmeldung Leitstelle)", cls:"hard" });
+        modules.push({ text:"ISPS / Security Report / Nachweiskette (Grund: kein Security Report vorgelegt)", cls:"hard" });
+      }
+
+      // Patente
+      if(flag === 'grey' || flag === 'black' || op.crew_change){
+        modules.push({ text:"Patente (Zertifikate der Besatzung / Befähigungsnachweise)", cls:"" });
+      }
+      if(op.crew_change){
+        warnings.push("Beachte Verantwortungszeitraum (Crewwechsel vor Ort).");
+      }
+
+      // Zertifikate: if PSC <1/2 year NOT checked -> check certificates
+      if(!op.psc_recent){
+        modules.push({ text:"Zertifikate prüfen (PSC nicht < 1/2 Jahr)", cls:"" });
+      }
+
+      // ISM / MLC
+      if(op.psc_defects || op.incidents){
+        modules.push({ text:"ISM (Safety Management / corrective actions / Nachweise)", cls:"" });
+      }
+      if(op.crew_change || traits.externalHint){
+        modules.push({ text:"MLC (Seearbeitsübereinkommen – crew/working & living conditions, Dokumente)", cls:"" });
+      }
+
+      // MARPOL allgemein
+      if(op.aquatrack){
+        modules.push({ text:"MARPOL allgemein (Aquatrack)", cls:"" });
+      }
+
+      // MARPOL Annexes
+      // Ann. I: if HFO
+      if(traits.hfo){
+        modules.push({ text:"MARPOL Ann. I (Öl) – wegen Schweröl/HFO", cls:"" });
+      }
+      // Ann. II: tanker
+      if(traits.tanker){
+        modules.push({ text:"MARPOL Ann. II (Noxious Liquid Substances) – Tankschiff", cls:"" });
+      }
+      // Ann. IV: older than 10 years
+      if(traits.older10){
+        modules.push({ text:"MARPOL Ann. IV (Abwasser) – Schiff > 10 Jahre", cls:"" });
+      }
+      // Ann. V: also on port authority correspondence; plus bulker or external (useful)
+      if(op.port_auth || traits.bulker || traits.externalHint){
+        let why = [];
+        if(op.port_auth) why.push("Schriftverkehr Hafenbehörde");
+        if(traits.bulker) why.push("Schüttgut/Bulker");
+        if(traits.externalHint) why.push("externer Hinweis");
+        modules.push({ text:`MARPOL Ann. V (Garbage) – Trigger: ${why.join(", ")}`, cls:"" });
+      }
+      // Ann. VI: overseas or scrubber or hfo
+      if(op.overseas || traits.scrubber || traits.hfo){
+        let add = [];
+        if(op.overseas) add.push("Übersee/Fuel-Switch");
+        if(traits.hfo) add.push("HFO");
+        if(traits.scrubber){
+          const t = traits.egcsType && traits.egcsType !== 'n/a' ? `, EGCS: ${traits.egcsType}` : "";
+          add.push(`Scrubber/EGCS${t}`);
+        }
+        modules.push({ text:`MARPOL Ann. VI (Air) – Trigger: ${add.join(", ")}`, cls:"" });
+      }
+
+      // Special combo: overseas + HFO -> explicitly mention Ann I & VI (already included) as extra emphasis
+      if(op.overseas && traits.hfo){
+        modules.push({ text:"Zusatzhinweis: Übersee + HFO → Fokus auf Fuel-Switch-Nachweise (Ann. VI) und Öl-Dokumentation (Ann. I).", cls:"warn" });
+      }
+
+      // Ballast water
+      if(traits.ballastIn){
+        modules.push({ text:"Ballastwasser (BWM Convention) – Ballast Water Record Book / IBWMC / D-1/D-2", cls:"" });
+      }
+
+      // IMSBC
+      if(traits.bulker){
+        modules.push({ text:"IMSBC Code (Schüttgut) – Deklaration / Stauplan / Feuchte/TT/ML etc.", cls:"" });
+      }
+
+      // Routing related: bridge/logbook/plausibility + hybrid hint
+      if(op.routing || op.incidents || op.russia){
+        const why = [];
+        if(op.routing) why.push("Routing");
+        if(op.incidents) why.push("Incidents");
+        if(op.russia) why.push("Russland-Bezug");
+        modules.push({ text:`Kontrolle Brücke / Logbuch / Plausibilität (Trigger: ${why.join(", ")})`, cls:"" });
+        modules.push({ text:`Hinweis: ggf. Abgleich mit <a href="${escapeHtml(HYBRID_MATRIX_LINK)}" target="_blank" rel="noreferrer">Risikomatrix Hybride Bedrohungen</a>.`, cls:"" });
+      }
+
+      // SL2 can add security emphasis
+      if(op.sl2 && !op.suspicion){
+        modules.push({ text:"ISPS-Dokumente / Security-Dokumentation (SL2-Kontext)", cls:"" });
+      }
+
+      // Final warnings
+      for(const w of warnings){
+        modules.push({ text:`⚠️ ${escapeHtml(w)}`, cls:"warn" });
+      }
+
+      // Deduplicate by text (keep first)
+      const seen = new Set();
+      const uniq = [];
+      for(const m of modules){
+        const key = m.text.replace(/\s+/g,' ').trim();
+        if(seen.has(key)) continue;
+        seen.add(key);
+        uniq.push(m);
+      }
+
+      // Sort modules by importance buckets
+      function bucket(m){
+        const t = m.text.toLowerCase();
+        if(t.includes("kontrolle: pflicht")) return 1;
+        if(t.includes("isps") && t.includes("security report")) return 2;
+        if(t.startsWith("patente")) return 3;
+        if(t.startsWith("zertifikate")) return 4;
+        if(t.startsWith("ism")) return 5;
+        if(t.startsWith("mlc")) return 6;
+        if(t.includes("marpol allgemein")) return 7;
+        if(t.includes("marpol ann.")) return 8;
+        if(t.includes("ballastwasser")) return 9;
+        if(t.includes("imsbc")) return 10;
+        if(t.includes("brücke") || t.includes("logbuch") || t.includes("plausibilität")) return 11;
+        if(t.includes("hybride")) return 12;
+        if(t.includes("zusatzhinweis")) return 13;
+        if(t.includes("⚠️")) return 14;
+        return 20;
+      }
+      uniq.sort((a,b)=> bucket(a)-bucket(b));
+
+      return { modules: uniq, warnings, gateBlocked:false };
+    }
+
+    // =========================
+    // Add ship
+    // =========================
+    function calculateAndAdd(){
+      const name = document.getElementById('shipName').value.trim();
+      const flag = document.getElementById('shipFlag').value;
+      if(!name){ alert('Bitte Schiffsname eingeben.'); return; }
+      if(!flag){ alert('Bitte Flaggenkategorie wählen.'); return; }
+
+      const op = getOperationalFlags();
+      const traits = getShipTraits();
+
+      const yPts = calcYPoints();
+      const yLevel = yLevelFromPoints(yPts);
+
+      const xPts = calcXPoints(op, traits);
+      const xStage = xStageFromPoints(xPts);
+      const xMatrix = (xStage >= 4) ? 4 : xStage;
+
+      const ampel = ampelFromXY(yLevel, xStage, op);
 
       const ship = {
-        id,
-        name: shipName,
-        type: document.getElementById('shipType').options[document.getElementById('shipType').selectedIndex].text,
-        structure,
-        probabilityRaw,
-        probabilityMatrix,
-        riskLevel,
-        confidence,
-        reasons,
-        notes: draftNotes,
-        timestamp: new Date().toLocaleString('de-DE')
+        id: newId(),
+        name,
+        imo: document.getElementById('imo').value.trim(),
+        flag,
+        yPts, yLevel,
+        xPts, xStage, xMatrix,
+        ampel,
+        notes: document.getElementById('shipNotesDraft').value ?? '',
+        timestamp: new Date().toLocaleString('de-DE'),
+        op,
+        traits,
+        reasons: getTopReasons(op, traits, flag)
       };
 
+      // modules
+      const m = computeModules(ship);
+      ship.modules = m.modules.map(x => x.text.replace(/\s+/g,' ').trim());
+      ship.gateBlocked = m.gateBlocked;
+
       allShips.push(ship);
+
+      updateMatrixCellColors(); // keep background current
       updateMatrix();
       updateShipsList();
 
-      resetForm();
       document.getElementById('exportBtn').style.display = 'inline-block';
       document.getElementById('exportExcelBtn').style.display = 'inline-block';
       document.getElementById('snapshotBtn').style.display = 'inline-block';
-      document.getElementById('exportExcelBtn').style.display = 'inline-block';
+
+      resetForm();
     }
 
-    // ==========
-    // Matrix update (clickable badges)
-    // ==========
-    function updateMatrix() {
-      for (let s=1; s<=5; s++) {
-        for (let p=0; p<=4; p++) {
-          const cell = document.getElementById(`cell_${s}_${p}`);
-          if (cell) cell.innerHTML = '';
+    // =========================
+    // Form reset
+    // =========================
+    function resetForm(){
+      document.getElementById('assessmentForm').reset();
+      syncFlagCheckboxesFromSelect();
+      toggleEgcsType();
+    }
+
+    function toggleEgcsType(){
+      const on = document.getElementById('cb_scrubber').checked;
+      document.getElementById('egcsType').disabled = !on;
+      if(!on) document.getElementById('egcsType').value = 'n/a';
+    }
+
+    // =========================
+    // Matrix update
+    // =========================
+    function updateMatrixCellColors(){
+      for(let y=1;y<=5;y++){
+        for(let x=0;x<=4;x++){
+          const cell = document.getElementById(`cell_${y}_${x}`);
+          if(!cell) continue;
+          cell.classList.remove('cell-green','cell-yellow','cell-orange','cell-red');
+
+          // Determine cell default color from theoretical rule:
+          // Use representative xStage = x (except last col as 4) and no hard trigger
+          const repX = (x === 4) ? 4 : x;
+          const dummyOp = { suspicion:false, sl2:false, incidents:false, russia:false };
+          const a = ampelFromXY(y, repX, dummyOp);
+          cell.classList.add(ampelToCellClass(a));
+        }
+      }
+    }
+
+    function updateMatrix(){
+      // clear badges
+      for(let y=1;y<=5;y++){
+        for(let x=0;x<=4;x++){
+          const cell = document.getElementById(`cell_${y}_${x}`);
+          if(cell) cell.innerHTML = '';
         }
       }
 
-      for (const ship of allShips) {
-        const cellId = `cell_${ship.structure}_${ship.probabilityMatrix}`;
+      for(const ship of allShips){
+        const cellId = `cell_${ship.yLevel}_${ship.xMatrix}`;
         const cell = document.getElementById(cellId);
-        if (!cell) continue;
+        if(!cell) continue;
 
-        const badge = document.createElement('div');
-        badge.className = 'ship-badge';
-        badge.textContent = ship.name;
-        badge.title = `${ship.name} – ${ship.riskLevel} (conf ${Number(ship.confidence ?? 0.6).toFixed(1)})`;
-        badge.addEventListener('click', () => openShipModal(ship.id));
-        cell.appendChild(badge);
+        const b = document.createElement('div');
+        b.className = 'badge';
+        b.textContent = ship.name;
+        b.title = `${ship.name} – ${ship.ampel} (Y L${ship.yLevel} | X ${ship.xStage})`;
+        b.addEventListener('click', ()=> openShipModal(ship.id));
+        cell.appendChild(b);
       }
     }
 
-    // ==========
-    // Vessel list update (shows notes preview)
-    // ==========
-    function updateShipsList() {
-      const container = document.getElementById('shipsContainer');
+    // =========================
+    // Ships list update
+    // =========================
+    function updateShipsList(){
       const list = document.getElementById('shipsList');
+      const container = document.getElementById('shipsContainer');
 
-      if (allShips.length === 0) { list.style.display = 'none'; return; }
-
+      if(allShips.length === 0){
+        list.style.display = 'none';
+        return;
+      }
       list.style.display = 'block';
-      container.innerHTML = allShips.map(ship => {
-        const hasNotes = (ship.notes ?? '').trim().length > 0;
+
+      container.innerHTML = allShips.map(s => {
+        const hasNotes = (s.notes ?? '').trim().length > 0;
+        const pillCls = ampelToPillClass(s.ampel);
+        const reasons = (s.reasons ?? []).map(escapeHtml).join(' · ');
         return `
-          <div class="ship-item" style="cursor:pointer;" onclick="openShipModal('${ship.id}')">
+          <div class="item" onclick="openShipModal('${s.id}')">
             <div style="flex:1;">
-              <strong>${escapeHtml(ship.name)}</strong><br>
-              <span class="meta">
-                ${escapeHtml(ship.type)} | L${ship.structure} | X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix}) | conf ${(ship.confidence ?? 0.6).toFixed(1)}
-              </span>
-              <div class="reasons">Gründe: ${(ship.reasons ?? []).map(escapeHtml).join(' · ')}</div>
-              ${hasNotes ? `<div class="notes-preview"><b>Notiz:</b><br>${notesToHtml(ship.notes)}</div>` : ``}
-            </div>
-            <div class="ship-risk ${normalizeRiskClass(ship.riskLevel)}">
-              ${escapeHtml(ship.riskLevel)}
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <strong style="font-size:12.5px;">${escapeHtml(s.name)}</strong>
+                <span class="pill ${pillCls}">${escapeHtml(s.ampel)}</span>
+                <span class="pill pill-gray">Y L${s.yLevel}</span>
+                <span class="pill pill-gray">X ${s.xStage}</span>
+                ${s.gateBlocked ? `<span class="pill pill-gray">TBS-Gate</span>` : ``}
+              </div>
+              <div class="meta" style="margin-top:4px;">
+                Flagge: ${escapeHtml(s.flag)} ${s.imo ? `| IMO: ${escapeHtml(s.imo)}` : ``} | ${escapeHtml(s.timestamp)}
+              </div>
+              <div class="reasons">Top-Gründe: ${reasons || '—'}</div>
+              ${hasNotes ? `<div class="notes-preview"><b>Notiz:</b><br>${notesToHtml(s.notes)}</div>` : ``}
             </div>
           </div>
         `;
       }).join('');
     }
 
-    // ==========
-    // Export CSV (extended)
-    // ==========
-    function exportAllShipsCSV() {
-      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+    // =========================
+    // Modal
+    // =========================
+    function openShipModal(shipId){
+      const ship = allShips.find(s => s.id === shipId);
+      if(!ship) return;
+      currentShipId = shipId;
 
-      let csv = 'VesselName,Type,StructureY,OperationalRawX,OperationalMatrixX0_4,Risk,Confidence,TopReasons,Timestamp,Note\n';
-      allShips.forEach(ship => {
-        const reasons = (ship.reasons ?? []).join(' | ');
-        const notes = (ship.notes ?? '').replace(/\r?\n/g,' ');
-        csv += `"${String(ship.name).replace(/"/g,'""')}","${String(ship.type).replace(/"/g,'""')}",${ship.structure},${ship.probabilityRaw},${ship.probabilityMatrix},"${String(ship.riskLevel).replace(/"/g,'""')}",${Number(ship.confidence ?? 0.6).toFixed(1)},"${reasons.replace(/"/g,'""')}","${String(ship.timestamp).replace(/"/g,'""')}","${notes.replace(/"/g,'""')}"\n`;
-      });
+      document.getElementById('m_name').textContent = ship.name;
+      document.getElementById('m_imo').textContent = ship.imo || '—';
+      document.getElementById('m_flag').textContent = ship.flag;
+      document.getElementById('m_y').textContent = `L${ship.yLevel} (Punkte: ${ship.yPts})`;
+      document.getElementById('m_x').textContent = `${ship.xStage} (Punkte: ${ship.xPts})`;
+      setPill(document.getElementById('m_ampel'), ampelToPillClass(ship.ampel), ship.ampel);
 
-      const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `maritime_risikomatrix_hybride_aktivitaeten_${new Date().toISOString().split('T')[0]}.csv`;
-      link.click();
+      document.getElementById('m_reasons').textContent = (ship.reasons ?? []).join(' · ') || '—';
+      document.getElementById('m_notes').value = ship.notes ?? '';
+
+      // modules
+      const ul = document.getElementById('m_modules');
+      ul.innerHTML = '';
+
+      const m = computeModules(ship);
+      for(const mod of m.modules){
+        const li = document.createElement('li');
+        li.className = mod.cls || '';
+        // allow links in mod text
+        li.innerHTML = mod.text;
+        ul.appendChild(li);
+      }
+
+      const backdrop = document.getElementById('shipModalBackdrop');
+      backdrop.classList.add('show');
+      backdrop.setAttribute('aria-hidden','false');
+
+      setTimeout(()=> document.getElementById('m_notes').focus(), 60);
     }
 
-    // ==========
-    // Export Excel-compatible (.xml) with matrix + vessel list + notes
-    // ==========
-    function exportMatrixAndShipsExcelXml() {
-      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+    function closeShipModal(){
+      const backdrop = document.getElementById('shipModalBackdrop');
+      backdrop.classList.remove('show');
+      backdrop.setAttribute('aria-hidden','true');
+      currentShipId = null;
+    }
+
+    function saveShipNotes(){
+      if(!currentShipId) return;
+      const ship = allShips.find(s => s.id === currentShipId);
+      if(!ship) return;
+      ship.notes = document.getElementById('m_notes').value ?? '';
+      updateShipsList();
+    }
+
+    function removeCurrentShip(){
+      if(!currentShipId) return;
+      const idx = allShips.findIndex(s => s.id === currentShipId);
+      if(idx < 0) return;
+      allShips.splice(idx, 1);
+      closeShipModal();
+      updateMatrix();
+      updateShipsList();
+
+      if(allShips.length === 0){
+        document.getElementById('exportBtn').style.display = 'none';
+        document.getElementById('exportExcelBtn').style.display = 'none';
+        document.getElementById('snapshotBtn').style.display = 'none';
+      }
+    }
+
+    // Close modal on backdrop / ESC
+    document.getElementById('shipModalBackdrop').addEventListener('click', (e)=>{
+      if(e.target.id === 'shipModalBackdrop') closeShipModal();
+    });
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape'){
+        const b = document.getElementById('shipModalBackdrop');
+        if(b.classList.contains('show')) closeShipModal();
+      }
+    });
+
+    // =========================
+    // Exports
+    // =========================
+    function exportAllShipsCSV(){
+      if(allShips.length === 0){ alert('Keine Schiffe erfasst.'); return; }
+
+      const header = [
+        "Name","IMO","Flag","Y_Level","Y_Points","X_Stage","X_Points","Ampel",
+        "TBS_kontrollw","Aquatrack","PSC_<1/2J","PSC_Maengel_<1J","Routing","Incidents",
+        "Russland","Verdachtsmeldung","SL2","Uebersee","Crewwechsel","Schriftverkehr",
+        "ExternerHinweis","HFO","Scrubber","EGCS_Typ","Tankschiff","Bulker","BallastIn",
+        "TopGruende","Module","Timestamp","Notiz"
+      ];
+
+      let csv = header.join(",") + "\n";
+
+      for(const s of allShips){
+        const row = [
+          s.name, s.imo, s.flag,
+          `L${s.yLevel}`, s.yPts,
+          s.xStage, s.xPts,
+          s.ampel,
+          s.op.tbs, s.op.aquatrack, s.op.psc_recent, s.op.psc_defects, s.op.routing, s.op.incidents,
+          s.op.russia, s.op.suspicion, s.op.sl2, s.op.overseas, s.op.crew_change, s.op.port_auth,
+          s.traits.externalHint, s.traits.hfo, s.traits.scrubber, s.traits.egcsType, s.traits.tanker, s.traits.bulker, s.traits.ballastIn,
+          (s.reasons ?? []).join(" | "),
+          (s.modules ?? []).join(" | "),
+          s.timestamp,
+          (s.notes ?? '').replace(/\r?\n/g,' ')
+        ].map(v => `"${String(v ?? '').replace(/"/g,'""')}"`);
+
+        csv += row.join(",") + "\n";
+      }
+
+      const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `kontrollmatrix_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+    }
+
+    function exportExcelXml(){
+      if(allShips.length === 0){ alert('Keine Schiffe erfasst.'); return; }
 
       const xmlEscape = (s) => String(s ?? '')
         .replace(/&/g, '&amp;')
@@ -1355,47 +1374,87 @@
       const today = new Date().toISOString().split('T')[0];
       const stamp = new Date().toLocaleString('de-DE');
 
-      // Matrix grid (names per cell)
-      const matrixGrid = {};
-      for (const ship of allShips) {
-        const key = `${ship.structure}_${ship.probabilityMatrix}`;
-        (matrixGrid[key] ||= []).push(ship.name);
+      // Matrix grid
+      const grid = {};
+      for(const s of allShips){
+        const key = `${s.yLevel}_${(s.xStage >= 4) ? 4 : s.xStage}`;
+        (grid[key] ||= []).push(`${s.name} (${s.ampel})`);
       }
 
-      const matrixCols = ["0 - Keine", "1 - Gering", "2 - Moderat", "3 - Relevant", "4/5 - Kritisch"];
+      const xCols = ["0 – keine","1 – gering","2 – moderat","3 – relevant","4/5 – kritisch"];
 
-      const matrixRowsXml = [
-        rowXml([{ v: `Maritime Risikomatrix für Hybride Aktivitäten – Snapshot (${stamp})`, style: 'title', mergeAcross: 5 }]),
-        rowXml([{ v: 'Operative Indikatoren (X-Achse)', style: 'header', mergeAcross: 5 }]),
-        rowXml([{ v: 'Struktur \\ Indikatoren', style: 'header' }, ...matrixCols.map(c => ({ v: c, style: 'header' }))]),
-        ...[1,2,3,4,5].map(s => {
-          const cells = [{ v: `L${s}`, style: 'subhead' }];
-          for (const p of [0,1,2,3,4]) {
-            const names = (matrixGrid[`${s}_${p}`] || []).join(', ');
-            cells.push({ v: names, style: 'cell' });
+      function rowXml(cells, wrapLast=false){
+        const xmlCells = cells.map((c, idx) => {
+          const style = c.style ? ` ss:StyleID="${c.style}"` : '';
+          const merge = (typeof c.mergeAcross === 'number') ? ` ss:MergeAcross="${c.mergeAcross}"` : '';
+          const isWrap = (wrapLast && idx === cells.length - 1 && c.style === 'wrap');
+          const val = isWrap ? excelLineBreaks(c.v) : xmlEscape(c.v);
+          return `<Cell${style}${merge}><Data ss:Type="String">${val}</Data></Cell>`;
+        }).join('');
+        return `<Row>${xmlCells}</Row>`;
+      }
+
+      const matrixRows = [
+        rowXml([{ v:`Kontroll-Prioritätenmatrix – Snapshot (${stamp})`, style:'title', mergeAcross: 5 }]),
+        rowXml([{ v:'Operativ (X-Achse)', style:'header', mergeAcross: 5 }]),
+        rowXml([{ v:'Struktur (Y) \\ X', style:'header' }, ...xCols.map(c=>({v:c, style:'header'}))]),
+        ...[1,2,3,4,5].map(y=>{
+          const cells = [{ v:`L${y}`, style:'subhead' }];
+          for(const x of [0,1,2,3,4]){
+            const names = (grid[`${y}_${x}`] || []).join(', ');
+            cells.push({ v:names, style:'cell' });
           }
           return rowXml(cells);
         })
       ].join('');
 
       const vesselHeader = [
-        "Name","Typ","Y","X raw","X matrix","Risiko","Confidence","Top-Gründe","Zeitstempel","Notiz"
+        "Name","IMO","Flag","Ampel","Y","Y_Punkte","X","X_Punkte",
+        "TBS","Aquatrack","PSC_<1/2J","PSC_Mängel_<1J","Routing","Incidents","Russland",
+        "Verdacht","SL2","Übersee","Crewwechsel","Schriftverkehr",
+        "ExternerHinweis","HFO","Scrubber","EGCS_Typ","Tankschiff","Bulker","BallastIn",
+        "Top-Gründe","Module","Zeitstempel","Notiz"
       ];
 
-      const vesselsRowsXml = [
-        rowXml([{ v: `Erfasste Schiffe (inkl. Notizen) – ${stamp}`, style: 'title', mergeAcross: 9 }]),
-        rowXml(vesselHeader.map(h => ({ v: h, style: 'header' }))),
+      const vesselRows = [
+        rowXml([{ v:`Erfasste Schiffe (inkl. Module/Notizen) – ${stamp}`, style:'title', mergeAcross: vesselHeader.length - 1 }]),
+        rowXml(vesselHeader.map(h=>({v:h, style:'header'}))),
         ...allShips.map(s => rowXml([
-          { v: s.name, style: 'cell' },
-          { v: s.type, style: 'cell' },
-          { v: `L${s.structure}`, style: 'cell' },
-          { v: `X${s.probabilityRaw}`, style: 'cell' },
-          { v: String(s.probabilityMatrix), style: 'cell' },
-          { v: s.riskLevel, style: 'cell' },
-          { v: Number(s.confidence ?? 0.6).toFixed(1), style: 'cell' },
-          { v: (s.reasons ?? []).join(' · '), style: 'cell' },
-          { v: s.timestamp, style: 'cell' },
-          { v: s.notes ?? '', style: 'wrap' }
+          {v:s.name, style:'cell'},
+          {v:s.imo || '', style:'cell'},
+          {v:s.flag, style:'cell'},
+          {v:s.ampel, style:'cell'},
+          {v:`L${s.yLevel}`, style:'cell'},
+          {v:String(s.yPts), style:'cell'},
+          {v:String(s.xStage), style:'cell'},
+          {v:String(s.xPts), style:'cell'},
+
+          {v:String(s.op.tbs), style:'cell'},
+          {v:String(s.op.aquatrack), style:'cell'},
+          {v:String(s.op.psc_recent), style:'cell'},
+          {v:String(s.op.psc_defects), style:'cell'},
+          {v:String(s.op.routing), style:'cell'},
+          {v:String(s.op.incidents), style:'cell'},
+          {v:String(s.op.russia), style:'cell'},
+
+          {v:String(s.op.suspicion), style:'cell'},
+          {v:String(s.op.sl2), style:'cell'},
+          {v:String(s.op.overseas), style:'cell'},
+          {v:String(s.op.crew_change), style:'cell'},
+          {v:String(s.op.port_auth), style:'cell'},
+
+          {v:String(s.traits.externalHint), style:'cell'},
+          {v:String(s.traits.hfo), style:'cell'},
+          {v:String(s.traits.scrubber), style:'cell'},
+          {v:String(s.traits.egcsType), style:'cell'},
+          {v:String(s.traits.tanker), style:'cell'},
+          {v:String(s.traits.bulker), style:'cell'},
+          {v:String(s.traits.ballastIn), style:'cell'},
+
+          {v:(s.reasons ?? []).join(' · '), style:'cell'},
+          {v:(s.modules ?? []).join(' | '), style:'cell'},
+          {v:s.timestamp, style:'cell'},
+          {v:s.notes ?? '', style:'wrap'}
         ], true))
       ].join('');
 
@@ -1414,7 +1473,7 @@
     </Style>
     <Style ss:ID="header">
       <Font ss:Bold="1" ss:Color="#FFFFFF"/>
-      <Interior ss:Color="#667EEA" ss:Pattern="Solid"/>
+      <Interior ss:Color="#0AA6A6" ss:Pattern="Solid"/>
       <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
       <Borders>
         <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
@@ -1425,7 +1484,7 @@
     </Style>
     <Style ss:ID="subhead">
       <Font ss:Bold="1"/>
-      <Interior ss:Color="#F0F4FF" ss:Pattern="Solid"/>
+      <Interior ss:Color="#E6EEEE" ss:Pattern="Solid"/>
       <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
       <Borders>
         <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
@@ -1457,90 +1516,80 @@
   <Worksheet ss:Name="Matrix">
     <Table>
       <Column ss:Width="160"/>
-      <Column ss:Width="180"/><Column ss:Width="180"/><Column ss:Width="180"/><Column ss:Width="180"/><Column ss:Width="180"/>
-      ${matrixRowsXml}
+      <Column ss:Width="190"/><Column ss:Width="190"/><Column ss:Width="190"/><Column ss:Width="190"/><Column ss:Width="190"/>
+      ${matrixRows}
     </Table>
   </Worksheet>
 
-  <Worksheet ss:Name="Vessels">
+  <Worksheet ss:Name="Schiffe">
     <Table>
-      <Column ss:Width="160"/><Column ss:Width="160"/><Column ss:Width="60"/>
-      <Column ss:Width="70"/><Column ss:Width="70"/><Column ss:Width="90"/>
-      <Column ss:Width="80"/><Column ss:Width="240"/><Column ss:Width="140"/><Column ss:Width="380"/>
-      ${vesselsRowsXml}
+      ${Array.from({length: vesselHeader.length}).map((_,i)=>`<Column ss:Width="${i===vesselHeader.length-1?420:(i===vesselHeader.length-2?260:120)}"/>`).join('')}
+      ${vesselRows}
     </Table>
   </Worksheet>
 
 </Workbook>`;
 
-      function rowXml(cells, treatLastAsNotes=false) {
-        const xmlCells = cells.map((c, idx) => {
-          const style = c.style ? ` ss:StyleID="${c.style}"` : '';
-          const merge = (typeof c.mergeAcross === 'number') ? ` ss:MergeAcross="${c.mergeAcross}"` : '';
-          const isNotes = (treatLastAsNotes && idx === cells.length - 1 && c.style === 'wrap');
-          const val = isNotes ? excelLineBreaks(c.v) : xmlEscape(c.v);
-          return `<Cell${style}${merge}><Data ss:Type="String">${val}</Data></Cell>`;
-        }).join('');
-        return `<Row>${xmlCells}</Row>`;
-      }
-
-      const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
+      const blob = new Blob([xml], { type:'application/xml;charset=utf-8' });
       const url = URL.createObjectURL(blob);
 
       const a = document.createElement('a');
       a.href = url;
-      a.download = `maritime_risikomatrix_report_${today}.xml`;
+      a.download = `kontrollmatrix_${today}.xml`;
       document.body.appendChild(a);
       a.click();
       a.remove();
 
-      setTimeout(() => URL.revokeObjectURL(url), 1500);
+      setTimeout(()=> URL.revokeObjectURL(url), 1500);
     }
 
-    // ==========
-    // Snapshot / Print view (matrix + list + full notes)
-    // ==========
+    // =========================
+    // Snapshot / Print view (PDF)
+    // =========================
     function openSnapshotPrintView(){
-      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+      if(allShips.length === 0){ alert('Keine Schiffe erfasst.'); return; }
 
       const w = window.open('', '_blank');
-      if (!w) { alert('Popup blockiert. Bitte Popups für Snapshot-/Druckansicht erlauben.'); return; }
+      if(!w){ alert('Popup blockiert. Bitte Popups erlauben.'); return; }
 
-      const reportTitle = `Maritime Risikomatrix für Hybride Aktivitäten – Snapshot (${new Date().toLocaleString('de-DE')})`;
-
-      const matrixGrid = {};
-      for (const ship of allShips){
-        const key = `${ship.structure}_${ship.probabilityMatrix}`;
-        matrixGrid[key] = matrixGrid[key] || [];
-        matrixGrid[key].push(ship.name);
+      // Matrix grid for snapshot
+      const grid = {};
+      for(const s of allShips){
+        const key = `${s.yLevel}_${(s.xStage>=4)?4:s.xStage}`;
+        (grid[key] ||= []).push(`${s.name} (${s.ampel})`);
       }
 
-      const tableRows = [1,2,3,4,5].map(s => `
+      const xCols = ["0 – keine","1 – gering","2 – moderat","3 – relevant","4/5 – kritisch"];
+
+      const tableRows = [1,2,3,4,5].map(y => `
         <tr>
-          <th style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);">
-            L${s}
-          </th>
-          ${[0,1,2,3,4].map(p => {
-            const names = (matrixGrid[`${s}_${p}`] || []).map(escapeHtml).join(', ');
-            return `<td style="vertical-align:top;">${names}</td>`;
+          <th style="background:#0AA6A6;color:#fff;">L${y}</th>
+          ${[0,1,2,3,4].map(x=>{
+            const names = (grid[`${y}_${x}`] || []).map(escapeHtml).join(', ');
+            return `<td style="vertical-align:top; font-size:12px;">${names}</td>`;
           }).join('')}
         </tr>
       `).join('');
 
-      const listRows = allShips.map(s => `
-        <tr>
-          <td>${escapeHtml(s.name)}</td>
-          <td>${escapeHtml(s.type)}</td>
-          <td>L${s.structure}</td>
-          <td>X${s.probabilityRaw}</td>
-          <td>${s.probabilityMatrix}</td>
-          <td>${escapeHtml(s.riskLevel)}</td>
-          <td>${Number(s.confidence ?? 0.6).toFixed(1)}</td>
-          <td>${escapeHtml((s.reasons ?? []).join(' · '))}</td>
-          <td>${escapeHtml(s.timestamp)}</td>
-          <td>${notesToHtml(s.notes)}</td>
-        </tr>
-      `).join('');
+      const listRows = allShips.map(s => {
+        const modules = (computeModules(s).modules || []).map(m=>m.text).join(' | ');
+        return `
+          <tr>
+            <td>${escapeHtml(s.name)}</td>
+            <td>${escapeHtml(s.imo || '')}</td>
+            <td>${escapeHtml(s.flag)}</td>
+            <td>${escapeHtml(s.ampel)}</td>
+            <td>L${s.yLevel} (${s.yPts})</td>
+            <td>${s.xStage} (${s.xPts})</td>
+            <td>${escapeHtml((s.reasons ?? []).join(' · '))}</td>
+            <td style="white-space:pre-wrap;">${escapeHtml(modules)}</td>
+            <td>${escapeHtml(s.timestamp)}</td>
+            <td style="white-space:pre-wrap;">${escapeHtml(s.notes ?? '')}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const now = new Date().toLocaleString('de-DE');
 
       w.document.open();
       w.document.write(`
@@ -1548,47 +1597,54 @@
         <html>
         <head>
           <meta charset="utf-8" />
-          <title>${escapeHtml(reportTitle)}</title>
+          <title>Kontrollmatrix Snapshot</title>
           <style>
-            body{ font-family:Segoe UI, Arial, sans-serif; padding:18px; }
+            body{ font-family:Segoe UI, Arial, sans-serif; padding:18px; color:#111; }
             h2{ margin:0 0 6px 0; }
-            .small{ color:#666; font-size:12px; margin-bottom:14px; }
-            table{ border-collapse:collapse; width:100%; }
+            .small{ color:#555; font-size:12px; margin-bottom:14px; }
+            button{ padding:10px 14px; font-weight:800; border:none; border-radius:10px; background:#0AA6A6; color:#fff; cursor:pointer; }
+            table{ border-collapse:collapse; width:100%; margin-top:10px; }
             th,td{ border:1px solid #999; padding:8px; font-size:12px; }
-            th{ background:#667eea; color:#fff; }
-            .subhead{ background:#764ba2 !important; }
+            thead th{ background:#0b3d91; color:#fff; }
+            .subhead{ background:#e6eeee; font-weight:800; }
             @media print{ button{ display:none; } }
           </style>
         </head>
         <body>
-          <button onclick="window.print()" style="padding:10px 14px; font-weight:700;">Drucken / Als PDF speichern</button>
-          <h2>Maritime Risikomatrix für Hybride Aktivitäten</h2>
-          <div class="small">${escapeHtml(new Date().toLocaleString('de-DE'))}</div>
+          <button onclick="window.print()">Drucken / Als PDF speichern</button>
+
+          <h2>Kontroll-Prioritätenmatrix (Snapshot)</h2>
+          <div class="small">${escapeHtml(now)}</div>
 
           <h3>Matrix</h3>
           <table>
-            <tr>
-              <th colspan="6">Operative Indikatoren (X-Achse)</th>
-            </tr>
-            <tr>
-              <th>Struktur \\ Indikatoren</th>
-              <th>0 - Keine</th>
-              <th>1 - Gering</th>
-              <th>2 - Moderat</th>
-              <th>3 - Relevant</th>
-              <th>4/5 - Kritisch</th>
-            </tr>
-            ${tableRows}
+            <thead>
+              <tr>
+                <th colspan="6">Operativ (X-Achse)</th>
+              </tr>
+              <tr>
+                <th>Struktur (Y) \\ X</th>
+                ${xCols.map(c=>`<th>${escapeHtml(c)}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
           </table>
 
-          <h3 style="margin-top:18px;">Erfasste Schiffe (inkl. Notizen)</h3>
+          <h3 style="margin-top:18px;">Erfasste Schiffe (inkl. Module/Notizen)</h3>
           <table>
-            <tr>
-              <th class="subhead" colspan="10">Erfasste Schiffe</th>
-            </tr>
-            <tr style="background:#f0f0f0;color:#000;">
-              <td><b>Name</b></td><td><b>Typ</b></td><td><b>Y</b></td><td><b>X raw</b></td><td><b>X matrix</b></td>
-              <td><b>Risiko</b></td><td><b>Confidence</b></td><td><b>Top-Gründe</b></td><td><b>Zeitstempel</b></td><td><b>Notiz</b></td>
+            <tr class="subhead">
+              <td><b>Name</b></td>
+              <td><b>IMO</b></td>
+              <td><b>Flag</b></td>
+              <td><b>Ampel</b></td>
+              <td><b>Y</b></td>
+              <td><b>X</b></td>
+              <td><b>Top-Gründe</b></td>
+              <td><b>Module</b></td>
+              <td><b>Zeit</b></td>
+              <td><b>Notiz</b></td>
             </tr>
             ${listRows}
           </table>
@@ -1598,81 +1654,15 @@
       w.document.close();
     }
 
-    // ==========
-    // Form reset
-    // ==========
-    function resetForm() {
-      document.getElementById('assessmentForm').reset();
-      syncFlagCheckboxesFromSelect();
-    }
-
-    // ==========
-    // Modal logic (editable notes)
-    // ==========
-    function openShipModal(shipId) {
-      const ship = allShips.find(s => s.id === shipId);
-      if (!ship) return;
-
-      currentShipId = shipId;
-
-      document.getElementById('m_name').textContent = ship.name;
-      document.getElementById('m_type').textContent = ship.type;
-      document.getElementById('m_y').textContent = 'L' + ship.structure;
-      document.getElementById('m_x').textContent = `X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix})`;
-      document.getElementById('m_risk').textContent = ship.riskLevel;
-      document.getElementById('m_conf').textContent = Number(ship.confidence ?? 0.6).toFixed(1);
-      document.getElementById('m_reasons').textContent = (ship.reasons ?? []).join(' · ');
-      document.getElementById('m_notes').value = ship.notes ?? '';
-
-      const backdrop = document.getElementById('shipModalBackdrop');
-      backdrop.classList.add('show');
-      backdrop.setAttribute('aria-hidden','false');
-
-      setTimeout(() => document.getElementById('m_notes').focus(), 50);
-    }
-
-    function closeShipModal() {
-      const backdrop = document.getElementById('shipModalBackdrop');
-      backdrop.classList.remove('show');
-      backdrop.setAttribute('aria-hidden','true');
-      currentShipId = null;
-    }
-
-    function saveShipNotes() {
-      if (!currentShipId) return;
-      const ship = allShips.find(s => s.id === currentShipId);
-      if (!ship) return;
-      ship.notes = document.getElementById('m_notes').value ?? '';
-      updateShipsList();
-    }
-
-    function removeCurrentShip() {
-      if (!currentShipId) return;
-      const idx = allShips.findIndex(s => s.id === currentShipId);
-      if (idx === -1) return;
-      allShips.splice(idx, 1);
-      closeShipModal();
-      updateMatrix();
-      updateShipsList();
-      if (allShips.length === 0){
-        document.getElementById('exportBtn').style.display = 'none';
-        document.getElementById('exportExcelBtn').style.display = 'none';
-        document.getElementById('snapshotBtn').style.display = 'none';
-      }
-    }
-
-    document.getElementById('shipModalBackdrop').addEventListener('click', (e) => {
-      if (e.target.id === 'shipModalBackdrop') closeShipModal();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        const backdrop = document.getElementById('shipModalBackdrop');
-        if (backdrop.classList.contains('show')) closeShipModal();
-      }
-    });
-
+    // =========================
+    // Init
+    // =========================
     document.getElementById('shipFlag').addEventListener('change', syncFlagCheckboxesFromSelect);
+    document.getElementById('cb_scrubber').addEventListener('change', toggleEgcsType);
+
     syncFlagCheckboxesFromSelect();
+    toggleEgcsType();
+    updateMatrixCellColors();
   </script>
 </body>
 </html>

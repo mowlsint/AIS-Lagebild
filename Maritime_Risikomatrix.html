@@ -421,6 +421,7 @@
                 <input type="checkbox" id="cb_opaque" name="struct" value="opaque">
                 <label for="cb_opaque">Opake Eigentümer-/Betreiberstruktur</label>
               </div>
+
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_kaliningrad" name="struct" value="kaliningrad">
                 <label for="cb_kaliningrad">
@@ -429,6 +430,35 @@
                   </a>
                 </label>
               </div>
+
+              <!-- NEW: Russia/Crimea/Crew-nationality signals -->
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_russland_crewing" name="struct" value="russland_crewing">
+                <label for="cb_russland_crewing">
+                  <a href="javascript:switchTab('info')" onclick="document.getElementById('ruscrewingtab').scrollIntoView();">
+                    Russland Crewing
+                  </a>
+                </label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_krim_crewing" name="struct" value="krim_crewing">
+                <label for="cb_krim_crewing">
+                  <a href="javascript:switchTab('info')" onclick="document.getElementById('crimcrewingtab').scrollIntoView();">
+                    Krim Crewing
+                  </a>
+                </label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_crew_rus_ukr" name="struct" value="crew_rus_ukr">
+                <label for="cb_crew_rus_ukr">
+                  <a href="javascript:switchTab('info')" onclick="document.getElementById('crewNatTab').scrollIntoView();">
+                    Crew RUS/UKR
+                  </a>
+                </label>
+              </div>
+
               <div class="checkbox-item">
                 <input type="checkbox" id="cb_sanctions" name="struct" value="sanctions">
                 <label for="cb_sanctions">Sanktionshistorie (Schiff selbst)</label>
@@ -719,6 +749,63 @@
           <div class="small">Hinweis: Diese Liste ist ein „Anker“ für die eigene Pflege.</div>
         </div>
 
+        <!-- NEW: Russland Crewing -->
+        <div class="reference-list" id="ruscrewingtab">
+          <h3>🏢 Russland Crewing (westliche Operatoren/Shipmanager mit RU-Crewing-Struktur)</h3>
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">
+            Zweck: Struktur-Signal, wenn (1) eigenes Crewing-/Manning-Büro in Russland, oder (2) konzernnahe Crewing-Tochter in Russland.
+            Diese Liste ist OSINT-basiert und nicht abschließend – sie dient als „Trefferanker“.
+          </p>
+          <ul>
+            <li><code>Wilson (NOR) – Crewing office Arkhangelsk</code></li>
+            <li><code>Royal Wagenborg (NL) – Wagenborg Saint Petersburg (crewing/local office)</code></li>
+            <li><code>Spliethoff (NL) – Crewing office Russia (St. Petersburg)</code></li>
+            <li><code>Marlow Navigation / Marlow Group (EU) – Marlow Navigation Russia (manning/crewing)</code></li>
+            <li><code>Bernhard Schulte Shipmanagement (DE) – RU Standorte / Crew Service (u. a. Kaliningrad genannt in eigenen Kontakten)</code></li>
+            <li><code>Columbia Group / Columbia Shipmanagement (EU) – RU Branch/Office (u. a. Novorossiysk/St. Petersburg)</code></li>
+            <li><code>OSM Thome (NOR/EU) – OSM Crew Management St. Petersburg (in Konzernunterlagen geführt)</code></li>
+            <li><code>V.Group / BGI (UK/EU) – St. Petersburg Crewing/Operations (BGI)</code></li>
+          </ul>
+          <div class="warning-box" style="margin-top:10px;">
+            <strong>Interpretation:</strong><br>
+            „Russland Crewing“ ist <em>weniger stark</em> gewichtet als „Kaliningrad crewing“, aber relevant als strukturierter Rekrutierungs-/Manning-Anker.
+          </div>
+        </div>
+
+        <!-- NEW: Krim Crewing -->
+        <div class="reference-list" id="crimcrewingtab">
+          <h3>🏴 Krim Crewing (Crewing-Agenturen / Offices auf der Krim)</h3>
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">
+            Hinweis: Kundenlisten solcher Agenturen sind öffentlich oft nicht verfügbar; daher ist das Signal primär: „Recruitment/Placement-Office auf der Krim“.
+            Das Feld ist absichtlich schwächer gewichtet als „Russland Crewing“.
+          </p>
+          <ul>
+            <li><code>Tenet Marine Company Ltd – Simferopol (Crimea)</code></li>
+            <li><code>MIT-Ocean Ltd – Simferopol (Crimea) (Head office)</code></li>
+            <li><code>Sea Breeze Shipping Co. – Simferopol (Crimea) (Office/License-Angaben)</code></li>
+          </ul>
+          <div class="small">Praxis: Wenn möglich immer mit Primärdokument (Crew List/Agenturunterlagen/MLC-License) gegenprüfen.</div>
+        </div>
+
+        <!-- NEW: Crew nationality -->
+        <div class="reference-list" id="crewNatTab">
+          <h3>👥 Crew RUS/UKR (Nationalität in der Besatzung – ohne eigene RU/UA-Crewingstruktur)</h3>
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">
+            Dieses Feld ist absichtlich am schwächsten gewichtet: Viele westliche Operatoren beschäftigen RU/UA-Seeleute über Sub-Crewing.
+            Setze das Feld nur, wenn du eine belastbare Quelle hast (Crew List, Master’s particulars, Agenturunterlagen, PSC-/Accident-Report, verifizierte Crew-Statements).
+          </p>
+          <div class="info-box">
+            Typische Belege: <b>Crew List</b> (Port/Agent), <b>MLC Recruitment &amp; Placement License</b>, <b>PSC/Incident Reports</b>, <b>verifizierte HR/Crewing-Kommunikation</b>.
+          </div>
+          <p style="font-size:12px; color:#666; margin:10px 0 6px 0;"><strong>Beispielhafte OSINT-Anker (nicht abschließend):</strong></p>
+          <ul>
+            <li><code>Nordic Hamburg – berichtet über ukrainische Seeleute im Pool (öffentlich in Sustainability/Report erwähnt)</code></li>
+            <li><code>MSC Crewing Services (Ukraine) – UA Crewing-Unit (Konzernstruktur/Service)</code></li>
+            <li><code>Wilhelmsen Ship Management – Crew-Management Ukraine (Recruitment/Support)</code></li>
+            <li><code>Marlow Navigation Russia / V.Group St. Petersburg / OSM St. Petersburg – als RU Crew-Pipelines (Crewing/Manning)</code></li>
+          </ul>
+        </div>
+
         <div class="reference-list" id="pmctab">
           <h3>🎖️ Operators with PMC linkage</h3>
           <p style="font-size:12px; color:#666; margin-bottom:10px;">Beispiele/Platzhalter – bitte mit Quellen pflegen:</p>
@@ -896,6 +983,24 @@
       if (struct.includes('kaliningrad')) score = Math.max(score, 3);
       if (struct.includes('sanctions')) score = Math.max(score, 4);
 
+      // NEW: crewing weights (relative to Kaliningrad)
+      // Kaliningrad = 1.00 baseline
+      // Russland Crewing = < Kaliningrad (hier: 0.80)
+      // Krim Crewing = 0.5 * Russland
+      // Crew RUS/UKR = 0.75 * Krim
+      const crewingWeight = {
+        kaliningrad: 1.00,
+        russland_crewing: 0.80,
+        krim_crewing: 0.40,
+        crew_rus_ukr: 0.30
+      };
+
+      // Soft-minimums for new fields:
+      // - Russland Crewing: mindestens L2, aber schwächer als Kaliningrad
+      // - Krim Crewing: keine harte Mindeststufe (läuft über Gewicht/Accumulation)
+      // - Crew RUS/UKR: nur leichter Hinweis (läuft über Gewicht/Accumulation)
+      if (struct.includes('russland_crewing')) score = Math.max(score, 2);
+
       // Mid-level hints
       if (struct.includes('sanctions_evasion')) score = Math.max(score, 3);
       if (struct.includes('opaque')) score = Math.max(score, 3);
@@ -904,15 +1009,37 @@
       if (struct.includes('identity_churn')) score = Math.max(score, 3);
       if (struct.includes('manager_churn')) score = Math.max(score, 2);
 
-      // Accumulation
-      const accumKeys = ['opaque','kaliningrad','sanctions_evasion','class_issue','pi_issue','identity_churn','manager_churn'];
-      const accum = accumKeys.reduce((n,k)=> n + (struct.includes(k) ? 1 : 0), 0);
-      if (accum >= 3) score += 1;
+      // Accumulation (weighted)
+      // Standard hints count as 1.0; manager_churn lighter; crewing indicators per your weighting.
+      const accumWeights = {
+        opaque: 1.0,
+        sanctions_evasion: 1.0,
+        class_issue: 1.0,
+        pi_issue: 1.0,
+        identity_churn: 1.0,
+        manager_churn: 0.6,
+        kaliningrad: crewingWeight.kaliningrad,
+        russland_crewing: crewingWeight.russland_crewing,
+        krim_crewing: crewingWeight.krim_crewing,
+        crew_rus_ukr: crewingWeight.crew_rus_ukr
+      };
+
+      const accumKeys = Object.keys(accumWeights);
+      const accum = accumKeys.reduce((sum,k)=> sum + (struct.includes(k) ? accumWeights[k] : 0), 0);
+
+      // Schwelle: ab ~3 "normalen" Hinweisen oder äquivalentem gewichteten Mix -> +1 Level
+      if (accum >= 3.0) score += 1;
 
       // Level 5 combos
       if (struct.includes('flag_change') && (isBlack || struct.includes('black_flag'))) score = 5;
       if (isBlack && struct.includes('flag_change') && struct.includes('kaliningrad')) score = 5;
       if (isZombie && struct.includes('sanctions')) score = 5;
+
+      // Extra combo: Kaliningrad + Russland/Krim-Crewing + opake Struktur/Identity churn -> härter
+      const anyCrewing = struct.includes('kaliningrad') || struct.includes('russland_crewing') || struct.includes('krim_crewing');
+      if (anyCrewing && (struct.includes('opaque') || struct.includes('identity_churn')) && (isBlack || struct.includes('sanctions_evasion'))) {
+        score = Math.max(score, 5);
+      }
 
       return clamp(score, 1, 5);
     }
@@ -1026,6 +1153,9 @@
         flag_change:"Häufige Flaggenwechsel",
         opaque:"Opake Eigentümer-/Betreiberstruktur",
         kaliningrad:"Kaliningrad crewing",
+        russland_crewing:"Russland Crewing",
+        krim_crewing:"Krim Crewing",
+        crew_rus_ukr:"Crew RUS/UKR",
         sanctions:"Sanktionshistorie (vessel)",
         sanctions_evasion:"Sanctions evasion (cargo/trade)",
         class_issue:"Class/RO irregularities",
@@ -1074,6 +1204,10 @@
         "Survey / grid patterns": 7,
         "Häufige Flaggenwechsel": 6,
         "Black-List-Flagge": 6,
+        "Kaliningrad crewing": 6,
+        "Russland Crewing": 5,
+        "Krim Crewing": 4,
+        "Crew RUS/UKR": 3,
         "Russian ports (10 days)": 5,
         "Unnatural routes": 5,
         "CI corridor crossing": 5

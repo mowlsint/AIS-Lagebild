@@ -245,7 +245,7 @@
     }
     .modal-backdrop.show{ display:flex; }
     .modal{
-      width:min(860px, 96vw);
+      width:min(920px, 96vw);
       background:#fff; border-radius:16px; box-shadow:0 22px 64px rgba(0,0,0,0.35);
       overflow:hidden;
     }
@@ -592,7 +592,7 @@
           </table>
 
           <div class="info-box" style="margin-top:12px;">
-            Klick auf ein Schiff-Badge öffnet Details, Ampel-Logik, Notizen und Kontrollempfehlungen.
+            Klick auf ein Schiff-Badge öffnet Details, Ampel-Logik, Notizen, Module & Kontrollempfehlungen.
           </div>
 
           <div class="ships-list" id="shipsList" style="display:none;">
@@ -649,8 +649,13 @@
         </div>
 
         <div class="module-box">
-          <h4>✅ Kontrollempfehlungen / Module</h4>
+          <h4>🧩 Module</h4>
           <ul class="module-list" id="m_modules"></ul>
+        </div>
+
+        <div class="module-box">
+          <h4>✅ Kontrollempfehlungen</h4>
+          <ul class="module-list" id="m_recs"></ul>
         </div>
 
         <label for="m_notes"><b>Freitext / Notizen</b> <span class="small">(pro Schiff gespeichert)</span></label>
@@ -872,7 +877,6 @@
     function getTopReasons(op, traits, flag){
       const reasons = [];
 
-      // labels
       const labels = {
         suspicion: "Verdachtsmeldung Leitstelle (kein Security Report)",
         aquatrack: "Aquatrack (MARPOL-Auffälligkeiten)",
@@ -892,7 +896,6 @@
         other_regime: "Andere Kontrollregime"
       };
 
-      // priority weights
       const prio = {
         "Verdachtsmeldung Leitstelle (kein Security Report)": 100,
         "Aquatrack (MARPOL-Auffälligkeiten)": 85,
@@ -936,155 +939,184 @@
     }
 
     // =========================
-    // Module engine
+    // Module + Recommendation engine
     // =========================
-    function computeModules(ship){
-      const modules = [];
+    function computeModulesAndRecs(ship){
+      const modules = [];       // short tags
+      const recs = [];          // full-text recommendations (incl. warnings)
       const warnings = [];
 
       const op = ship.op;
       const traits = ship.traits;
       const flag = ship.flag;
 
-      // Gate: if NOT TBS controllable and not suspicion/aquatrack/external => no modules
+      const addModule = (tag) => { if(tag) modules.push(tag); };
+      const addRec = (text, cls='') => { recs.push({ text, cls }); };
+
+      // Gate
       const gateBlocked = (!op.tbs && !op.suspicion && !op.aquatrack && !traits.externalHint);
       if(gateBlocked){
-        modules.push({ text: "Keine Kontrollempfehlungen (TBS: nicht kontrollwürdig, kein Verdacht/Aquatrack/extern).", cls: "" });
-        return { modules, warnings, gateBlocked:true };
+        addRec("Keine Kontrollempfehlungen (TBS: nicht kontrollwürdig, kein Verdacht/Aquatrack/extern).", "");
+        return { moduleTags: uniq(modules), recs: uniqRecs(recs), gateBlocked:true };
       }
 
-      // Hard / Pflicht
+      // Pflicht / Hard
       if(op.suspicion){
-        modules.push({ text:"KONTROLLE: PFLICHT (Verdachtsmeldung Leitstelle)", cls:"hard" });
-        modules.push({ text:"ISPS / Security Report / Nachweiskette (Grund: kein Security Report vorgelegt)", cls:"hard" });
+        addModule("ISPS");
+        addRec("KONTROLLE: PFLICHT (Verdachtsmeldung Leitstelle)", "hard");
+        addRec("ISPS / Security Report / Nachweiskette prüfen (Grund: kein Security Report vorgelegt)", "hard");
       }
 
-      // Patente
-      if(flag === 'grey' || flag === 'black' || op.crew_change){
-        modules.push({ text:"Patente (Zertifikate der Besatzung / Befähigungsnachweise)", cls:"" });
+      // ---- Patente: Grey/Black/crew_change OR Russia (neu) ----
+      const needsPatente = (flag === 'grey' || flag === 'black' || op.crew_change || op.russia);
+      if(needsPatente){
+        addModule("Patente");
+        addRec("Patente (Befähigungsnachweise / Certificates of Competency) prüfen", "");
       }
+
       if(op.crew_change){
         warnings.push("Beachte Verantwortungszeitraum (Crewwechsel vor Ort).");
       }
 
-      // Zertifikate: if PSC <1/2 year NOT checked -> check certificates
+      // ---- Seeversicherungsnachweis: Russia OR Grey/Black (neu) ----
+      if(op.russia || flag === 'grey' || flag === 'black'){
+        addModule("Seeversicherungsnachweis");
+        addRec("Seeversicherungsnachweis (P&I / Haftpflicht / Deckungsnachweis) prüfen", "");
+      }
+
+      // Zertifikate: PSC nicht < 1/2 Jahr
       if(!op.psc_recent){
-        modules.push({ text:"Zertifikate prüfen (PSC nicht < 1/2 Jahr)", cls:"" });
+        addModule("Zertifikate");
+        addRec("Zertifikate prüfen (PSC nicht < 1/2 Jahr)", "");
       }
 
       // ISM / MLC
       if(op.psc_defects || op.incidents){
-        modules.push({ text:"ISM (Safety Management / corrective actions / Nachweise)", cls:"" });
+        addModule("ISM");
+        addRec("ISM: Safety Management / corrective actions / Nachweise prüfen", "");
       }
       if(op.crew_change || traits.externalHint){
-        modules.push({ text:"MLC (Seearbeitsübereinkommen – crew/working & living conditions, Dokumente)", cls:"" });
+        addModule("MLC");
+        addRec("MLC: Arbeits- & Lebensbedingungen / Dokumentation prüfen", "");
       }
 
       // MARPOL allgemein
       if(op.aquatrack){
-        modules.push({ text:"MARPOL allgemein (Aquatrack)", cls:"" });
+        addModule("MARPOL");
+        addRec("MARPOL allgemein (Trigger: Aquatrack) prüfen", "");
       }
 
       // MARPOL Annexes
-      // Ann. I: if HFO
       if(traits.hfo){
-        modules.push({ text:"MARPOL Ann. I (Öl) – wegen Schweröl/HFO", cls:"" });
+        addModule("MARPOL Ann. I");
+        addRec("MARPOL Ann. I (Öl): Öl-Dokumentation/Record Books/Proben/Verbrauch prüfen (Trigger: HFO)", "");
       }
-      // Ann. II: tanker
       if(traits.tanker){
-        modules.push({ text:"MARPOL Ann. II (Noxious Liquid Substances) – Tankschiff", cls:"" });
+        addModule("MARPOL Ann. II");
+        addRec("MARPOL Ann. II (NLS): Cargo-/Wash-/Discharge-Dokumentation prüfen (Trigger: Tankschiff)", "");
       }
-      // Ann. IV: older than 10 years
       if(traits.older10){
-        modules.push({ text:"MARPOL Ann. IV (Abwasser) – Schiff > 10 Jahre", cls:"" });
+        addModule("MARPOL Ann. IV");
+        addRec("MARPOL Ann. IV (Abwasser): Anlagen/Nachweise/Entsorgung prüfen (Trigger: >10 Jahre)", "");
       }
-      // Ann. V: also on port authority correspondence; plus bulker or external (useful)
+
       if(op.port_auth || traits.bulker || traits.externalHint){
-        let why = [];
+        addModule("MARPOL Ann. V");
+        const why = [];
         if(op.port_auth) why.push("Schriftverkehr Hafenbehörde");
         if(traits.bulker) why.push("Schüttgut/Bulker");
         if(traits.externalHint) why.push("externer Hinweis");
-        modules.push({ text:`MARPOL Ann. V (Garbage) – Trigger: ${why.join(", ")}`, cls:"" });
+        addRec(`MARPOL Ann. V (Garbage): Nachweise/Entsorgung/Logbooks prüfen (Trigger: ${why.join(", ")})`, "");
       }
-      // Ann. VI: overseas or scrubber or hfo
+
       if(op.overseas || traits.scrubber || traits.hfo){
-        let add = [];
+        addModule("MARPOL Ann. VI");
+        const add = [];
         if(op.overseas) add.push("Übersee/Fuel-Switch");
         if(traits.hfo) add.push("HFO");
         if(traits.scrubber){
-          const t = traits.egcsType && traits.egcsType !== 'n/a' ? `, EGCS: ${traits.egcsType}` : "";
+          const t = (traits.egcsType && traits.egcsType !== 'n/a') ? ` (EGCS: ${traits.egcsType})` : "";
           add.push(`Scrubber/EGCS${t}`);
         }
-        modules.push({ text:`MARPOL Ann. VI (Air) – Trigger: ${add.join(", ")}`, cls:"" });
+        addRec(`MARPOL Ann. VI (Air): SOx/NOx/Fuel-Switch/EGCS-Nachweise prüfen (Trigger: ${add.join(", ")})`, "");
       }
 
-      // Special combo: overseas + HFO -> explicitly mention Ann I & VI (already included) as extra emphasis
       if(op.overseas && traits.hfo){
-        modules.push({ text:"Zusatzhinweis: Übersee + HFO → Fokus auf Fuel-Switch-Nachweise (Ann. VI) und Öl-Dokumentation (Ann. I).", cls:"warn" });
+        addRec("Zusatzhinweis: Übersee + HFO → Fokus auf Fuel-Switch-Nachweise (Ann. VI) und Öl-Dokumentation (Ann. I).", "warn");
       }
 
-      // Ballast water
+      // Ballastwater
       if(traits.ballastIn){
-        modules.push({ text:"Ballastwasser (BWM Convention) – Ballast Water Record Book / IBWMC / D-1/D-2", cls:"" });
+        addModule("Ballastwasser");
+        addRec("Ballastwasser (BWM Convention): Record Book / IBWMC / D-1/D-2 prüfen (Trigger: Einlauf in Ballast)", "");
+        // NEU: Warnhinweis
+        addRec("⚠️ Beteiligung Hafenbehörde oder BSH erwägen (Ballastwasser-Thema).", "warn");
       }
 
       // IMSBC
       if(traits.bulker){
-        modules.push({ text:"IMSBC Code (Schüttgut) – Deklaration / Stauplan / Feuchte/TT/ML etc.", cls:"" });
+        addModule("IMSBC");
+        addRec("IMSBC Code: Deklaration/Stauplan/Feuchte/TT/ML etc. prüfen (Trigger: Bulker)", "");
       }
 
-      // Routing related: bridge/logbook/plausibility + hybrid hint
+      // Routing / Incidents / Russia -> bridge/logbook + hybrid hint
       if(op.routing || op.incidents || op.russia){
+        addModule("Brücke/Logbuch");
         const why = [];
         if(op.routing) why.push("Routing");
         if(op.incidents) why.push("Incidents");
         if(op.russia) why.push("Russland-Bezug");
-        modules.push({ text:`Kontrolle Brücke / Logbuch / Plausibilität (Trigger: ${why.join(", ")})`, cls:"" });
-        modules.push({ text:`Hinweis: ggf. Abgleich mit <a href="${escapeHtml(HYBRID_MATRIX_LINK)}" target="_blank" rel="noreferrer">Risikomatrix Hybride Bedrohungen</a>.`, cls:"" });
+        addRec(`Brücke/Logbuch/Plausibilität prüfen (Trigger: ${why.join(", ")})`, "");
+        addRec(`Hinweis: ggf. Abgleich mit <a href="${escapeHtml(HYBRID_MATRIX_LINK)}" target="_blank" rel="noreferrer">Risikomatrix Hybride Bedrohungen</a>.`, "");
       }
 
-      // SL2 can add security emphasis
       if(op.sl2 && !op.suspicion){
-        modules.push({ text:"ISPS-Dokumente / Security-Dokumentation (SL2-Kontext)", cls:"" });
+        addModule("ISPS");
+        addRec("ISPS-Dokumente / Security-Dokumentation prüfen (Trigger: SL2-Kontext)", "");
       }
 
-      // Final warnings
+      // warnings
       for(const w of warnings){
-        modules.push({ text:`⚠️ ${escapeHtml(w)}`, cls:"warn" });
+        addRec(`⚠️ ${escapeHtml(w)}`, "warn");
       }
 
-      // Deduplicate by text (keep first)
-      const seen = new Set();
-      const uniq = [];
-      for(const m of modules){
-        const key = m.text.replace(/\s+/g,' ').trim();
-        if(seen.has(key)) continue;
-        seen.add(key);
-        uniq.push(m);
-      }
+      // Deduplicate
+      return { moduleTags: uniq(modules), recs: uniqRecs(recs), gateBlocked:false };
 
-      // Sort modules by importance buckets
-      function bucket(m){
-        const t = m.text.toLowerCase();
-        if(t.includes("kontrolle: pflicht")) return 1;
-        if(t.includes("isps") && t.includes("security report")) return 2;
-        if(t.startsWith("patente")) return 3;
-        if(t.startsWith("zertifikate")) return 4;
-        if(t.startsWith("ism")) return 5;
-        if(t.startsWith("mlc")) return 6;
-        if(t.includes("marpol allgemein")) return 7;
-        if(t.includes("marpol ann.")) return 8;
-        if(t.includes("ballastwasser")) return 9;
-        if(t.includes("imsbc")) return 10;
-        if(t.includes("brücke") || t.includes("logbuch") || t.includes("plausibilität")) return 11;
-        if(t.includes("hybride")) return 12;
-        if(t.includes("zusatzhinweis")) return 13;
-        if(t.includes("⚠️")) return 14;
-        return 20;
+      // helpers
+      function uniq(arr){
+        return Array.from(new Set(arr.map(x => String(x).trim()).filter(Boolean)));
       }
-      uniq.sort((a,b)=> bucket(a)-bucket(b));
-
-      return { modules: uniq, warnings, gateBlocked:false };
+      function uniqRecs(arr){
+        const seen = new Set();
+        const out = [];
+        for(const r of arr){
+          const key = String(r.text ?? '').replace(/\s+/g,' ').trim();
+          if(!key) continue;
+          if(seen.has(key)) continue;
+          seen.add(key);
+          out.push({ text: key, cls: r.cls || '' });
+        }
+        // sort with hard/warn first-ish
+        const bucket = (r) => {
+          const t = (r.text||'').toLowerCase();
+          if(r.cls === 'hard' || t.includes('pflicht')) return 1;
+          if(r.cls === 'warn' || t.includes('⚠️')) return 2;
+          if(t.startsWith('patente')) return 3;
+          if(t.startsWith('seeversicherungsnachweis')) return 4;
+          if(t.startsWith('zertifikate')) return 5;
+          if(t.startsWith('ism')) return 6;
+          if(t.startsWith('mlc')) return 7;
+          if(t.includes('marpol')) return 8;
+          if(t.includes('ballast')) return 9;
+          if(t.includes('imsbc')) return 10;
+          if(t.includes('brücke') || t.includes('logbuch')) return 11;
+          if(t.includes('hinweis: ggf. abgleich')) return 99;
+          return 50;
+        };
+        out.sort((a,b)=>bucket(a)-bucket(b));
+        return out;
+      }
     }
 
     // =========================
@@ -1123,14 +1155,15 @@
         reasons: getTopReasons(op, traits, flag)
       };
 
-      // modules
-      const m = computeModules(ship);
-      ship.modules = m.modules.map(x => x.text.replace(/\s+/g,' ').trim());
-      ship.gateBlocked = m.gateBlocked;
+      const mr = computeModulesAndRecs(ship);
+      ship.moduleTags = mr.moduleTags;
+      ship.recommendations = mr.recs.map(r => r.text);
+      ship.recommendationsRich = mr.recs; // keep class info for modal
+      ship.gateBlocked = mr.gateBlocked;
 
       allShips.push(ship);
 
-      updateMatrixCellColors(); // keep background current
+      updateMatrixCellColors();
       updateMatrix();
       updateShipsList();
 
@@ -1166,8 +1199,6 @@
           if(!cell) continue;
           cell.classList.remove('cell-green','cell-yellow','cell-orange','cell-red');
 
-          // Determine cell default color from theoretical rule:
-          // Use representative xStage = x (except last col as 4) and no hard trigger
           const repX = (x === 4) ? 4 : x;
           const dummyOp = { suspicion:false, sl2:false, incidents:false, russia:false };
           const a = ampelFromXY(y, repX, dummyOp);
@@ -1177,7 +1208,6 @@
     }
 
     function updateMatrix(){
-      // clear badges
       for(let y=1;y<=5;y++){
         for(let x=0;x<=4;x++){
           const cell = document.getElementById(`cell_${y}_${x}`);
@@ -1255,18 +1285,37 @@
       document.getElementById('m_reasons').textContent = (ship.reasons ?? []).join(' · ') || '—';
       document.getElementById('m_notes').value = ship.notes ?? '';
 
-      // modules
-      const ul = document.getElementById('m_modules');
-      ul.innerHTML = '';
-
-      const m = computeModules(ship);
-      for(const mod of m.modules){
+      // render module tags
+      const ulM = document.getElementById('m_modules');
+      ulM.innerHTML = '';
+      (ship.moduleTags ?? []).forEach(tag=>{
         const li = document.createElement('li');
-        li.className = mod.cls || '';
-        // allow links in mod text
-        li.innerHTML = mod.text;
-        ul.appendChild(li);
+        li.textContent = tag;
+        ulM.appendChild(li);
+      });
+      if((ship.moduleTags ?? []).length === 0){
+        const li = document.createElement('li'); li.textContent = '—'; ulM.appendChild(li);
       }
+
+      // render recommendations (rich)
+      const ulR = document.getElementById('m_recs');
+      ulR.innerHTML = '';
+      const mr = computeModulesAndRecs(ship); // ensures latest logic
+      for(const r of mr.recs){
+        const li = document.createElement('li');
+        li.className = r.cls || '';
+        li.innerHTML = r.text; // allow link line
+        ulR.appendChild(li);
+      }
+      if(mr.recs.length === 0){
+        const li = document.createElement('li'); li.textContent = '—'; ulR.appendChild(li);
+      }
+
+      // store updated on open (keeps snapshot/export consistent)
+      ship.moduleTags = mr.moduleTags;
+      ship.recommendations = mr.recs.map(x=>x.text);
+      ship.recommendationsRich = mr.recs;
+      ship.gateBlocked = mr.gateBlocked;
 
       const backdrop = document.getElementById('shipModalBackdrop');
       backdrop.classList.add('show');
@@ -1328,12 +1377,17 @@
         "TBS_kontrollw","Aquatrack","PSC_<1/2J","PSC_Maengel_<1J","Routing","Incidents",
         "Russland","Verdachtsmeldung","SL2","Uebersee","Crewwechsel","Schriftverkehr",
         "ExternerHinweis","HFO","Scrubber","EGCS_Typ","Tankschiff","Bulker","BallastIn",
-        "TopGruende","Module","Timestamp","Notiz"
+        "TopGruende","Module","Kontrollempfehlungen","Timestamp","Notiz"
       ];
 
       let csv = header.join(",") + "\n";
 
-      for(const s of allShips){
+      for(const s0 of allShips){
+        const s = s0; // alias
+        const mr = computeModulesAndRecs(s);
+        const modules = (mr.moduleTags ?? []).join(" | ");
+        const recs = (mr.recs ?? []).map(r=>r.text.replace(/\s+/g,' ').trim()).join(" | ");
+
         const row = [
           s.name, s.imo, s.flag,
           `L${s.yLevel}`, s.yPts,
@@ -1343,7 +1397,8 @@
           s.op.russia, s.op.suspicion, s.op.sl2, s.op.overseas, s.op.crew_change, s.op.port_auth,
           s.traits.externalHint, s.traits.hfo, s.traits.scrubber, s.traits.egcsType, s.traits.tanker, s.traits.bulker, s.traits.ballastIn,
           (s.reasons ?? []).join(" | "),
-          (s.modules ?? []).join(" | "),
+          modules,
+          recs,
           s.timestamp,
           (s.notes ?? '').replace(/\r?\n/g,' ')
         ].map(v => `"${String(v ?? '').replace(/"/g,'""')}"`);
@@ -1413,49 +1468,56 @@
         "TBS","Aquatrack","PSC_<1/2J","PSC_Mängel_<1J","Routing","Incidents","Russland",
         "Verdacht","SL2","Übersee","Crewwechsel","Schriftverkehr",
         "ExternerHinweis","HFO","Scrubber","EGCS_Typ","Tankschiff","Bulker","BallastIn",
-        "Top-Gründe","Module","Zeitstempel","Notiz"
+        "Top-Gründe","Module","Kontrollempfehlungen","Zeitstempel","Notiz"
       ];
 
       const vesselRows = [
-        rowXml([{ v:`Erfasste Schiffe (inkl. Module/Notizen) – ${stamp}`, style:'title', mergeAcross: vesselHeader.length - 1 }]),
+        rowXml([{ v:`Erfasste Schiffe (inkl. Module/Empfehlungen/Notizen) – ${stamp}`, style:'title', mergeAcross: vesselHeader.length - 1 }]),
         rowXml(vesselHeader.map(h=>({v:h, style:'header'}))),
-        ...allShips.map(s => rowXml([
-          {v:s.name, style:'cell'},
-          {v:s.imo || '', style:'cell'},
-          {v:s.flag, style:'cell'},
-          {v:s.ampel, style:'cell'},
-          {v:`L${s.yLevel}`, style:'cell'},
-          {v:String(s.yPts), style:'cell'},
-          {v:String(s.xStage), style:'cell'},
-          {v:String(s.xPts), style:'cell'},
+        ...allShips.map(s => {
+          const mr = computeModulesAndRecs(s);
+          const modules = (mr.moduleTags ?? []).join(' | ');
+          const recs = (mr.recs ?? []).map(r=>r.text.replace(/\s+/g,' ').trim()).join(' | ');
 
-          {v:String(s.op.tbs), style:'cell'},
-          {v:String(s.op.aquatrack), style:'cell'},
-          {v:String(s.op.psc_recent), style:'cell'},
-          {v:String(s.op.psc_defects), style:'cell'},
-          {v:String(s.op.routing), style:'cell'},
-          {v:String(s.op.incidents), style:'cell'},
-          {v:String(s.op.russia), style:'cell'},
+          return rowXml([
+            {v:s.name, style:'cell'},
+            {v:s.imo || '', style:'cell'},
+            {v:s.flag, style:'cell'},
+            {v:s.ampel, style:'cell'},
+            {v:`L${s.yLevel}`, style:'cell'},
+            {v:String(s.yPts), style:'cell'},
+            {v:String(s.xStage), style:'cell'},
+            {v:String(s.xPts), style:'cell'},
 
-          {v:String(s.op.suspicion), style:'cell'},
-          {v:String(s.op.sl2), style:'cell'},
-          {v:String(s.op.overseas), style:'cell'},
-          {v:String(s.op.crew_change), style:'cell'},
-          {v:String(s.op.port_auth), style:'cell'},
+            {v:String(s.op.tbs), style:'cell'},
+            {v:String(s.op.aquatrack), style:'cell'},
+            {v:String(s.op.psc_recent), style:'cell'},
+            {v:String(s.op.psc_defects), style:'cell'},
+            {v:String(s.op.routing), style:'cell'},
+            {v:String(s.op.incidents), style:'cell'},
+            {v:String(s.op.russia), style:'cell'},
 
-          {v:String(s.traits.externalHint), style:'cell'},
-          {v:String(s.traits.hfo), style:'cell'},
-          {v:String(s.traits.scrubber), style:'cell'},
-          {v:String(s.traits.egcsType), style:'cell'},
-          {v:String(s.traits.tanker), style:'cell'},
-          {v:String(s.traits.bulker), style:'cell'},
-          {v:String(s.traits.ballastIn), style:'cell'},
+            {v:String(s.op.suspicion), style:'cell'},
+            {v:String(s.op.sl2), style:'cell'},
+            {v:String(s.op.overseas), style:'cell'},
+            {v:String(s.op.crew_change), style:'cell'},
+            {v:String(s.op.port_auth), style:'cell'},
 
-          {v:(s.reasons ?? []).join(' · '), style:'cell'},
-          {v:(s.modules ?? []).join(' | '), style:'cell'},
-          {v:s.timestamp, style:'cell'},
-          {v:s.notes ?? '', style:'wrap'}
-        ], true))
+            {v:String(s.traits.externalHint), style:'cell'},
+            {v:String(s.traits.hfo), style:'cell'},
+            {v:String(s.traits.scrubber), style:'cell'},
+            {v:String(s.traits.egcsType), style:'cell'},
+            {v:String(s.traits.tanker), style:'cell'},
+            {v:String(s.traits.bulker), style:'cell'},
+            {v:String(s.traits.ballastIn), style:'cell'},
+
+            {v:(s.reasons ?? []).join(' · '), style:'cell'},
+            {v:modules, style:'cell'},
+            {v:recs, style:'cell'},
+            {v:s.timestamp, style:'cell'},
+            {v:s.notes ?? '', style:'wrap'}
+          ], true);
+        })
       ].join('');
 
       const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -1523,7 +1585,7 @@
 
   <Worksheet ss:Name="Schiffe">
     <Table>
-      ${Array.from({length: vesselHeader.length}).map((_,i)=>`<Column ss:Width="${i===vesselHeader.length-1?420:(i===vesselHeader.length-2?260:120)}"/>`).join('')}
+      ${Array.from({length: vesselHeader.length}).map((_,i)=>`<Column ss:Width="${i===vesselHeader.length-1?420:(i===vesselHeader.length-2?220:(i===vesselHeader.length-3?220:120))}"/>`).join('')}
       ${vesselRows}
     </Table>
   </Worksheet>
@@ -1572,7 +1634,10 @@
       `).join('');
 
       const listRows = allShips.map(s => {
-        const modules = (computeModules(s).modules || []).map(m=>m.text).join(' | ');
+        const mr = computeModulesAndRecs(s);
+        const modules = (mr.moduleTags ?? []).join(', ');
+        const recs = (mr.recs ?? []).map(r=>r.text.replace(/\s+/g,' ').trim()).join(' | ');
+
         return `
           <tr>
             <td>${escapeHtml(s.name)}</td>
@@ -1583,6 +1648,7 @@
             <td>${s.xStage} (${s.xPts})</td>
             <td>${escapeHtml((s.reasons ?? []).join(' · '))}</td>
             <td style="white-space:pre-wrap;">${escapeHtml(modules)}</td>
+            <td style="white-space:pre-wrap;">${escapeHtml(recs)}</td>
             <td>${escapeHtml(s.timestamp)}</td>
             <td style="white-space:pre-wrap;">${escapeHtml(s.notes ?? '')}</td>
           </tr>
@@ -1604,7 +1670,7 @@
             .small{ color:#555; font-size:12px; margin-bottom:14px; }
             button{ padding:10px 14px; font-weight:800; border:none; border-radius:10px; background:#0AA6A6; color:#fff; cursor:pointer; }
             table{ border-collapse:collapse; width:100%; margin-top:10px; }
-            th,td{ border:1px solid #999; padding:8px; font-size:12px; }
+            th,td{ border:1px solid #999; padding:8px; font-size:12px; vertical-align:top; }
             thead th{ background:#0b3d91; color:#fff; }
             .subhead{ background:#e6eeee; font-weight:800; }
             @media print{ button{ display:none; } }
@@ -1632,7 +1698,7 @@
             </tbody>
           </table>
 
-          <h3 style="margin-top:18px;">Erfasste Schiffe (inkl. Module/Notizen)</h3>
+          <h3 style="margin-top:18px;">Erfasste Schiffe (inkl. Module, Empfehlungen & Notizen)</h3>
           <table>
             <tr class="subhead">
               <td><b>Name</b></td>
@@ -1643,6 +1709,7 @@
               <td><b>X</b></td>
               <td><b>Top-Gründe</b></td>
               <td><b>Module</b></td>
+              <td><b>Kontrollempfehlungen</b></td>
               <td><b>Zeit</b></td>
               <td><b>Notiz</b></td>
             </tr>

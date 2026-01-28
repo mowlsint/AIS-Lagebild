@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Digitalisierung der Märkte – Ein Projekt der Wirtschaftsklasse des HGO</title>
+  <meta name="description" content="Digitalisierung der Märkte – Ein Projekt der Wirtschaftsklasse des HGO." />
+
+  <style>
+    :root{
+      --bg: #0b1220;
+      --card: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+      --accent: #7c3aed;      /* violett */
+      --accent2: #22c55e;     /* grün */
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --radius: 18px;
+      --max: 1100px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--text);
+      background:
+        radial-gradient(900px 600px at 18% 8%, rgba(124,58,237,.35), transparent 55%),
+        radial-gradient(800px 560px at 82% 18%, rgba(34,197,94,.22), transparent 55%),
+        radial-gradient(900px 700px at 50% 90%, rgba(56,189,248,.14), transparent 60%),
+        linear-gradient(180deg, #070b14 0%, var(--bg) 60%, #070b14 100%);
+      line-height:1.6;
+    }
+
+    a{ color:inherit; }
+    .container{ max-width: var(--max); margin: 0 auto; padding: 22px; }
+
+    /* Header */
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+      background: rgba(7,11,20,.55);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .nav{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding: 14px 22px;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 0;
+    }
+    .logo{
+      width:44px; height:44px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+      flex: 0 0 auto;
+    }
+    .brand-text{ min-width: 0; }
+    .brand-title{
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: 15px;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand-sub{
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .navlinks{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      text-decoration:none;
+      color: var(--text);
+      font-size: 13px;
+    }
+    .pill:hover{ background: rgba(255,255,255,.09); }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      text-decoration:none;
+      font-weight: 700;
+      font-size: 14px;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .08s ease, filter .2s ease, background .2s ease;
+      box-shadow: 0 12px 25px rgba(0,0,0,.25);
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn-primary{
+      background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(34,197,94,.70));
+      color: #08101f;
+      border-color: rgba(255,255,255,.10);
+    }
+    .btn-primary:hover{ filter: brightness(1.06); }
+    .btn-ghost{
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+    }
+    .btn-ghost:hover{ background: rgba(255,255,255,.09); }
+
+    /* Hero */
+    .hero{
+      padding: 44px 0 22px;
+    }
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .card{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero-card{
+      padding: 28px;
+      overflow:hidden;
+      position: relative;
+    }
+    .hero-card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(700px 260px at 10% 10%, rgba(124,58,237,.35), transparent 55%),
+        radial-gradient(520px 300px at 90% 20%, rgba(34,197,94,.20), transparent 50%);
+      pointer-events:none;
+      filter: blur(0px);
+      opacity: .9;
+    }
+    .hero-card > *{ position: relative; }
+
+    h1{
+      margin: 0 0 8px;
+      font-size: clamp(28px, 3.6vw, 44px);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+    .subtitle{
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 62ch;
+    }
+
+    .cta-row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .side-card{
+      padding: 22px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap: 14px;
+      min-height: 220px;
+    }
+    .badge{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size: 12px;
+      width: fit-content;
+    }
+    .side-title{
+      margin: 6px 0 0;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: 18px;
+    }
+    .side-text{
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .mini{
+      font-size: 12px;
+      color: rgba(255,255,255,.60);
+      margin: 0;
+    }
+
+    /* Sections */
+    main{ padding: 16px 0 52px; }
+    .section{
+      margin-top: 18px;
+      padding: 22px;
+    }
+    .section h2{
+      margin: 0 0 10px;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .placeholder{
+      color: var(--muted);
+      background: rgba(0,0,0,.18);
+      border: 1px dashed rgba(255,255,255,.18);
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 14px;
+    }
+
+    .imgbox{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02)),
+        radial-gradient(400px 220px at 20% 20%, rgba(124,58,237,.25), transparent 60%),
+        radial-gradient(380px 240px at 80% 30%, rgba(34,197,94,.16), transparent 60%);
+      min-height: 220px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      text-align:center;
+      color: rgba(255,255,255,.72);
+    }
+
+    .divider{
+      height:1px;
+      background: rgba(255,255,255,.08);
+      margin: 18px 0;
+    }
+
+    /* Footer */
+    footer{
+      border-top: 1px solid rgba(255,255,255,.08);
+      background: rgba(7,11,20,.35);
+    }
+    .footer-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap: 12px;
+      padding: 18px 22px;
+      max-width: var(--max);
+      margin: 0 auto;
+      color: rgba(255,255,255,.65);
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Responsive */
+    @media (max-width: 860px){
+      .hero-grid{ grid-template-columns: 1fr; }
+      .split{ grid-template-columns: 1fr; }
+      .nav{ padding: 12px 16px; }
+      .container{ padding: 16px; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior:auto !important; transition:none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <!-- Logo-Datei: logo.jpg (im gleichen Ordner wie index.html) -->
+        <img class="logo" src="logo.jpg" alt="Logo" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';" />
+        <div id="logoFallback" class="logo" style="display:none; align-items:center; justify-content:center; font-size:12px; color:rgba(255,255,255,.7);">
+          Logo
+        </div>
+
+        <div class="brand-text">
+          <p class="brand-title">Digitalisierung der Märkte</p>
+          <p class="brand-sub">Ein Projekt der Wirtschaftsklasse des HGO</p>
+        </div>
+      </div>
+
+      <div class="navlinks">
+        <a class="pill" href="#projekt">Projekt</a>
+        <a class="pill" href="#inhalte">Inhalte</a>
+        <a class="pill" href="#umfrage">Umfrage</a>
+        <a class="btn btn-primary" href="#umfrage" aria-label="Zur Umfrage">Zur Umfrage</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <section class="hero" id="projekt">
+      <div class="hero-grid">
+        <div class="card hero-card">
+          <h1>Digitalisierung der Märkte</h1>
+          <p class="subtitle">Ein Projekt der Wirtschaftsklasse des HGO</p>
+
+          <div class="placeholder" aria-label="Platzhaltertext">
+            <strong>Platzhalter:</strong> Hier kommt euer Einleitungstext rein (z. B. warum Digitalisierung Märkte verändert,
+            welche Chancen/Risiken es gibt, und was ihr im Projekt untersucht).
+          </div>
+
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#umfrage">📋 Zur Umfrage</a>
+            <a class="btn btn-ghost" href="#inhalte">🔎 Inhalte ansehen</a>
+          </div>
+        </div>
+
+        <aside class="card side-card">
+          <div>
+            <div class="badge">📌 Kurzüberblick</div>
+            <h3 class="side-title">Worum geht’s?</h3>
+            <p class="side-text">
+              <strong>Platzhalter:</strong> 2–3 Sätze als Zusammenfassung (z. B. Fokus auf Onlinehandel, Plattformen,
+              Preisbildung, Daten, KI, Werbung…).
+            </p>
+          </div>
+          <p class="mini">
+            Tipp: Hier könnt ihr später auch eine kleine “Key Facts”-Liste oder ein Zitat einbauen.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <main>
+      <section class="card section" id="inhalte">
+        <h2>Inhalte</h2>
+        <div class="split">
+          <div class="placeholder">
+            <strong>Platzhalter – Haupttext:</strong><br/>
+            Hier kommt euer längerer Text hinein. Struktur-Idee:
+            <ul>
+              <li>Was bedeutet „Digitalisierung der Märkte“ konkret?</li>
+              <li>Wie verändern Plattformen und Daten die Marktmechanik?</li>
+              <li>Welche Vorteile/Nachteile gibt es für Konsumenten und Unternehmen?</li>
+              <li>Beispiele/Ergebnisse aus eurem Projekt</li>
+            </ul>
+            (Den Text könnt ihr einfach später hier ersetzen.)
+          </div>
+          <div class="imgbox" role="img" aria-label="Bildplatzhalter">
+            <div>
+              <div style="font-weight:800; letter-spacing:-0.02em; margin-bottom:6px;">Bildplatzhalter</div>
+              <div style="font-size:13px; color:rgba(255,255,255,.65);">
+                Hier kann später ein Foto / eine Grafik / eine Infografik rein.<br/>
+                (z. B. „bild1.jpg“ – dann als &lt;img&gt; einbauen)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="split">
+          <div class="placeholder">
+            <strong>Platzhalter – Abschnitt 2:</strong><br/>
+            Hier könnt ihr z. B. einen zweiten Themenblock setzen (Fallbeispiel, Interview-Erkenntnisse,
+            Marktbeobachtung, Glossar, Quellen, etc.).
+          </div>
+          <div class="imgbox" role="img" aria-label="Bildplatzhalter">
+            <div>
+              <div style="font-weight:800; letter-spacing:-0.02em; margin-bottom:6px;">Bildplatzhalter</div>
+              <div style="font-size:13px; color:rgba(255,255,255,.65);">
+                Optional: zweites Bild / Diagramm / Screenshot
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card section" id="umfrage">
+        <h2>Umfrage</h2>
+        <p class="subtitle" style="margin-top:-2px;">
+          Eure Meinung hilft uns, die Digitalisierung im Alltag besser zu verstehen.
+        </p>
+
+        <div class="placeholder">
+          <strong>Platzhalter:</strong> Der Umfrage-Link ist noch nicht bekannt.<br/>
+          Sobald ihr ihn habt, ersetzt ihr im Code den Wert von <code>SURVEY_URL</code>.
+        </div>
+
+        <div class="cta-row" style="margin-top:14px;">
+          <a id="surveyBtn" class="btn btn-primary" href="#" rel="noopener">🚀 Umfrage öffnen</a>
+          <button class="btn btn-ghost" type="button" id="copyBtn">🔗 Link kopieren</button>
+        </div>
+
+        <p class="mini" id="surveyHint" style="margin-top:10px;"></p>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-row">
+      <div>© <span id="year"></span> – Wirtschaftsklasse des HGO</div>
+      <div>Digitalisierung der Märkte • GitHub Pages</div>
+    </div>
+  </footer>
+
+  <script>
+    // ====== Umfrage-Link hier eintragen, sobald vorhanden ======
+    const SURVEY_URL = ""; // z.B. "https://example.com/umfrage"
+
+    const surveyBtn = document.getElementById("surveyBtn");
+    const hint = document.getElementById("surveyHint");
+    const copyBtn = document.getElementById("copyBtn");
+
+    function updateSurveyUI(){
+      if (SURVEY_URL && SURVEY_URL.trim().length > 0){
+        surveyBtn.href = SURVEY_URL.trim();
+        surveyBtn.target = "_blank";
+        hint.textContent = "Umfrage-Link ist gesetzt.";
+        copyBtn.disabled = false;
+      } else {
+        surveyBtn.href = "#";
+        surveyBtn.removeAttribute("target");
+        hint.textContent = "Noch kein Umfrage-Link hinterlegt (Platzhalter aktiv).";
+        copyBtn.disabled = true;
+      }
+    }
+
+    surveyBtn.addEventListener("click", (e) => {
+      if (!SURVEY_URL || SURVEY_URL.trim().length === 0){
+        e.preventDefault();
+        alert("Umfrage-Link ist noch nicht eingetragen. Bitte SURVEY_URL im Code setzen.");
+      }
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try{
+        await navigator.clipboard.writeText(SURVEY_URL.trim());
+        alert("Umfrage-Link kopiert.");
+      } catch {
+        alert("Kopieren nicht möglich (Browser-Rechte).");
+      }
+    });
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+    updateSurveyUI();
+  </script>
+</body>
+</html>

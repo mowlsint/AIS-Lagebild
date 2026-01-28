@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Digitalisierung der Märkte – Ein Projekt der Wirtschaftsklasse des HGO</title>
-  <meta name="description" content="Digitalisierung der Märkte – Ein Projekt der Wirtschaftsklasse des HGO." />
+  <meta name="description" content="Projektseite zur Digitalisierung der Märkte mit Beispielen aus dem Alltag und einer Umfrage." />
 
   <style>
     :root{
@@ -13,11 +13,12 @@
       --stroke: rgba(255,255,255,.10);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.72);
-      --accent: #7c3aed;      /* violett */
-      --accent2: #22c55e;     /* grün */
+      --muted2: rgba(255,255,255,.60);
       --shadow: 0 18px 50px rgba(0,0,0,.35);
       --radius: 18px;
       --max: 1100px;
+      --accent: #7c3aed; /* violett */
+      --accent2:#22c55e; /* grün */
     }
 
     *{ box-sizing:border-box; }
@@ -125,6 +126,8 @@
       user-select:none;
       transition: transform .08s ease, filter .2s ease, background .2s ease;
       box-shadow: 0 12px 25px rgba(0,0,0,.25);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
     }
     .btn:active{ transform: translateY(1px); }
     .btn-primary{
@@ -133,27 +136,40 @@
       border-color: rgba(255,255,255,.10);
     }
     .btn-primary:hover{ filter: brightness(1.06); }
-    .btn-ghost{
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-    }
     .btn-ghost:hover{ background: rgba(255,255,255,.09); }
 
-    /* Hero */
-    .hero{
-      padding: 44px 0 22px;
-    }
-    .hero-grid{
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 18px;
-      align-items: stretch;
-    }
+    /* Layout */
     .card{
       background: var(--card);
       border: 1px solid var(--stroke);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
+    }
+    .divider{
+      height:1px;
+      background: rgba(255,255,255,.08);
+      margin: 18px 0;
+    }
+    .badge{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size: 12px;
+      width: fit-content;
+    }
+
+    /* Hero */
+    .hero{ padding: 44px 0 22px; }
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      align-items: stretch;
     }
     .hero-card{
       padding: 28px;
@@ -168,11 +184,9 @@
         radial-gradient(700px 260px at 10% 10%, rgba(124,58,237,.35), transparent 55%),
         radial-gradient(520px 300px at 90% 20%, rgba(34,197,94,.20), transparent 50%);
       pointer-events:none;
-      filter: blur(0px);
       opacity: .9;
     }
     .hero-card > *{ position: relative; }
-
     h1{
       margin: 0 0 8px;
       font-size: clamp(28px, 3.6vw, 44px);
@@ -183,9 +197,8 @@
       margin: 0 0 18px;
       color: var(--muted);
       font-size: 15px;
-      max-width: 62ch;
+      max-width: 70ch;
     }
-
     .cta-row{
       display:flex;
       gap: 10px;
@@ -201,18 +214,6 @@
       gap: 14px;
       min-height: 220px;
     }
-    .badge{
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      color: var(--muted);
-      font-size: 12px;
-      width: fit-content;
-    }
     .side-title{
       margin: 6px 0 0;
       font-weight: 800;
@@ -224,24 +225,21 @@
       color: var(--muted);
       font-size: 14px;
     }
-    .mini{
-      font-size: 12px;
-      color: rgba(255,255,255,.60);
-      margin: 0;
-    }
+    .mini{ font-size: 12px; color: var(--muted2); margin: 0; }
 
     /* Sections */
     main{ padding: 16px 0 52px; }
-    .section{
-      margin-top: 18px;
-      padding: 22px;
-    }
+    .section{ margin-top: 18px; padding: 22px; }
     .section h2{
       margin: 0 0 10px;
       font-size: 20px;
       letter-spacing: -0.02em;
     }
-
+    .section h3{
+      margin: 14px 0 8px;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+    }
     .split{
       display:grid;
       grid-template-columns: 1.2fr .8fr;
@@ -249,14 +247,50 @@
       align-items: start;
     }
 
-    .placeholder{
-      color: var(--muted);
+    .infobox{
       background: rgba(0,0,0,.18);
-      border: 1px dashed rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.10);
       border-radius: 14px;
       padding: 14px;
       font-size: 14px;
+      color: var(--muted);
     }
+
+    .callout{
+      background: rgba(255,255,255,.06);
+      border: 1px dashed rgba(255,255,255,.18);
+      border-radius: 14px;
+      padding: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .chiplist{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 8px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.78);
+      font-size: 12px;
+    }
+
+    ul{ margin: 10px 0 0; padding-left: 18px; color: var(--muted); }
+    li{ margin: 6px 0; }
 
     .imgbox{
       border-radius: 16px;
@@ -272,12 +306,6 @@
       padding: 18px;
       text-align:center;
       color: rgba(255,255,255,.72);
-    }
-
-    .divider{
-      height:1px;
-      background: rgba(255,255,255,.08);
-      margin: 18px 0;
     }
 
     /* Footer */
@@ -298,10 +326,83 @@
       flex-wrap: wrap;
     }
 
+    /* ===== Modal ===== */
+    .modal{ position: fixed; inset: 0; display:none; z-index: 100; }
+    .modal[aria-hidden="false"]{ display:block; }
+
+    .modal-backdrop{
+      position:absolute; inset:0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-card{
+      position: relative;
+      width: min(720px, calc(100% - 32px));
+      margin: 7vh auto;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 22px 70px rgba(0,0,0,.45);
+    }
+
+    .modal-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+    }
+
+    .modal-title{ margin: 6px 0 0; font-size: 18px; font-weight: 800; letter-spacing:-0.02em; }
+    .modal-sub{ margin: 6px 0 0; color: rgba(255,255,255,.72); font-size: 14px; }
+
+    .icon-btn{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.85);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .modal-actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    /* ===== Ergebnis-Balken ===== */
+    .barrow{
+      display:grid;
+      grid-template-columns: 64px 1fr 90px;
+      align-items:center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .barlabel{ color: rgba(255,255,255,.78); font-size: 13px; }
+    .bartrack{
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+    }
+    .barfill{
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(124,58,237,.95), rgba(34,197,94,.75));
+      transition: width .25s ease;
+    }
+    .barvalue{ text-align:right; color: rgba(255,255,255,.75); font-size: 13px; }
+
     /* Responsive */
     @media (max-width: 860px){
       .hero-grid{ grid-template-columns: 1fr; }
       .split{ grid-template-columns: 1fr; }
+      .grid2{ grid-template-columns: 1fr; }
       .nav{ padding: 12px 16px; }
       .container{ padding: 16px; }
     }
@@ -330,69 +431,172 @@
       </div>
 
       <div class="navlinks">
-        <a class="pill" href="#projekt">Projekt</a>
-        <a class="pill" href="#inhalte">Inhalte</a>
-        <a class="pill" href="#umfrage">Umfrage</a>
-        <a class="btn btn-primary" href="#umfrage" aria-label="Zur Umfrage">Zur Umfrage</a>
+        <a class="pill" href="#grundlagen">Grundlagen</a>
+        <a class="pill" href="#alltag">Alltag</a>
+        <a class="pill" href="#chancenrisiken">Chancen & Risiken</a>
+        <a class="btn btn-primary" id="openSurveyTop" href="#umfrage" aria-label="Zur Umfrage">📋 Umfrage</a>
       </div>
     </div>
   </header>
 
   <div class="container">
-    <section class="hero" id="projekt">
+    <!-- HERO -->
+    <section class="hero" id="top">
       <div class="hero-grid">
         <div class="card hero-card">
           <h1>Digitalisierung der Märkte</h1>
-          <p class="subtitle">Ein Projekt der Wirtschaftsklasse des HGO</p>
+          <p class="subtitle">
+            Ein Projekt der Wirtschaftsklasse des HGO – was Digitalisierung bedeutet, wie sie Wirtschaft und Konsumentenalltag verändert
+            und welche Chancen und Risiken daraus entstehen.
+          </p>
 
-          <div class="placeholder" aria-label="Platzhaltertext">
-            <strong>Platzhalter:</strong> Hier kommt euer Einleitungstext rein (z. B. warum Digitalisierung Märkte verändert,
-            welche Chancen/Risiken es gibt, und was ihr im Projekt untersucht).
+          <div class="callout">
+            <strong>Worum geht’s?</strong><br/>
+            Digitalisierung heißt nicht nur “online sein”. Sie beschreibt, wie Informationen, Prozesse und Entscheidungen
+            zunehmend auf Daten, Software, Apps und vernetzten Systemen basieren – und dadurch Märkte schneller, transparenter,
+            aber auch komplexer werden.
           </div>
 
           <div class="cta-row">
-            <a class="btn btn-primary" href="#umfrage">📋 Zur Umfrage</a>
-            <a class="btn btn-ghost" href="#inhalte">🔎 Inhalte ansehen</a>
+            <a class="btn btn-primary" id="openSurveyHero" href="#umfrage">📋 Umfrage im Pop-up öffnen</a>
+            <a class="btn btn-ghost" href="#grundlagen">🔎 Direkt zu den Inhalten</a>
           </div>
+
+          <p class="mini" style="margin-top:12px;">
+            Hinweis: Die Umfrage speichert Stimmen lokal im Browser (für eine Demo). Für eine Klassen-Statistik über alle Geräte bräuchte man später ein Umfragetool/Backend.
+          </p>
         </div>
 
         <aside class="card side-card">
           <div>
             <div class="badge">📌 Kurzüberblick</div>
-            <h3 class="side-title">Worum geht’s?</h3>
+            <h3 class="side-title">Was ihr hier findet</h3>
             <p class="side-text">
-              <strong>Platzhalter:</strong> 2–3 Sätze als Zusammenfassung (z. B. Fokus auf Onlinehandel, Plattformen,
-              Preisbildung, Daten, KI, Werbung…).
+              Definitionen, Beispiele aus dem Alltag (Supermarkt, Einkaufs-Apps, Online-Banking),
+              plus eine kurze Pro/Contra-Einschätzung und eine Umfrage mit Live-Balken.
             </p>
+            <div class="chiplist" aria-label="Themenchips">
+              <span class="chip">Plattformen</span>
+              <span class="chip">Daten</span>
+              <span class="chip">Apps</span>
+              <span class="chip">Zahlung</span>
+              <span class="chip">Sicherheit</span>
+              <span class="chip">Datenschutz</span>
+            </div>
           </div>
           <p class="mini">
-            Tipp: Hier könnt ihr später auch eine kleine “Key Facts”-Liste oder ein Zitat einbauen.
+            Tipp: Ihr könnt später hier auch Quellen, Zitate oder Ergebnisse aus eurem Unterricht/Projekt ergänzen.
           </p>
         </aside>
       </div>
     </section>
 
     <main>
-      <section class="card section" id="inhalte">
-        <h2>Inhalte</h2>
+      <!-- GRUNDLAGEN -->
+      <section class="card section" id="grundlagen">
+        <h2>1) Grundlagen: Was ist Digitalisierung?</h2>
+
         <div class="split">
-          <div class="placeholder">
-            <strong>Platzhalter – Haupttext:</strong><br/>
-            Hier kommt euer längerer Text hinein. Struktur-Idee:
+          <div>
+            <div class="infobox">
+              <strong>Definition (einfach):</strong><br/>
+              Digitalisierung bedeutet, dass analoge Informationen und Abläufe in digitale Daten und Prozesse überführt werden – und dass
+              diese Daten genutzt werden, um Entscheidungen schneller, automatisierter und oft genauer zu treffen.
+            </div>
+
+            <h3>Digital vs. digitalisiert</h3>
             <ul>
-              <li>Was bedeutet „Digitalisierung der Märkte“ konkret?</li>
-              <li>Wie verändern Plattformen und Daten die Marktmechanik?</li>
-              <li>Welche Vorteile/Nachteile gibt es für Konsumenten und Unternehmen?</li>
-              <li>Beispiele/Ergebnisse aus eurem Projekt</li>
+              <li><strong>Digital</strong> heißt: Es gibt digitale Inhalte (z. B. eine Website oder Online-Werbung).</li>
+              <li><strong>Digitalisiert</strong> heißt: Auch Abläufe werden daten- und softwaregestützt (z. B. Lager, Preise, Bezahlung, Kundenbindung).</li>
             </ul>
-            (Den Text könnt ihr einfach später hier ersetzen.)
+
+            <h3>Was macht Märkte dadurch “anders”?</h3>
+            <ul>
+              <li>Informationen verbreiten sich schneller (Preise, Angebote, Bewertungen).</li>
+              <li>Transaktionen werden einfacher (Kontaktlos, Apps, One-Click-Käufe).</li>
+              <li>Entscheidungen werden datengetrieben (Algorithmen, Empfehlungen, personalisierte Angebote).</li>
+            </ul>
           </div>
-          <div class="imgbox" role="img" aria-label="Bildplatzhalter">
+
+          <div class="imgbox" role="img" aria-label="Bildplatzhalter Grundlagen">
+            <div>
+              <div style="font-weight:800; letter-spacing:-0.02em; margin-bottom:6px;">Bild/Infografik (optional)</div>
+              <div style="font-size:13px; color:rgba(255,255,255,.65);">
+                Beispiel: “Analog → Digital → Datengetrieben” als kleines Schaubild
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- WIRTSCHAFT -->
+      <section class="card section" id="wirtschaft">
+        <h2>2) Digitalisierung im Wirtschaftsbereich</h2>
+
+        <div class="grid2">
+          <div class="infobox">
+            <strong>Produktion & Logistik</strong><br/>
+            Daten helfen bei Planung und Steuerung: Bestände, Lieferketten, Routen, Automatisierung im Lager.
+            Dadurch werden Prozesse oft effizienter – aber auch abhängig von IT-Systemen.
+          </div>
+          <div class="infobox">
+            <strong>Handel & Preisbildung</strong><br/>
+            Plattformen, Online-Marktplätze und digitale Preisschilder ermöglichen schnellere Preisänderungen,
+            Vergleiche und manchmal “dynamische Preise”.
+          </div>
+          <div class="infobox">
+            <strong>Marketing & Personalisierung</strong><br/>
+            Werbung wird zielgerichteter: Apps, Cookies, Kundenkarten, Empfehlungen.
+            Konsumenten sehen oft “passende” Angebote – dafür entstehen Datenprofile.
+          </div>
+          <div class="infobox">
+            <strong>Wettbewerb & Plattformmacht</strong><br/>
+            Große Plattformen profitieren von Netzwerkeffekten (viele Nutzer → noch mehr Nutzer).
+            Kleine Anbieter gewinnen Reichweite, können aber abhängig werden.
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="callout">
+          <strong>Kurz gesagt:</strong> Digitalisierung verschiebt Märkte in Richtung <em>Daten</em>, <em>Automatisierung</em> und <em>Plattformen</em>.
+          Das kann Preise/Angebote transparenter machen – aber auch die Kontrolle über Daten und Regeln bei wenigen Akteuren konzentrieren.
+        </div>
+      </section>
+
+      <!-- ALLTAG -->
+      <section class="card section" id="alltag">
+        <h2>3) Wo erleben Konsumenten Digitalisierung im Alltag?</h2>
+
+        <div class="split">
+          <div>
+            <h3>Supermarktkasse & Ladenbesuch</h3>
+            <ul>
+              <li>Self-Checkout-Kassen, Scanner, “Scan & Go”</li>
+              <li>Kontaktloses Bezahlen (Karte/Smartphone), digitale Kassenbons</li>
+              <li>Coupons und Rabatte über Apps oder Kundenkarten</li>
+            </ul>
+
+            <h3>Einkaufs-Apps</h3>
+            <ul>
+              <li>Einkaufslisten, Preisvergleiche, Produktsuche</li>
+              <li>Digitale Rabattaktionen, Lieferdienste, Abholservices</li>
+              <li>Bewertungen und Empfehlungen (“Andere kauften auch…”) </li>
+            </ul>
+
+            <h3>Online-Banking</h3>
+            <ul>
+              <li>Push-Benachrichtigungen, Budget-Übersichten, Echtzeit-Überweisungen</li>
+              <li>2-Faktor-Authentifizierung für Sicherheit</li>
+              <li>Risiko: Phishing/Scams – man muss lernen, woran man echte Nachrichten erkennt</li>
+            </ul>
+          </div>
+
+          <div class="imgbox" role="img" aria-label="Bildplatzhalter Alltag">
             <div>
               <div style="font-weight:800; letter-spacing:-0.02em; margin-bottom:6px;">Bildplatzhalter</div>
               <div style="font-size:13px; color:rgba(255,255,255,.65);">
-                Hier kann später ein Foto / eine Grafik / eine Infografik rein.<br/>
-                (z. B. „bild1.jpg“ – dann als &lt;img&gt; einbauen)
+                Optional: Foto von Self-Checkout / Banking-App / Einkaufs-App (eigene Bilder)
               </div>
             </div>
           </div>
@@ -400,91 +604,11 @@
 
         <div class="divider"></div>
 
-        <div class="split">
-          <div class="placeholder">
-            <strong>Platzhalter – Abschnitt 2:</strong><br/>
-            Hier könnt ihr z. B. einen zweiten Themenblock setzen (Fallbeispiel, Interview-Erkenntnisse,
-            Marktbeobachtung, Glossar, Quellen, etc.).
-          </div>
-          <div class="imgbox" role="img" aria-label="Bildplatzhalter">
-            <div>
-              <div style="font-weight:800; letter-spacing:-0.02em; margin-bottom:6px;">Bildplatzhalter</div>
-              <div style="font-size:13px; color:rgba(255,255,255,.65);">
-                Optional: zweites Bild / Diagramm / Screenshot
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="card section" id="umfrage">
-        <h2>Umfrage</h2>
-        <p class="subtitle" style="margin-top:-2px;">
-          Eure Meinung hilft uns, die Digitalisierung im Alltag besser zu verstehen.
-        </p>
-
-        <div class="placeholder">
-          <strong>Platzhalter:</strong> Der Umfrage-Link ist noch nicht bekannt.<br/>
-          Sobald ihr ihn habt, ersetzt ihr im Code den Wert von <code>SURVEY_URL</code>.
-        </div>
-
-        <div class="cta-row" style="margin-top:14px;">
-          <a id="surveyBtn" class="btn btn-primary" href="#" rel="noopener">🚀 Umfrage öffnen</a>
-          <button class="btn btn-ghost" type="button" id="copyBtn">🔗 Link kopieren</button>
-        </div>
-
-        <p class="mini" id="surveyHint" style="margin-top:10px;"></p>
-      </section>
-    </main>
-  </div>
-
-  <footer>
-    <div class="footer-row">
-      <div>© <span id="year"></span> – Wirtschaftsklasse des HGO</div>
-      <div>Digitalisierung der Märkte • GitHub Pages</div>
-    </div>
-  </footer>
-
-  <script>
-    // ====== Umfrage-Link hier eintragen, sobald vorhanden ======
-    const SURVEY_URL = ""; // z.B. "https://example.com/umfrage"
-
-    const surveyBtn = document.getElementById("surveyBtn");
-    const hint = document.getElementById("surveyHint");
-    const copyBtn = document.getElementById("copyBtn");
-
-    function updateSurveyUI(){
-      if (SURVEY_URL && SURVEY_URL.trim().length > 0){
-        surveyBtn.href = SURVEY_URL.trim();
-        surveyBtn.target = "_blank";
-        hint.textContent = "Umfrage-Link ist gesetzt.";
-        copyBtn.disabled = false;
-      } else {
-        surveyBtn.href = "#";
-        surveyBtn.removeAttribute("target");
-        hint.textContent = "Noch kein Umfrage-Link hinterlegt (Platzhalter aktiv).";
-        copyBtn.disabled = true;
-      }
-    }
-
-    surveyBtn.addEventListener("click", (e) => {
-      if (!SURVEY_URL || SURVEY_URL.trim().length === 0){
-        e.preventDefault();
-        alert("Umfrage-Link ist noch nicht eingetragen. Bitte SURVEY_URL im Code setzen.");
-      }
-    });
-
-    copyBtn.addEventListener("click", async () => {
-      try{
-        await navigator.clipboard.writeText(SURVEY_URL.trim());
-        alert("Umfrage-Link kopiert.");
-      } catch {
-        alert("Kopieren nicht möglich (Browser-Rechte).");
-      }
-    });
-
-    document.getElementById("year").textContent = new Date().getFullYear();
-    updateSurveyUI();
-  </script>
-</body>
-</html>
+        <div class="infobox">
+          <strong>Mini-Glossar (kurz & nützlich)</strong>
+          <div class="chiplist" style="margin-top:10px;">
+            <span class="chip"><strong>Plattform</strong>: Ort, wo viele Anbieter & Käufer zusammenkommen</span>
+            <span class="chip"><strong>Algorithmus</strong>: Regeln/Programm, das Entscheidungen/Empfehlungen berechnet</span>
+            <span class="chip"><strong>Personalisierung</strong>: Angebote/Startseiten werden an dich angepasst</span>
+            <span class="chip"><strong>2FA</strong>: Zweiter Sicherheitsfaktor (z. B. App-Code)</span>
+            <span class="chip"><strong>Phishing</strong>: Betrugsversuch durch gefälscht

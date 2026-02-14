@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' data:; frame-ancestors *">
+  <title>Maritime Risikomatrix für Hybride Aktivitäten</title>
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body{
+      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      min-height:100vh; padding:20px;
+    }
+
+    .container{
+      max-width:1400px; margin:0 auto; background:#fff;
+      border-radius:10px; box-shadow:0 10px 40px rgba(0,0,0,0.2);
+      overflow:hidden;
+    }
+
+    /* ===== HEADER (Logo right, content centered) ===== */
+    .header{
+      position:relative;
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#fff;
+      padding:30px;
+      text-align:center;
+    }
+    .header-content{
+      max-width:980px;
+      margin:0 auto;
+    }
+    .header h1{ font-size:28px; margin-bottom:10px; }
+    .header p{ font-size:14px; opacity:0.9; }
+
+    .header-logo{
+      position:absolute;
+      right:18px;
+      top:18px;
+      width:220px;
+      height:auto;
+      border-radius:12px;
+      box-shadow:0 12px 28px rgba(0,0,0,0.25);
+      border:2px solid rgba(255,255,255,0.25);
+      background:rgba(255,255,255,0.08);
+    }
+    @media (max-width: 900px){
+      .header{ padding:22px 18px 18px 18px; }
+      .header-logo{
+        position:static;
+        display:block;
+        margin:0 auto 12px auto;
+        width:min(260px, 70vw);
+      }
+    }
+
+    .tabs{ display:flex; border-bottom:2px solid #667eea; background:#f8f9fa; }
+    .tab-button{
+      flex:1; padding:15px; background:none; border:none; cursor:pointer;
+      font-weight:600; color:#666; transition:all .3s ease;
+      border-bottom:3px solid transparent;
+    }
+    .tab-button.active{
+      color:#667eea; border-bottom-color:#667eea; background:#fff;
+    }
+    .tab-button:hover{ background:#fff; }
+
+    .content{ display:none; padding:30px; }
+    .content.active{ display:grid; grid-template-columns:1fr 2fr; gap:30px; }
+    .content-full.active{ display:block; }
+
+    .left-panel,.right-panel{ display:flex; flex-direction:column; }
+
+    .section{ margin-bottom:30px; }
+    .section h2{
+      color:#333; font-size:16px; margin-bottom:15px;
+      padding-bottom:10px; border-bottom:2px solid #667eea;
+    }
+
+    .form-group{ margin-bottom:15px; }
+    label{ display:block; margin-bottom:6px; color:#333; font-weight:500; font-size:13px; }
+
+    input[type="text"],select,textarea{
+      width:100%; padding:8px; border:1px solid #ddd; border-radius:5px;
+      font-size:13px; font-family:inherit;
+    }
+    textarea{ min-height:90px; resize:vertical; }
+    input[type="text"]:focus,select:focus,textarea:focus{
+      outline:none; border-color:#667eea; box-shadow:0 0 5px rgba(102,126,234,0.3);
+    }
+
+    .checkbox-group{ display:flex; flex-direction:column; gap:8px; }
+    .checkbox-item{ display:flex; align-items:flex-start; gap:8px; }
+    input[type="checkbox"]{ width:16px; height:16px; cursor:pointer; margin-top:2px; flex-shrink:0; }
+    .checkbox-item label{ margin-bottom:0; cursor:pointer; font-size:12px; }
+
+    a{ color:#667eea; text-decoration:none; font-weight:500; }
+    a:hover{ text-decoration:underline; }
+
+    .button-group{ display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+    button{
+      padding:10px 20px; font-size:13px; font-weight:600; border:none;
+      border-radius:5px; cursor:pointer; transition:all .3s ease;
+    }
+    .btn-calculate{
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#fff; flex:1;
+    }
+    .btn-calculate:hover{
+      transform:translateY(-2px);
+      box-shadow:0 5px 15px rgba(102,126,234,0.4);
+    }
+    .btn-reset{ background:#e0e0e0; color:#333; }
+    .btn-reset:hover{ background:#d0d0d0; }
+    .btn-export{ background:#FF9800; color:#fff; }
+    .btn-export:hover{ background:#F57C00; transform:translateY(-2px); }
+    .btn-secondary{ background:#e0e0e0; color:#333; }
+    .btn-secondary:hover{ background:#d0d0d0; }
+
+    .matrix-container{ background:#f5f5f5; padding:20px; border-radius:10px; overflow-x:auto; }
+    .matrix{
+      border-collapse:collapse; width:100%; background:#fff;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    }
+    .matrix th,.matrix td{
+      border:2px solid #667eea; padding:15px; text-align:center;
+      font-size:12px; min-width:120px;
+    }
+    .matrix th{
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#fff; font-weight:600;
+    }
+    .matrix td{ height:100px; vertical-align:top; position:relative; }
+
+    .risk-low{ background:#c8e6c9; }
+    .risk-medium{ background:#fff9c4; }
+    .risk-high{ background:#ffe0b2; }
+    .risk-very-high{ background:#ffcdd2; }
+
+    .ship-badge{
+      display:inline-block; background:#fff; border:1px solid #667eea;
+      padding:4px 8px; margin:2px; border-radius:12px; font-size:11px;
+      font-weight:600; color:#333; cursor:pointer; transition:all .2s ease;
+      user-select:none;
+    }
+    .ship-badge:hover{
+      background:#667eea; color:#fff; box-shadow:0 2px 6px rgba(102,126,234,0.3);
+    }
+
+    /* ===== Captured vessels list: TALLER ===== */
+    .ships-list{
+      background:#f0f4ff; border-radius:10px; padding:15px; margin-top:20px;
+      max-height:55vh;
+      min-height:220px;
+      overflow-y:auto;
+    }
+    .ships-list h3{ color:#333; font-size:14px; margin-bottom:10px; }
+    .ship-item{
+      background:#fff; padding:10px; border-radius:8px; margin-bottom:10px;
+      border-left:4px solid #667eea;
+      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+      font-size:12px;
+    }
+    .ship-item .meta{ color:#555; }
+    .ship-item .reasons{ color:#666; font-size:11px; margin-top:3px; }
+    .ship-item .notes-preview{
+      margin-top:6px;
+      font-size:11px;
+      color:#444;
+      background:#f6f7ff;
+      border:1px solid #e1e4ff;
+      border-radius:8px;
+      padding:8px;
+      line-height:1.35;
+
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:3;
+      overflow:hidden;
+    }
+
+    .ship-risk{
+      padding:2px 8px; border-radius:12px; font-weight:600;
+      font-size:11px; color:#fff; white-space:nowrap;
+      margin-top:2px;
+    }
+    .risk-niedrig-text{ background:#4CAF50; }
+    .risk-mittel-text{ background:#FFC107; color:#333; }
+    .risk-hoch-text{ background:#FF9800; }
+    .risk-sehr-hoch-text{ background:#F44336; }
+
+    .info-box{
+      background:#e3f2fd; border-left:4px solid #2196F3; padding:10px;
+      margin:10px 0; border-radius:3px; font-size:12px; color:#1565c0;
+    }
+    .warning-box{
+      background:#fff3e0; border-left:4px solid #FF9800; padding:10px;
+      margin:10px 0; border-radius:3px; font-size:12px; color:#e65100;
+    }
+    .reference-list{
+      background:#f9f9f9; border:1px solid #ddd; border-radius:8px;
+      padding:15px; margin:15px 0;
+    }
+    .reference-list h3{
+      color:#333; font-size:14px; margin-bottom:10px;
+      border-bottom:2px solid #667eea; padding-bottom:8px;
+    }
+    .reference-list ul{ list-style:none; padding:0; }
+    .reference-list li{ padding:6px 0; font-size:12px; border-bottom:1px solid #eee; }
+    .reference-list li:last-child{ border-bottom:none; }
+    .reference-list code{
+      background:#f0f0f0; padding:2px 6px; border-radius:3px; font-size:11px;
+    }
+
+    @media (max-width:1200px){ .content.active{ grid-template-columns:1fr; } }
+    /* ===== Inline actions (CSV import etc.) ===== */
+    .section-title-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .section-title-row .title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .btn-inline{
+      padding:6px 10px;
+      font-size:12px;
+      border-radius:8px;
+      background:#e0e0e0;
+      color:#333;
+    }
+    .btn-inline:hover{ background:#d0d0d0; }
+
+    .imo-row{
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:10px;
+    }
+    .imo-row input[type="text"]{
+      text-align:center;
+      letter-spacing:1px;
+    }
+    @media (max-width: 900px){
+      .imo-row{ grid-template-columns:1fr 1fr; }
+    }
+
+
+
+    /* MODAL */
+    .modal-backdrop{
+      position:fixed; inset:0; background:rgba(0,0,0,0.45);
+      display:none; align-items:center; justify-content:center; padding:20px; z-index:9999;
+    }
+    .modal-backdrop.show{ display:flex; }
+    .modal{
+      width:min(760px, 95vw);
+      background:#fff; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.35);
+      overflow:hidden;
+    }
+    .modal-header{
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#fff; padding:14px 16px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+    }
+    .modal-header h3{ font-size:16px; margin:0; }
+    .modal-close{
+      background:rgba(255,255,255,0.2); color:#fff;
+      border:none; border-radius:8px; padding:6px 10px; cursor:pointer;
+      font-weight:700;
+    }
+    .modal-body{ padding:16px; }
+    .modal-grid{
+      display:grid; grid-template-columns:1fr 1fr; gap:12px;
+      margin-bottom:12px;
+    }
+    .kv{
+      background:#f6f7ff; border:1px solid #e1e4ff; border-radius:10px;
+      padding:10px;
+      font-size:12px;
+    }
+    .kv b{ color:#333; }
+    .modal-actions{
+      display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;
+    }
+    .btn-danger{ background:#F44336; color:#fff; }
+    .btn-danger:hover{ filter:brightness(0.95); }
+
+    .small{ font-size:11px; color:#777; }
+
+    @media print{
+      body{ background:#fff; padding:0; }
+      .container{ box-shadow:none; border-radius:0; }
+      .tabs{ display:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="header">
+      <a href="mailto:mowlsint@gmail.com" title="mowlsint@gmail.com"><img src="mowlsint_logo.jpg" alt="MOWLSINT - Blue Crime Analyzes on the lower part of the iceberg" class="header-logo"></a>
+
+      <div class="header-content">
+        <h1>Maritime Risikomatrix für Hybride Aktivitäten</h1>
+        <p>Mehrschiff-Bewertung mit visueller Matrix</p>
+        <p style="margin-top:6px;font-size:12px;opacity:0.95;">MOwlSINT - blue crime analyzes on the lower part of the iceberg - <b>mowlsint@gmail.com</b></p>
+
+        <p style="margin-top:10px;">
+          <a href="README_matrix.html" target="_blank" rel="noreferrer"
+             style="display:inline-block;background:rgba(255,255,255,0.15);padding:8px 12px;border-radius:10px;color:white;">
+            📖 Anleitung / README öffnen
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-button active" onclick="switchTab('tool')">🔧 Bewertungstool</button>
+      <button class="tab-button" onclick="switchTab('info')">📚 Erklärungen & Listen</button>
+    </div>
+
+    <!-- TOOL TAB -->
+    <div class="content active" id="tool">
+      <!-- LEFT: FORM -->
+      <div class="left-panel">
+        <form id="assessmentForm">
+
+          <!-- VESSEL -->
+          <div class="section">
+                        <div class="section-title-row">
+              <div class="title">
+                <h2 style="margin:0; border-bottom:none; padding-bottom:0;">📋 Schiff</h2>
+                <button type="button" class="btn-inline" onclick="triggerCsvImport()">📎 CSV importieren</button>
+                <input type="file" id="csvFileInput" accept=".csv,text/csv" style="display:none" />
+              </div>
+            </div>
+
+
+            <div class="form-group">
+              <label for="shipName">Schiffsname *</label>
+              <input type="text" id="shipName" required placeholder="z. B. MV Baltika">
+            </div>
+
+            <div class="form-group">
+              <label>Identifikatoren (optional)</label>
+              <div class="imo-row">
+                <div>
+                  <label for="shipIMO" style="margin-bottom:4px;">IMO-Nr.</label>
+                  <input type="text" id="shipIMO" inputmode="numeric" maxlength="8" placeholder="bis 8 Ziffern" aria-label="IMO Nummer" />
+                </div>
+                <div>
+                  <label for="companyIMO1" style="margin-bottom:4px;">Company-IMO 1</label>
+                  <input type="text" id="companyIMO1" inputmode="numeric" maxlength="8" placeholder="bis 8 Ziffern" aria-label="Company IMO 1" />
+                </div>
+                <div>
+                  <label for="companyIMO2" style="margin-bottom:4px;">Company-IMO 2</label>
+                  <input type="text" id="companyIMO2" inputmode="numeric" maxlength="8" placeholder="bis 8 Ziffern" aria-label="Company IMO 2" />
+                </div>
+                <div>
+                  <label for="companyIMO3" style="margin-bottom:4px;">Company-IMO 3</label>
+                  <input type="text" id="companyIMO3" inputmode="numeric" maxlength="8" placeholder="bis 8 Ziffern" aria-label="Company IMO 3" />
+                </div>
+              </div>
+              <div class="small">Nur Ziffern. Leere Felder sind erlaubt.</div>
+            </div>
+
+
+            <div class="form-group">
+              <label for="shipType">Schiffstyp *</label>
+              <select id="shipType" required>
+                <option value="">-- Wählen --</option>
+                <option value="tanker">Tanker</option>
+                <option value="bulkcarrier">Bulk Carrier</option>
+                <option value="container_feeder">Container (Feeder)</option>
+                <option value="container_liner">Container (Liner)</option>
+                <option value="general">General Cargo</option>
+                <option value="roro">RoRo Vessel</option>
+                <option value="kms">Küstenmotorschiff</option>
+                <option value="inland">Binnenschiff</option>
+                <option value="fishing">Fishing Vessel</option>
+                <option value="other">Sonstiges</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="shipFlag">Flaggenstaat *</label>
+              <select id="shipFlag" required>
+                <option value="">-- Wählen --</option>
+                <optgroup label="🟢 EU States">
+                  <option value="de">Deutschland</option>
+                  <option value="nl">Niederlande</option>
+                  <option value="fr">Frankreich</option>
+                  <option value="pl">Polen</option>
+                  <option value="se">Schweden</option>
+                  <option value="dk">Dänemark</option>
+                </optgroup>
+                <optgroup label="🟡 Grey List (IMO)">
+                  <option value="sa-grey">Saudi Arabia (Grey)</option>
+                  <option value="hr-grey">Croatia (Grey)</option>
+                  <option value="in-grey">India (Grey)</option>
+                  <option value="lv-grey">Latvia (Grey)</option>
+                  <option value="kr-grey">Korea (Grey)</option>
+                  <option value="ma-grey">Morocco (Grey)</option>
+                  <option value="ru-grey">Russian Federation (Grey)</option>
+                  <option value="pa-grey">Panama (Grey)</option>
+                  <option value="lb-grey">Lebanon (Grey)</option>
+                  <option value="ck-grey">Cook Islands (Grey)</option>
+                  <option value="ph-grey">Philippines (Grey)</option>
+                  <option value="al-grey">Albania (Grey)</option>
+                  <option value="dz-grey">Algeria (Grey)</option>
+                  <option value="vc-grey">Saint Vincent and the Grenadines (Grey)</option>
+                  <option value="sl-grey">Sierra Leone (Grey)</option>
+                  <option value="tn-grey">Tunisia (Grey)</option>
+                  <option value="bd-grey">Bangladesh (Grey)</option>
+                </optgroup>
+                <optgroup label="🔴 Black List (IMO)">
+                  <option value="kn-black">Saint Kitts and Nevis (Black)</option>
+                  <option value="tg-black">Togo (Black)</option>
+                  <option value="pw-black">Palau (Black)</option>
+                  <option value="gw-black">Guinea-Bissau (Black)</option>
+                  <option value="bz-black">Belize (Black)</option>
+                  <option value="vu-black">Vanuatu (Black)</option>
+                  <option value="ua-black">Ukraine (Black)</option>
+                  <option value="km-black">Comoros (Black)</option>
+                  <option value="vn-black">Vietnam (Black)</option>
+                  <option value="md-black">Moldova (Black)</option>
+                  <option value="tz-black">Tanzania (Black)</option>
+                  <option value="cm-black">Cameroon (Black)</option>
+                </optgroup>
+                <optgroup label="⚪ Other">
+                  <option value="mt">Malta</option>
+                  <option value="cy">Zypern</option>
+                  <option value="lbr">Liberia</option>
+                  <option value="ag">Antigua and Barbuda</option>
+                  <option value="other-flag">Sonstige Flagge</option>
+                </optgroup>
+                <optgroup label="⚠️ Special cases">
+                  <option value="unknown-flag">Unbekannt (Zombieschiff)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="dataConfidence">Datenqualität / Confidence</label>
+              <select id="dataConfidence">
+                <option value="0.9">hoch (AIS + zusätzliche Quelle bestätigt)</option>
+                <option value="0.6" selected>mittel (AIS plausibel, teilweise bestätigt)</option>
+                <option value="0.3">niedrig (nur AIS / unsicher)</option>
+              </select>
+              <div class="small">Wirkt auf die X-Achse (operative Evidenz) – reduziert Fehlalarme bei „nur AIS“.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="shipNotesDraft">Freitext / Notizen (optional)</label>
+              <textarea id="shipNotesDraft" placeholder="z. B. Quellenlage, AIS-Anomalien, Maßnahmen, Bewertung..."></textarea>
+              <div class="small">Wird im Schiffseintrag gespeichert, wenn du auf „Schiff hinzufügen“ klickst.</div>
+
+              <div style="margin-top:10px;">
+                <button type="button" class="btn-secondary" onclick="openOsintPromptModal()">🧠 OSINT-Prompt</button>
+                <span class="small" style="margin-left:8px;">Öffnet einen fertigen KI-Prompt (Name/IMO/Company-IMO).</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- STRUCTURE -->
+          <div class="section">
+            <h2>🏢 Struktur (Signale)</h2>
+
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_grey_flag" name="struct" value="grey_flag">
+                <label for="cb_grey_flag">Grey-List-Flagge</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_black_flag" name="struct" value="black_flag">
+                <label for="cb_black_flag">Black-List-Flagge</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_flag_change" name="struct" value="flag_change">
+                <label for="cb_flag_change">Häufige Flaggenwechsel</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_opaque" name="struct" value="opaque">
+                <label for="cb_opaque">Opake Eigentümer-/Betreiberstruktur</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_kaliningrad" name="struct" value="kaliningrad">
+                <label for="cb_kaliningrad">
+                  <a href="javascript:switchTab('info')" onclick="document.getElementById('crewingtab').scrollIntoView();">
+                    Kaliningrad crewing
+                  </a>
+                </label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_sanctions" name="struct" value="sanctions">
+                <label for="cb_sanctions">Sanktionshistorie (Schiff selbst)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_sanctions_evasion" name="struct" value="sanctions_evasion">
+                <label for="cb_sanctions_evasion">Sanktionsumgehung (Ladung / Handelsmuster)</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_class_issue" name="struct" value="class_issue">
+                <label for="cb_class_issue">Class/RO irregularities (Switch/Gap/Questionable)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_pi_issue" name="struct" value="pi_issue">
+                <label for="cb_pi_issue">P&amp;I / Insurance irregularities (Gap/Unclear)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_identity_churn" name="struct" value="identity_churn">
+                <label for="cb_identity_churn">Identity churn (Name/IMO/MMSI “Hygiene”)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="cb_manager_churn" name="struct" value="manager_churn">
+                <label for="cb_manager_churn">Häufige Owner/Manager changes</label>
+              </div>
+            </div>
+
+            <div class="info-box" style="margin-top:10px;">
+              📋 <a href="https://war-sanctions.gur.gov.ua/en/transport/ships" target="_blank" rel="noreferrer">War Sanctions list (Ukraine)</a>
+            </div>
+          </div>
+
+          <!-- OPERATIONAL INDICATORS -->
+          <div class="section">
+            <h2>📊 Operative Indikatoren</h2>
+
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_russian_ports" name="indicators" value="russian_ports">
+                <label for="ind_russian_ports">Russische Häfen (von/nach i.d. letzten 14 Tagen)</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_ais_blackout" name="indicators" value="ais_blackout">
+                <label for="ind_ais_blackout">AIS Störungen</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_gnss_spoofing" name="indicators" value="gnss_spoofing">
+                <label for="ind_gnss_spoofing">GNSS/AIS spoofing (z.B. Kaliningrad)</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_ais_unnatural" name="indicators" value="ais_unnatural">
+                <label for="ind_ais_unnatural">unplausible Routenführung</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_loitering" name="indicators" value="loitering">
+                <label for="ind_loitering">Drift über Seekabel</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_multi_loitering" name="indicators" value="multi_loitering">
+                <label for="ind_multi_loitering">Mehrfache Drift über Seekabel</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_ci_corridor_crossing" name="indicators" value="ci_corridor_crossing">
+                <label for="ind_ci_corridor_crossing">Mehrfaches Überfahren Kritischer Infrastruktur (cables/pipelines)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_ci_anchoring" name="indicators" value="ci_anchoring">
+                <label for="ind_ci_anchoring">Ankern/Drift in der Nähe von KRITIS</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_sts" name="indicators" value="sts">
+                <label for="ind_sts">STS / rendezvous (ship-to-ship) / unusual meetings</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_dark_activity" name="indicators" value="dark_activity">
+                <label for="ind_dark_activity">“Dark activity” (dark STS / dark port calls)</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_survey_pattern" name="indicators" value="survey_pattern">
+                <label for="ind_survey_pattern">Suchmuster/Erkundungsmuster (mapping behavior)</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_military" name="indicators" value="military">
+                <label for="ind_military">Nähe zu militärischen Anlagen</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_uniformed" name="indicators" value="uniformed">
+                <label for="ind_uniformed">Uniformiertes Personal an Bord</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_pmc" name="indicators" value="pmc">
+                <label for="ind_pmc">
+                  <a href="javascript:switchTab('info')" onclick="document.getElementById('pmctab').scrollIntoView();">
+                    PMC linkage
+                  </a>
+                </label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_drone" name="indicators" value="drone">
+                <label for="ind_drone">Drohnensichtung</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_boarding" name="indicators" value="boarding">
+                <label for="ind_boarding">behördlich geboarded</label>
+              </div>
+
+              <div class="checkbox-item">
+                <input type="checkbox" id="ind_known_incident" name="indicators" value="known_incident">
+                <label for="ind_known_incident">Nähe zu bekannten Zwischenfällen</label>
+              </div>
+            </div>
+
+            <div class="info-box" style="margin-top:10px;">
+              📌 <a href="https://www.equasis.org" target="_blank" rel="noreferrer">Equasis</a>
+            </div>
+          </div>
+
+          <!-- BUTTONS -->
+          <div class="button-group">
+            <button type="button" class="btn-calculate" id="addShipBtn" onclick="calculateAndAdd()">🔍 Schiff hinzufügen</button>
+            <button type="button" class="btn-reset" onclick="resetForm()">🔄 Löschen</button>
+          </div>
+
+          <div class="button-group">
+            <button type="button" class="btn-export" onclick="exportAllShipsCSV()" id="exportBtn" style="display:none;">📥 Alle als CSV exportieren</button>
+            <button type="button"
+              class="btn-export"
+              onclick="exportMatrixAndShipsExcelXml()"
+              id="exportExcelBtn"
+              style="display:none;">
+              📗 Matrix + Liste exportieren (Excel)
+            </button>
+
+            <button type="button" class="btn-secondary" onclick="openSnapshotPrintView()" id="snapshotBtn" style="display:none;">🖨️ Snapshot / Druckansicht</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- RIGHT: MATRIX + LIST -->
+      <div class="right-panel">
+        <div class="matrix-container" id="reportArea">
+          <h2 style="margin-bottom:15px;">Risikomatrix</h2>
+          <table class="matrix" id="riskMatrix">
+            <thead>
+              <tr>
+                <th colspan="6" style="text-align:center;">Operative Indikatoren (X-Achse)</th>
+              </tr>
+              <tr>
+                <th>Struktur \ Indikatoren</th>
+                <th>0 - Keine</th>
+                <th>1 - Gering</th>
+                <th>2 - Moderat</th>
+                <th>3 - Relevant</th>
+                <th>4/5 - Kritisch</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>L1 - Transparent</th>
+                <td class="risk-low" id="cell_1_0"></td>
+                <td class="risk-low" id="cell_1_1"></td>
+                <td class="risk-low" id="cell_1_2"></td>
+                <td class="risk-low" id="cell_1_3"></td>
+                <td class="risk-medium" id="cell_1_4"></td>
+              </tr>
+              <tr>
+                <th>L2 - Convenience flag</th>
+                <td class="risk-low" id="cell_2_0"></td>
+                <td class="risk-low" id="cell_2_1"></td>
+                <td class="risk-low" id="cell_2_2"></td>
+                <td class="risk-medium" id="cell_2_3"></td>
+                <td class="risk-high" id="cell_2_4"></td>
+              </tr>
+              <tr>
+                <th>L3 - Suspicious</th>
+                <td class="risk-low" id="cell_3_0"></td>
+                <td class="risk-medium" id="cell_3_1"></td>
+                <td class="risk-medium" id="cell_3_2"></td>
+                <td class="risk-high" id="cell_3_3"></td>
+                <td class="risk-very-high" id="cell_3_4"></td>
+              </tr>
+              <tr>
+                <th>L4 - Highly suspicious</th>
+                <td class="risk-medium" id="cell_4_0"></td>
+                <td class="risk-high" id="cell_4_1"></td>
+                <td class="risk-high" id="cell_4_2"></td>
+                <td class="risk-high" id="cell_4_3"></td>
+                <td class="risk-very-high" id="cell_4_4"></td>
+              </tr>
+              <tr>
+                <th>L5 - Critical</th>
+                <td class="risk-high" id="cell_5_0"></td>
+                <td class="risk-high" id="cell_5_1"></td>
+                <td class="risk-very-high" id="cell_5_2"></td>
+                <td class="risk-very-high" id="cell_5_3"></td>
+                <td class="risk-very-high" id="cell_5_4"></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="info-box" style="margin-top:12px;">
+            Klick auf ein Schiff-Badge in der Matrix öffnet Details + editierbare Notizen.
+          </div>
+
+          <!-- VESSEL LIST -->
+          <div class="ships-list" id="shipsList" style="display:none;">
+            <h3>📍 Erfasste Schiffe</h3>
+            <div id="shipsContainer"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO TAB -->
+    <div class="content-full" id="info">
+      <div style="max-width:1200px; margin:0 auto; padding:30px;">
+        <h2 style="color:#333; margin-bottom:30px; padding-bottom:15px; border-bottom:3px solid #667eea;">
+          📚 Erklärungen, Listen &amp; Ressourcen
+        </h2>
+
+        <div class="reference-list">
+          <h3>⚠️ Zombieschiffe &amp; sanctions evasion</h3>
+          <div style="font-size:12px; line-height:1.8;">
+            <p><strong>Zombieschiff:</strong></p>
+            <p style="margin-left:10px; color:#666; margin-bottom:10px;">
+              Ein Schiff mit unbekannter oder unklarer Flaggenregistrierung. Häufiges Muster zur Verschleierung/Umgehung.
+            </p>
+
+            <p><strong>Sanctions history (vessel itself):</strong></p>
+            <p style="margin-left:10px; color:#666; margin-bottom:10px;">
+              Das Schiff selbst ist auf Sanktionslisten gelistet.
+            </p>
+
+            <p><strong>Sanctions evasion (cargo / trade):</strong></p>
+            <p style="margin-left:10px; color:#666; margin-bottom:10px;">
+              Das Schiff wird für den Transport sanktionierter Güter genutzt (Cargo-/Trade-Pattern).
+            </p>
+
+            <div class="warning-box" style="margin-top:15px;">
+              <strong>⚡ Hinweis:</strong><br>
+              Wenn du nur AIS hast: Confidence niedrig setzen – AIS/GNSS kann gestört oder manipuliert sein.
+            </div>
+          </div>
+        </div>
+
+        <div class="reference-list" id="crewingtab">
+          <h3>🏢 Kaliningrad crewing agencies (high risk)</h3>
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">
+            Beispiel-Liste (bitte mit eigenen Quellen prüfen/aktualisieren):
+          </p>
+          <ul>
+            <li><code>RUSAM Maritime Agency</code></li>
+            <li><code>Baltic Group International (BGI)</code></li>
+            <li><code>NORDVEGR LTD / Severnyi Put</code></li>
+            <li><code>Marine Crewing Agency (MTS)</code></li>
+            <li><code>ALL CREW LLC</code></li>
+            <li><code>Acheon Shipping-West</code></li>
+            <li><code>Akon Ltd</code></li>
+            <li><code>ALIOT</code></li>
+            <li><code>Baltic Sea Stock Ltd</code></li>
+            <li><code>Baltmarco Ltd</code></li>
+            <li><code>Bernhard Schulte Shipmanagement Kaliningrad</code></li>
+            <li><code>Captains Club Agency</code></li>
+            <li><code>Green Management</code></li>
+            <li><code>KSM Ltd</code></li>
+            <li><code>Marlow Navigation (part of Marlow Group)</code></li>
+            <li><code>Misje Rederi Ltd</code></li>
+            <li><code>Novikontas Kaliningrad LLC</code></li>
+            <li><code>PRUSMARME Ltd</code></li>
+            <li><code>SKOV Shipping LTD</code></li>
+            <li><code>Topsail Ltd</code></li>
+            <li><code>Tornado Shipping Company</code></li>
+            <li><code>WESTRYBFLOT</code></li>
+          </ul>
+          <div class="small">Hinweis: Diese Liste ist ein „Anker“ für die eigene Pflege.</div>
+        </div>
+
+        <div class="reference-list" id="pmctab">
+          <h3>🎖️ Operators with PMC linkage</h3>
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">Beispiele/Platzhalter – bitte mit Quellen pflegen:</p>
+          <ul>
+            <li><code>Oslo Bulk</code> - PMC presence documented</li>
+            <li><code>Hav Shipping</code> - Military proximity</li>
+            <li><code>Moonlight Shipmanagement LLC-FZ Dubai</code> - Suspect crewing</li>
+            <li><code>Citrine Marine / Dreamer Shipmanagement Dubai</code> - Crewing anomalies</li>
+            <li><code>Norebo JSC</code> - Russian linkage</li>
+            <li><code>Murman Sea Food (MSF)</code> - Militarized structure</li>
+          </ul>
+        </div>
+
+        <div class="reference-list">
+          <h3>🔗 Externe Ressourcen &amp; Datenquellen</h3>
+          <ul>
+            <li><a href="https://war-sanctions.gur.gov.ua/en/transport/ships" target="_blank" rel="noreferrer">War Sanctions Ukraine (vessel list)</a></li>
+            <li><a href="https://www.equasis.org" target="_blank" rel="noreferrer">Equasis</a></li>
+            <li><a href="https://portal.emsa.europa.eu/web/thetis/home" target="_blank" rel="noreferrer">Thetis PSC</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-backdrop" id="shipModalBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="shipModalTitle">
+      <div class="modal-header">
+        <h3 id="shipModalTitle">Schiff-Details</h3>
+        <button class="modal-close" onclick="closeShipModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="modal-grid">
+          <div class="kv"><b>Name:</b> <span id="m_name"></span></div>
+          <div class="kv"><b>Typ:</b> <span id="m_type"></span></div>
+
+          <div class="kv"><b>IMO:</b> <span id="m_imo"></span></div>
+          <div class="kv"><b>Company-IMOs:</b> <span id="m_cimos"></span></div>
+
+          <div class="kv"><b>Struktur (Y):</b> <span id="m_y"></span></div>
+          <div class="kv"><b>Operativ (X):</b> <span id="m_x"></span></div>
+          <div class="kv"><b>Risiko:</b> <span id="m_risk"></span></div>
+          <div class="kv"><b>Confidence:</b> <span id="m_conf"></span></div>
+          <div class="kv" style="grid-column:1 / -1;">
+            <b>Top-Gründe:</b> <span id="m_reasons"></span>
+          </div>
+        </div>
+
+        <label for="m_notes"><b>Freitext / Notizen</b> <span class="small">(pro Schiff gespeichert)</span></label>
+        <textarea id="m_notes" placeholder="z. B. Quellenlage, AIS-Anomalien, Maßnahmen, Bewertung..."></textarea>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-calculate" onclick="saveShipNotes()">💾 Notiz speichern</button>
+          <button type="button" class="btn-secondary" onclick="closeShipModal()">Schließen</button>
+          <button type="button" class="btn-danger" onclick="removeCurrentShip()">🗑️ Schiff entfernen</button>
+        </div>
+
+        <div class="small" style="margin-top:10px;">
+          Tipp: Klick auf ein anderes Badge öffnet dessen Notiz; du kannst Notizen jederzeit überschreiben.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OSINT PROMPT MODAL -->
+  <div class="modal-backdrop" id="promptModalBackdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="promptModalTitle">
+      <div class="modal-header">
+        <h3 id="promptModalTitle">OSINT-Prompt</h3>
+        <button class="modal-close" onclick="closeOsintPromptModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="small" style="margin-bottom:10px;">
+          Tipp: Du kannst den Prompt 1:1 in ChatGPT / Perplexity / NotebookLM kopieren und danach Quellen prüfen.
+        </div>
+
+        <label for="promptText"><b>Prompt</b></label>
+        <textarea id="promptText" style="min-height:240px;" readonly></textarea>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-calculate" onclick="copyPromptToClipboard()">📋 Prompt kopieren</button>
+          <button type="button" class="btn-secondary" onclick="closeOsintPromptModal()">Schließen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    // ==========
+    // Datenmodell
+    // ==========
+    let allShips = [];
+    let currentShipId = null;
+    let editingShipId = null;
+
+    // ==========
+    // Tabs
+    // ==========
+    function switchTab(tabName) {
+      document.querySelectorAll('.content, .content-full').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+
+      if (tabName === 'tool') {
+        document.getElementById('tool').classList.add('active');
+        document.querySelector('.tab-button[onclick*="tool"]').classList.add('active');
+      } else {
+        document.getElementById('info').classList.add('active');
+        document.querySelector('.tab-button[onclick*="info"]').classList.add('active');
+      }
+    }
+
+    // ==========
+    // Flag weights
+    // ==========
+    const flagWeights = {
+      // black list
+      'kn-black': 3, 'tg-black': 3, 'pw-black': 3, 'gw-black': 3, 'bz-black': 3,
+      'vu-black': 3, 'ua-black': 3, 'km-black': 3, 'vn-black': 3, 'md-black': 3, 'tz-black': 3, 'cm-black': 3,
+      // grey list
+      'sa-grey': 2, 'hr-grey': 2, 'in-grey': 2, 'lv-grey': 2, 'kr-grey': 2, 'ma-grey': 2, 'ru-grey': 2,
+      'pa-grey': 2, 'lb-grey': 2, 'ck-grey': 2, 'ph-grey': 2, 'al-grey': 2, 'dz-grey': 2, 'vc-grey': 2,
+      'sl-grey': 2, 'tn-grey': 2, 'bd-grey': 2,
+      // special/other
+      'unknown-flag': 4,
+      'other-flag': 1
+    };
+
+    function getFlagWeight() {
+      const flagSelect = document.getElementById('shipFlag').value;
+      return flagWeights[flagSelect] ?? 0;
+    }
+
+    // ==========
+    // Auto-set Grey/Black checkboxes from selected flag
+    // ==========
+    function syncFlagCheckboxesFromSelect() {
+      const w = getFlagWeight();
+      const grey = document.getElementById('cb_grey_flag');
+      const black = document.getElementById('cb_black_flag');
+      if (grey) grey.checked = (w === 2);
+      if (black) black.checked = (w === 3);
+    }
+
+    // ==========
+    // Helpers
+    // ==========
+    function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+
+    function normalizeRiskClass(riskLevel) {
+      const s = (riskLevel || '').toLowerCase().trim();
+      if (s === 'very high' || s === 'sehr hoch') return 'risk-sehr-hoch-text';
+      if (s === 'high' || s === 'hoch') return 'risk-hoch-text';
+      if (s === 'medium' || s === 'mittel') return 'risk-mittel-text';
+      if (s === 'low' || s === 'niedrig') return 'risk-niedrig-text';
+      return 'risk-niedrig-text';
+    }
+
+    function newId() {
+      return 'ship_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? '')
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+
+    function notesToHtml(notes){
+      const safe = escapeHtml(notes ?? '');
+      return safe.replace(/\r?\n/g, '<br>');
+    }
+
+
+    function digitsOnlyMax8(v){
+      return String(v ?? '').replace(/\D/g,'').slice(0,8);
+    }
+
+    function normalizeIMO(v){
+      const d = String(v ?? '').replace(/\D/g,'');
+      if(d.length === 7) return d;
+      if(d.length === 8 && d.startsWith('0')) return d.slice(1);
+      return '';
+    }
+    function isValidIMO(v){ return !!normalizeIMO(v); }
+
+    function mergeNotes(a,b){
+      const aa = String(a ?? '').trim();
+      const bb = String(b ?? '').trim();
+      if(!aa) return bb;
+      if(!bb) return aa;
+      if(aa.includes(bb)) return aa;
+      if(bb.includes(aa)) return bb;
+      return aa + "\n" + bb;
+    }
+
+    function completenessScore(s){
+      let score = 0;
+      const add = (cond,w)=>{ if(cond) score += w; };
+      add(!!String(s.name ?? '').trim(), 5);
+      add(isValidIMO(s.imo), 12);
+      add((s.companyImos ?? []).length > 0, 3);
+      add(!!String(s.type ?? '').trim() && String(s.type) !== 'Unbekannt', 2);
+      add(Number.isFinite(+s.structure), 2);
+      add(Number.isFinite(+s.probabilityRaw), 2);
+      add((s.reasons ?? []).length > 0, 1);
+      add(String(s.notes ?? '').trim().length > 0, 1);
+      add((s.structSelected ?? []).length > 0, 1);
+      add((s.indSelected ?? []).length > 0, 1);
+      return score;
+    }
+
+    function mapFlagIso2ToSelect(iso2){
+      const f = String(iso2 ?? '').trim().toLowerCase();
+      if(!f) return '';
+      const known = new Set(['de','nl','fr','pl','se','dk','mt','cy','gb','uk','no','fi','ee','lv','lt','be','es','pt','it','gr','ie']);
+      if(known.has(f)) return f;
+      return 'other-flag';
+    }
+
+    function upsertShipByIMO(newShip){
+      const imo = normalizeIMO(newShip.imo);
+      if(!imo) return {action:'skip'};
+      newShip.imo = imo;
+
+      newShip.companyImos = (newShip.companyImos ?? []).map(normalizeIMO).filter(Boolean);
+      newShip.reasons = (newShip.reasons ?? []).filter(Boolean);
+      newShip.structSelected = (newShip.structSelected ?? []).filter(Boolean);
+      newShip.indSelected = (newShip.indSelected ?? []).filter(Boolean);
+
+      const idx = allShips.findIndex(s => normalizeIMO(s.imo) === imo);
+
+      if(idx < 0){
+        allShips.push(newShip);
+        return {action:'add'};
+      }
+
+      const old = allShips[idx];
+      const mergedNotes = mergeNotes(old.notes, newShip.notes);
+      const mergedCompany = Array.from(new Set([...(old.companyImos ?? []), ...(newShip.companyImos ?? [])])).filter(Boolean);
+
+      const oldScore = completenessScore(old);
+      const newScore = completenessScore(newShip);
+
+      if(newScore > oldScore){
+        newShip.id = old.id;
+        newShip.notes = mergedNotes;
+        newShip.companyImos = mergedCompany;
+        allShips[idx] = newShip;
+        return {action:'replace'};
+      }
+
+      old.notes = mergedNotes;
+      old.companyImos = mergedCompany;
+      if(!String(old.name ?? '').trim() && String(newShip.name ?? '').trim()) old.name = newShip.name;
+      if(!String(old.type ?? '').trim() && String(newShip.type ?? '').trim()) old.type = newShip.type;
+      if(!String(old.flagIso2 ?? '').trim() && String(newShip.flagIso2 ?? '').trim()) old.flagIso2 = newShip.flagIso2;
+      if(!String(old.flagSelect ?? '').trim() && String(newShip.flagSelect ?? '').trim()) old.flagSelect = newShip.flagSelect;
+
+      return {action:'keep'};
+    }
+
+    function updateAddShipButton(){
+      const btn = document.getElementById('addShipBtn');
+      if(!btn) return;
+      btn.textContent = editingShipId ? '✅ Schiff aktualisieren' : '🔍 Schiff hinzufügen';
+    }
+
+    function loadShipToForm(shipId){
+      const ship = allShips.find(s => String(s.id) === String(shipId));
+      if(!ship) return;
+
+      document.getElementById('shipName').value = ship.name ?? '';
+      document.getElementById('shipIMO').value = ship.imo ?? '';
+      const ci = ship.companyImos ?? [];
+      document.getElementById('companyIMO1').value = ci[0] ?? '';
+      document.getElementById('companyIMO2').value = ci[1] ?? '';
+      document.getElementById('companyIMO3').value = ci[2] ?? '';
+
+      const st = document.getElementById('shipType');
+      if(st){
+        // best-effort: match by visible text first
+        const wanted = String(ship.type ?? '').trim();
+        for(const opt of Array.from(st.options)){
+          if(String(opt.text ?? '').trim() === wanted){ st.value = opt.value; break; }
+        }
+      }
+
+      const sf = document.getElementById('shipFlag');
+      if(sf){
+        const wanted = ship.flagSelect ?? mapFlagIso2ToSelect(ship.flagIso2);
+        if(wanted) sf.value = wanted;
+      }
+
+      const form = document.getElementById('assessmentForm');
+      if(form){
+        form.querySelectorAll('input[type="checkbox"]').forEach(cb=>{ cb.checked = false; });
+      }
+
+      (ship.structSelected ?? []).forEach(val=>{
+        const el = document.querySelector(`input[name="struct"][value="${CSS.escape(val)}"]`);
+        if(el) el.checked = true;
+      });
+      (ship.indSelected ?? []).forEach(val=>{
+        const el = document.querySelector(`input[name="indicators"][value="${CSS.escape(val)}"]`);
+        if(el) el.checked = true;
+      });
+
+      const nd = document.getElementById('shipNotesDraft');
+      if(nd) nd.value = ship.notes ?? '';
+
+      editingShipId = ship.id;
+      updateAddShipButton();
+
+      switchTab('matrix');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ==========
+    // Scoring: Structure (Y)
+    // ==========
+    function calculateStructure() {
+      const struct = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
+      const flagWeight = getFlagWeight();
+
+      let score = 1;
+
+      const isZombie = flagWeight === 4;
+      const isBlack  = flagWeight === 3;
+      const isGrey   = flagWeight === 2;
+
+      // Baseline by flag
+      if (isGrey) score = Math.max(score, 2);
+      if (isBlack) score = Math.max(score, 3);
+
+      // Zombie logic
+      if (isZombie) {
+        score = Math.max(score, 3);
+        if (struct.includes('sanctions_evasion')) score = Math.max(score, 4);
+      }
+
+      // Hard triggers
+      if (struct.includes('flag_change')) score = Math.max(score, 4);
+      if (struct.includes('kaliningrad')) score = Math.max(score, 3);
+      if (struct.includes('sanctions')) score = Math.max(score, 4);
+
+      // Mid-level hints
+      if (struct.includes('sanctions_evasion')) score = Math.max(score, 3);
+      if (struct.includes('opaque')) score = Math.max(score, 3);
+      if (struct.includes('class_issue')) score = Math.max(score, 3);
+      if (struct.includes('pi_issue')) score = Math.max(score, 3);
+      if (struct.includes('identity_churn')) score = Math.max(score, 3);
+      if (struct.includes('manager_churn')) score = Math.max(score, 2);
+
+      // Accumulation
+      const accumKeys = ['opaque','kaliningrad','sanctions_evasion','class_issue','pi_issue','identity_churn','manager_churn'];
+      const accum = accumKeys.reduce((n,k)=> n + (struct.includes(k) ? 1 : 0), 0);
+      if (accum >= 3) score += 1;
+
+      // Level 5 combos
+      if (struct.includes('flag_change') && (isBlack || struct.includes('black_flag'))) score = 5;
+      if (isBlack && struct.includes('flag_change') && struct.includes('kaliningrad')) score = 5;
+      if (isZombie && struct.includes('sanctions')) score = 5;
+
+      return clamp(score, 1, 5);
+    }
+
+    // ==========
+    // Scoring: Operational (X)
+    // ==========
+    function calculateProbability() {
+      const indicators = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
+      const flagWeight = getFlagWeight();
+      const isZombie = flagWeight === 4;
+
+      const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
+
+      const sev = {
+        // very strong
+        multi_loitering: 4,
+        drone: 4,
+        military: 4,
+        uniformed: 4,
+        pmc: 4,
+        gnss_spoofing: 4,
+        survey_pattern: 4,
+
+        // strong
+        boarding: 3,
+        loitering: 3,
+        ais_blackout: 3,
+        known_incident: 3,
+        sts: 3,
+        dark_activity: 3,
+        ci_anchoring: 3,
+
+        // moderate
+        russian_ports: 2,
+        ais_unnatural: 2,
+        ci_corridor_crossing: 2
+      };
+
+      if (indicators.length === 0) {
+        if (isZombie) return (confidence >= 0.6) ? 1 : 0;
+        return 0;
+      }
+
+      let maxS = 0;
+      let sumS = 0;
+      for (const ind of indicators) {
+        const s = sev[ind] ?? 1;
+        maxS = Math.max(maxS, s);
+        sumS += s;
+      }
+
+      const effective = sumS * confidence;
+
+      let score = 0;
+      if (maxS >= 4 && effective >= 6) score = 5;
+      else if (maxS >= 4) score = 4;
+      else if (effective >= 6) score = 4;
+      else if (maxS >= 3 && effective >= 4) score = 3;
+      else if (maxS >= 3) score = 2;
+      else if (effective >= 3) score = 2;
+      else score = 1;
+
+      const has = (x) => indicators.includes(x);
+
+      // Hybrid boost (no hard override)
+      if (has('uniformed') && has('russian_ports') && (has('ais_blackout') || has('gnss_spoofing'))) {
+        score = Math.min(5, score + 1);
+      }
+
+      // CI boost
+      if ((has('loitering') || has('multi_loitering') || has('ci_anchoring')) &&
+          has('ci_corridor_crossing') &&
+          (has('ais_blackout') || has('gnss_spoofing'))) {
+        score = Math.min(5, score + 1);
+      }
+
+      // Shadow-fleet behavior
+      if (has('sts') && has('dark_activity')) {
+        score = Math.min(5, score + 1);
+      }
+
+      return clamp(score, 0, 5);
+    }
+
+    // ==========
+    // Risk matrix lookup (uses RAW X: 0..5)
+    // ==========
+    function getRiskLevel(structure, probabilityRaw) {
+      const matrix = {
+        '1,0':'Niedrig','1,1':'Niedrig','1,2':'Niedrig','1,3':'Niedrig','1,4':'Mittel','1,5':'Hoch',
+        '2,0':'Niedrig','2,1':'Niedrig','2,2':'Niedrig','2,3':'Mittel','2,4':'Hoch','2,5':'Hoch',
+        '3,0':'Niedrig','3,1':'Mittel','3,2':'Mittel','3,3':'Hoch','3,4':'Hoch','3,5':'Sehr hoch',
+        '4,0':'Mittel','4,1':'Hoch','4,2':'Hoch','4,3':'Hoch','4,4':'Sehr hoch','4,5':'Sehr hoch',
+        '5,0':'Hoch','5,1':'Hoch','5,2':'Sehr hoch','5,3':'Sehr hoch','5,4':'Sehr hoch','5,5':'Sehr hoch'
+      };
+      return matrix[`${structure},${probabilityRaw}`] || 'Unbekannt';
+    }
+
+    // ==========
+    // Reasons (Top 3)
+    // ==========
+    function getTopReasonsFromCurrentForm() {
+      const struct = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
+      const indicators = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
+      const flagSelect = document.getElementById('shipFlag').value;
+
+      const labels = {
+        grey_flag:"Grey-List-Flagge",
+        black_flag:"Black-List-Flagge",
+        flag_change:"Häufige Flaggenwechsel",
+        opaque:"Opake Eigentümer-/Betreiberstruktur",
+        kaliningrad:"Kaliningrad crewing",
+        sanctions:"Sanktionshistorie (vessel)",
+        sanctions_evasion:"Sanctions evasion (cargo/trade)",
+        class_issue:"Class/RO irregularities",
+        pi_issue:"P&I/insurance irregularities",
+        identity_churn:"Identity churn",
+        manager_churn:"Owner/manager churn",
+
+        russian_ports:"Russian ports (10 days)",
+        ais_blackout:"AIS blackout",
+        gnss_spoofing:"GNSS/AIS spoofing anomalies",
+        ais_unnatural:"Unnatural routes",
+        loitering:"Cable loitering",
+        multi_loitering:"Repeated loitering",
+        ci_corridor_crossing:"CI corridor crossing",
+        ci_anchoring:"Anchoring/drifting in CI corridor",
+        sts:"STS / rendezvous",
+        dark_activity:"Dark activity",
+        survey_pattern:"Survey / grid patterns",
+        military:"Proximity to military",
+        uniformed:"Uniformed personnel",
+        pmc:"PMC linkage",
+        drone:"Drone activity",
+        boarding:"Boarding",
+        known_incident:"Proximity to incidents"
+      };
+
+      const reasons = [];
+      if (flagSelect === "unknown-flag") reasons.push("Zombieschiff (unbekannte Flagge)");
+      for (const s of struct) reasons.push(labels[s] ?? s);
+      for (const i of indicators) reasons.push(labels[i] ?? i);
+
+      const priority = {
+        "Zombieschiff (unbekannte Flagge)": 10,
+        "AIS blackout": 9,
+        "GNSS/AIS spoofing anomalies": 9,
+        "Repeated loitering": 8,
+        "Cable loitering": 8,
+        "Anchoring/drifting in CI corridor": 8,
+        "Drone activity": 8,
+        "Boarding": 8,
+        "STS / rendezvous": 7,
+        "Dark activity": 7,
+        "Sanktionshistorie (vessel)": 7,
+        "Uniformed personnel": 7,
+        "PMC linkage": 7,
+        "Survey / grid patterns": 7,
+        "Häufige Flaggenwechsel": 6,
+        "Black-List-Flagge": 6,
+        "Russian ports (10 days)": 5,
+        "Unnatural routes": 5,
+        "CI corridor crossing": 5
+      };
+
+      const unique = Array.from(new Set(reasons));
+      unique.sort((a,b) => (priority[b] ?? 1) - (priority[a] ?? 1));
+      return unique.slice(0,3);
+    }
+
+    // ==========
+    // Add vessel
+    // ==========
+    function calculateAndAdd() {
+      const shipName = (document.getElementById('shipName')?.value ?? '').trim();
+      if (!shipName) { alert('Bitte einen Schiffsname eingeben!'); return; }
+
+      const shipIMO = normalizeIMO(document.getElementById('shipIMO')?.value);
+      if (!shipIMO) { alert('Für diese Matrix werden nur Schiffe mit gültiger IMO (7 Ziffern) übernommen.'); return; }
+
+      const companyIMO1 = normalizeIMO(document.getElementById('companyIMO1')?.value);
+      const companyIMO2 = normalizeIMO(document.getElementById('companyIMO2')?.value);
+      const companyIMO3 = normalizeIMO(document.getElementById('companyIMO3')?.value);
+
+      const structure = calculateStructure();
+      const probabilityRaw = calculateProbability();
+      const probabilityMatrix = (probabilityRaw >= 4) ? 4 : probabilityRaw; // Matrix column 4 = 4/5
+
+      const confidence = parseFloat(document.getElementById('dataConfidence')?.value ?? "0.6");
+      const reasons = getTopReasonsFromCurrentForm();
+      const riskLevel = getRiskLevel(structure, probabilityRaw);
+
+      const structSelected = Array.from(document.querySelectorAll('input[name="struct"]:checked')).map(el => el.value);
+      const indSelected = Array.from(document.querySelectorAll('input[name="indicators"]:checked')).map(el => el.value);
+
+      const draftNotes = document.getElementById('shipNotesDraft')?.value ?? '';
+
+      const shipTypeEl = document.getElementById('shipType');
+      const shipTypeText = shipTypeEl ? shipTypeEl.options[shipTypeEl.selectedIndex].text : 'Unbekannt';
+
+      const shipFlagEl = document.getElementById('shipFlag');
+      const flagSelect = shipFlagEl ? shipFlagEl.value : '';
+      const flagIso2 = (flagSelect && /^[a-z]{2}$/i.test(flagSelect)) ? flagSelect.toUpperCase() : '';
+
+      const newShip = {
+        id: editingShipId ? String(editingShipId) : newId(),
+        name: shipName,
+        imo: shipIMO,
+        companyImos: [companyIMO1, companyIMO2, companyIMO3].filter(Boolean),
+        type: shipTypeText,
+        flagSelect,
+        flagIso2,
+        structure,
+        probabilityRaw,
+        probabilityMatrix,
+        riskLevel,
+        confidence: Number.isFinite(confidence) ? confidence : 0.6,
+        reasons,
+        notes: draftNotes,
+        structSelected,
+        indSelected,
+        timestamp: new Date().toLocaleString('de-DE')
+      };
+
+      if (editingShipId) {
+        const idx = allShips.findIndex(s => String(s.id) === String(editingShipId));
+        if (idx >= 0) {
+          allShips[idx] = newShip;
+        } else {
+          allShips.push(newShip);
+        }
+      } else {
+        // upsert by IMO to avoid duplicates even for manual input
+        upsertShipByIMO(newShip);
+      }
+
+      updateMatrix();
+      updateShipsList();
+      updateAddShipButton();
+
+      resetForm();
+
+      document.getElementById('exportBtn').style.display = 'inline-block';
+      document.getElementById('exportExcelBtn').style.display = 'inline-block';
+      document.getElementById('snapshotBtn').style.display = 'inline-block';
+    }
+
+    // ==========
+    // Matrix update (clickable badges)
+    // ==========
+    function updateMatrix() {
+      for (let s=1; s<=5; s++) {
+        for (let p=0; p<=4; p++) {
+          const cell = document.getElementById(`cell_${s}_${p}`);
+          if (cell) cell.innerHTML = '';
+        }
+      }
+
+      for (const ship of allShips) {
+        const cellId = `cell_${ship.structure}_${ship.probabilityMatrix}`;
+        const cell = document.getElementById(cellId);
+        if (!cell) continue;
+
+        const badge = document.createElement('div');
+        badge.className = 'ship-badge';
+        badge.textContent = ship.name;
+        badge.title = `${ship.name} – ${ship.riskLevel} (conf ${Number(ship.confidence ?? 0.6).toFixed(1)})`;
+        badge.addEventListener('click', () => openShipModal(ship.id));
+        cell.appendChild(badge);
+      }
+    }
+
+    // ==========
+    // Vessel list update (shows notes preview)
+    // ==========
+    function riskRank(r){
+      const x = String(r ?? '').toLowerCase();
+      if(x.includes('sehr') && x.includes('hoch')) return 4;
+      if(x.includes('hoch')) return 3;
+      if(x.includes('mittel')) return 2;
+      if(x.includes('niedrig')) return 1;
+      return 0;
+    }
+
+    // ==========
+    // Vessel list update (sorted by priority)
+    // ==========
+    function updateShipsList() {
+      const container = document.getElementById('shipsContainer');
+      const list = document.getElementById('shipsList');
+
+      if (!container || !list) return;
+
+      if (allShips.length === 0) { list.style.display = 'none'; return; }
+
+      list.style.display = 'block';
+
+      const sorted = [...allShips].sort((a,b)=>{
+        const ra = riskRank(a.riskLevel);
+        const rb = riskRank(b.riskLevel);
+        if(rb !== ra) return rb - ra;
+        const xa = Number(a.probabilityRaw ?? 0);
+        const xb = Number(b.probabilityRaw ?? 0);
+        if(xb !== xa) return xb - xa;
+        const ya = Number(a.structure ?? 0);
+        const yb = Number(b.structure ?? 0);
+        if(yb !== ya) return yb - ya;
+        return String(a.name ?? '').localeCompare(String(b.name ?? ''), 'de');
+      });
+
+      container.innerHTML = sorted.map(ship => {
+        const hasNotes = (ship.notes ?? '').trim().length > 0;
+        const actions = `
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <button type="button"
+              style="padding:7px 10px;border-radius:10px;border:1px solid #ddd;background:#fff;font-weight:700;cursor:pointer;"
+              onclick="event.stopPropagation(); loadShipToForm('${ship.id}')">✏️ In Formular</button>
+          </div>
+        `;
+        return `
+          <div class="ship-item" style="cursor:pointer;" onclick="openShipModal('${ship.id}')">
+            <div style="flex:1; min-width: 260px;">
+              <strong>${escapeHtml(ship.name)}</strong>
+              <span class="meta"> · IMO ${escapeHtml(ship.imo || '')}</span><br>
+              <span class="meta">
+                ${escapeHtml(ship.type)} | L${ship.structure} | X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix}) | conf ${(ship.confidence ?? 0.6).toFixed(1)}
+              </span>
+              <div class="reasons">Gründe: ${(ship.reasons ?? []).map(escapeHtml).join(' · ')}</div>
+              ${hasNotes ? `<div class="notes-preview"><b>Notiz:</b><br>${notesToHtml(ship.notes)}</div>` : ``}
+            </div>
+            ${actions}
+            <div class="ship-risk ${normalizeRiskClass(ship.riskLevel)}">
+              ${escapeHtml(ship.riskLevel)}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==========
+    // Export CSV (extended)
+    // ==========
+    function exportAllShipsCSV() {
+      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+
+      // Excel-DE friendly: semicolon + UTF-8 BOM
+      const cols = [
+        "VesselName","IMO","CompanyIMO1","CompanyIMO2","CompanyIMO3",
+        "Type","FlagISO2","FlagSelect",
+        "StructureY","OperationalRawX","OperationalMatrixX0_4",
+        "Risk","Confidence","TopReasons","Timestamp","Note",
+        "structSelected","indSelected","raw_json"
+      ];
+
+      const esc = (v) => {
+        const t = String(v ?? '');
+        if(/[;"\n\r]/.test(t)) return '"' + t.replace(/"/g,'""') + '"';
+        return t;
+      };
+
+      let csv = cols.join(";") + "\r\n";
+
+      for(const ship of allShips){
+        const c = ship.companyImos ?? [];
+        const reasons = (ship.reasons ?? []).join(" | ");
+        const notes = String(ship.notes ?? '');
+        const raw = JSON.stringify(ship);
+
+        const row = [
+          ship.name, ship.imo, c[0] ?? '', c[1] ?? '', c[2] ?? '',
+          ship.type ?? '', ship.flagIso2 ?? '', ship.flagSelect ?? '',
+          ship.structure, ship.probabilityRaw, ship.probabilityMatrix,
+          ship.riskLevel ?? '', Number(ship.confidence ?? 0.6).toFixed(1),
+          reasons,
+          ship.timestamp ?? '',
+          notes,
+          (ship.structSelected ?? []).join("|"),
+          (ship.indSelected ?? []).join("|"),
+          raw
+        ].map(esc);
+
+        csv += row.join(";") + "\r\n";
+      }
+
+      const bom = '\ufeff';
+      const blob = new Blob([bom + csv], { type:'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `maritime_risikomatrix_hybride_aktivitaeten_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      setTimeout(()=>URL.revokeObjectURL(link.href), 1500);
+    }
+
+
+    // ==========
+    // CSV Import (fills the matrix again)
+    // ==========
+    function triggerCsvImport(){
+      const inp = document.getElementById('csvFileInput');
+      if (!inp) return;
+      inp.value = '';
+      inp.click();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const inp = document.getElementById('csvFileInput');
+      if (!inp) return;
+      inp.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try{
+            const text = String(reader.result ?? '');
+            importShipsFromCsvText(text);
+          }catch(err){
+            console.error(err);
+            alert('CSV-Import fehlgeschlagen. Bitte CSV prüfen.');
+          }
+        };
+        reader.readAsText(file, 'utf-8');
+      });
+    });
+
+    function importShipsFromCsvText(csvText){
+      const parsed = parseCsv(csvText);
+      const rows = parsed.rows;
+      const delimiter = parsed.delimiter;
+
+      if (!rows || rows.length < 2) { alert('CSV enthält keine Datenzeilen.'); return; }
+
+      const header = rows[0].map(h => String(h ?? '').trim());
+      const colIndex = {};
+      header.forEach((h, i) => { colIndex[h.toLowerCase()] = i; });
+
+      const pick = (row, key) => {
+        const i = colIndex[String(key).toLowerCase()];
+        if (typeof i !== 'number') return '';
+        return String(row[i] ?? '').trim();
+      };
+
+      const hasCol = (k) => colIndex[String(k).toLowerCase()] !== undefined;
+
+      const isFull = hasCol('raw_json');
+      const isEmsa = hasCol('imo') && (hasCol('name') || hasCol('vessel') || hasCol('vesselname')) && hasCol('flag');
+
+      let added = 0, replaced = 0, kept = 0, skipped = 0;
+
+      for (let r=1; r<rows.length; r++){
+        const row = rows[r];
+        if (!row || row.every(c => String(c ?? '').trim() === '')) continue;
+
+        // --- Full export: raw_json takes precedence
+        if (isFull){
+          const raw = pick(row, 'raw_json');
+          if(!raw){ skipped++; continue; }
+          try{
+            const obj = JSON.parse(raw);
+            const ship = {
+              id: String(obj.id ?? newId()),
+              name: String(obj.name ?? obj.VesselName ?? obj.vesselName ?? '').trim(),
+              imo: normalizeIMO(obj.imo ?? obj.IMO ?? ''),
+              companyImos: (obj.companyImos ?? []).map(normalizeIMO).filter(Boolean),
+              type: obj.type ?? 'Unbekannt',
+              flagIso2: obj.flagIso2 ?? '',
+              flagSelect: obj.flagSelect ?? mapFlagIso2ToSelect(obj.flagIso2 ?? ''),
+              structure: clamp(parseInt(obj.structure ?? 1, 10), 1, 5),
+              probabilityRaw: clamp(parseInt(obj.probabilityRaw ?? 0, 10), 0, 5),
+              probabilityMatrix: clamp(parseInt(obj.probabilityMatrix ?? ((parseInt(obj.probabilityRaw ?? 0,10) >= 4) ? 4 : parseInt(obj.probabilityRaw ?? 0,10)), 10), 0, 4),
+              riskLevel: obj.riskLevel ?? '',
+              confidence: Number.isFinite(+obj.confidence) ? +obj.confidence : 0.6,
+              reasons: (obj.reasons ?? []).filter(Boolean),
+              notes: String(obj.notes ?? obj.note ?? ''),
+              structSelected: (obj.structSelected ?? []).filter(Boolean),
+              indSelected: (obj.indSelected ?? []).filter(Boolean),
+              timestamp: obj.timestamp ?? new Date().toLocaleString('de-DE')
+            };
+            if(!ship.riskLevel) ship.riskLevel = getRiskLevel(ship.structure, ship.probabilityRaw);
+
+            const res = upsertShipByIMO(ship);
+            if(res.action==='add') added++;
+            else if(res.action==='replace') replaced++;
+            else if(res.action==='keep') kept++;
+            else skipped++;
+          }catch(err){
+            console.warn('raw_json parse error', err);
+            skipped++;
+          }
+          continue;
+        }
+
+        // --- EMSA / Port CSV
+        if (isEmsa){
+          const imo = normalizeIMO(pick(row, 'IMO'));
+          if(!imo){ skipped++; continue; }
+
+          const name = pick(row, 'NAME') || pick(row, 'VesselName') || pick(row, 'Name') || pick(row, 'Vessel') || '';
+          if(!name.trim()){ skipped++; continue; }
+
+          const flagIso2 = String(pick(row,'FLAG') || '').trim().toUpperCase();
+          const flagSelect = mapFlagIso2ToSelect(flagIso2);
+
+          // dump remaining fields to notes
+          const extras = [];
+          for(let i=0;i<header.length;i++){
+            const k = String(header[i] ?? '').trim();
+            const lk = k.toLowerCase();
+            if(!k) continue;
+            if(lk === 'imo' || lk === 'name' || lk === 'vesselname' || lk === 'vessel' || lk === 'flag') continue;
+            const v = String(row[i] ?? '').trim();
+            if(v) extras.push(`${k}: ${v}`);
+          }
+          const note = extras.length ? `[EMSA/Port-Import] ${extras.join(' | ')}` : '';
+
+          const ship = {
+            id: newId(),
+            name: name.trim(),
+            imo,
+            companyImos: [],
+            type: 'Unbekannt',
+            flagIso2,
+            flagSelect,
+            structure: 1,
+            probabilityRaw: 0,
+            probabilityMatrix: 0,
+            riskLevel: getRiskLevel(1,0),
+            confidence: 0.6,
+            reasons: [],
+            notes: note,
+            structSelected: [],
+            indSelected: [],
+            timestamp: new Date().toLocaleString('de-DE')
+          };
+
+          const res = upsertShipByIMO(ship);
+          if(res.action==='add') added++;
+          else if(res.action==='replace') replaced++;
+          else if(res.action==='keep') kept++;
+          else skipped++;
+          continue;
+        }
+
+        // --- App legacy export (no raw_json): best-effort mapping
+        const name = pick(row, 'VesselName') || pick(row, 'Name') || pick(row, 'Vessel') || '';
+        const imo = normalizeIMO(pick(row, 'IMO'));
+        if(!imo || !name.trim()){ skipped++; continue; }
+
+        const structure = parseInt(pick(row, 'StructureY') || '1', 10);
+        const probabilityRaw = parseInt(pick(row, 'OperationalRawX') || pick(row,'X raw') || '0', 10);
+        const probabilityMatrix = parseInt(pick(row, 'OperationalMatrixX0_4') || pick(row,'X matrix') || 'NaN', 10);
+        const pMatrix = Number.isFinite(probabilityMatrix) ? probabilityMatrix : ((probabilityRaw >= 4) ? 4 : probabilityRaw);
+
+        const reasons = (pick(row, 'TopReasons') || '').split('|').map(s => s.trim()).filter(Boolean);
+        const notes = pick(row, 'Note') || pick(row, 'Notiz') || '';
+        const risk = pick(row, 'Risk') || '';
+        const conf = parseFloat(pick(row, 'Confidence') || '0.6');
+        const type = pick(row, 'Type') || 'Unbekannt';
+        const timestamp = pick(row, 'Timestamp') || new Date().toLocaleString('de-DE');
+
+        const c1 = normalizeIMO(pick(row, 'CompanyIMO1'));
+        const c2 = normalizeIMO(pick(row, 'CompanyIMO2'));
+        const c3 = normalizeIMO(pick(row, 'CompanyIMO3'));
+        const companyImos = [c1,c2,c3].filter(Boolean);
+
+        const riskLevel = risk || getRiskLevel(structure, probabilityRaw);
+
+        const ship = {
+          id: newId(),
+          name: name.trim(),
+          imo,
+          companyImos,
+          type,
+          structure: clamp(structure, 1, 5),
+          probabilityRaw: clamp(probabilityRaw, 0, 5),
+          probabilityMatrix: clamp(pMatrix, 0, 4),
+          riskLevel,
+          confidence: Number.isFinite(conf) ? conf : 0.6,
+          reasons,
+          notes,
+          structSelected: (pick(row,'structSelected')||'').split('|').map(s=>s.trim()).filter(Boolean),
+          indSelected: (pick(row,'indSelected')||'').split('|').map(s=>s.trim()).filter(Boolean),
+          timestamp
+        };
+
+        const res = upsertShipByIMO(ship);
+        if(res.action==='add') added++;
+        else if(res.action==='replace') replaced++;
+        else if(res.action==='keep') kept++;
+        else skipped++;
+      }
+
+      if (added + replaced + kept === 0) { alert('Keine gültigen Schiffseinträge in der CSV gefunden. (Hinweis: Nur Einträge mit IMO werden übernommen.)'); return; }
+
+      updateMatrix();
+      updateShipsList();
+
+      document.getElementById('exportBtn').style.display = 'inline-block';
+      document.getElementById('exportExcelBtn').style.display = 'inline-block';
+      document.getElementById('snapshotBtn').style.display = 'inline-block';
+
+      alert(`CSV importiert (${delimiter === ';' ? 'Semikolon' : 'Komma'}): +${added} neu, ${replaced} ersetzt, ${kept} ergänzt, ${skipped} ignoriert`);
+    }
+
+    function parseCsv(text, delimiter){
+      const t = String(text ?? '');
+      const firstLine = t.split(/\r?\n/)[0] ?? '';
+      const del = delimiter || (((firstLine.match(/;/g)||[]).length >= (firstLine.match(/,/g)||[]).length) ? ';' : ',');
+
+      // Robust delimiter-separated parser with quotes + quoted newlines.
+      const rows = [];
+      let row = [];
+      let cur = '';
+      let inQ = false;
+
+      for(let i=0;i<t.length;i++){
+        const ch = t[i];
+
+        if(inQ){
+          if(ch === '"'){
+            const next = t[i+1];
+            if(next === '"'){ cur += '"'; i++; }
+            else { inQ = false; }
+          }else{
+            cur += ch;
+          }
+        }else{
+          if(ch === '"'){ inQ = true; }
+          else if(ch === del){
+            row.push(cur); cur='';
+          }else if(ch === '\r'){
+            // ignore
+          }else if(ch === '\n'){
+            row.push(cur); rows.push(row);
+            row = []; cur='';
+          }else{
+            cur += ch;
+          }
+        }
+      }
+      if(cur.length>0 || row.length>0){
+        row.push(cur); rows.push(row);
+      }
+      while(rows.length && rows[rows.length-1].length===1 && String(rows[rows.length-1][0]||'').trim()===''){
+        rows.pop();
+      }
+      return {rows, delimiter: del};
+    }
+
+    // ==========
+    // Export Excel-compatible (.xml) with matrix + vessel list + notes
+    // ==========
+    function exportMatrixAndShipsExcelXml() {
+      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+
+      const xmlEscape = (s) => String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+
+      const excelLineBreaks = (s) => xmlEscape(String(s ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n'))
+        .replace(/\n/g, '&#10;');
+
+      const today = new Date().toISOString().split('T')[0];
+      const stamp = new Date().toLocaleString('de-DE');
+
+      // Matrix grid (names per cell)
+      const matrixGrid = {};
+      for (const ship of allShips) {
+        const key = `${ship.structure}_${ship.probabilityMatrix}`;
+        (matrixGrid[key] ||= []).push(ship.name);
+      }
+
+      const matrixCols = ["0 - Keine", "1 - Gering", "2 - Moderat", "3 - Relevant", "4/5 - Kritisch"];
+
+      const matrixRowsXml = [
+        rowXml([{ v: `Maritime Risikomatrix für Hybride Aktivitäten – Snapshot (${stamp})`, style: 'title', mergeAcross: 5 }]),
+        rowXml([{ v: 'Operative Indikatoren (X-Achse)', style: 'header', mergeAcross: 5 }]),
+        rowXml([{ v: 'Struktur \\ Indikatoren', style: 'header' }, ...matrixCols.map(c => ({ v: c, style: 'header' }))]),
+        ...[1,2,3,4,5].map(s => {
+          const cells = [{ v: `L${s}`, style: 'subhead' }];
+          for (const p of [0,1,2,3,4]) {
+            const names = (matrixGrid[`${s}_${p}`] || []).join(', ');
+            cells.push({ v: names, style: 'cell' });
+          }
+          return rowXml(cells);
+        })
+      ].join('');
+
+      const vesselHeader = [
+        "Name","Typ","Y","X raw","X matrix","Risiko","Confidence","Top-Gründe","Zeitstempel","Notiz"
+      ];
+
+      const vesselsRowsXml = [
+        rowXml([{ v: `Erfasste Schiffe (inkl. Notizen) – ${stamp}`, style: 'title', mergeAcross: 9 }]),
+        rowXml(vesselHeader.map(h => ({ v: h, style: 'header' }))),
+        ...allShips.map(s => rowXml([
+          { v: s.name, style: 'cell' },
+          { v: s.type, style: 'cell' },
+          { v: `L${s.structure}`, style: 'cell' },
+          { v: `X${s.probabilityRaw}`, style: 'cell' },
+          { v: String(s.probabilityMatrix), style: 'cell' },
+          { v: s.riskLevel, style: 'cell' },
+          { v: Number(s.confidence ?? 0.6).toFixed(1), style: 'cell' },
+          { v: (s.reasons ?? []).join(' · '), style: 'cell' },
+          { v: s.timestamp, style: 'cell' },
+          { v: s.notes ?? '', style: 'wrap' }
+        ], true))
+      ].join('');
+
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+
+  <Styles>
+    <Style ss:ID="title">
+      <Font ss:Bold="1" ss:Size="14"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+    </Style>
+    <Style ss:ID="header">
+      <Font ss:Bold="1" ss:Color="#FFFFFF"/>
+      <Interior ss:Color="#667EEA" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="subhead">
+      <Font ss:Bold="1"/>
+      <Interior ss:Color="#F0F4FF" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="cell">
+      <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="wrap">
+      <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+        <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+      </Borders>
+    </Style>
+  </Styles>
+
+  <Worksheet ss:Name="Matrix">
+    <Table>
+      <Column ss:Width="160"/>
+      <Column ss:Width="180"/><Column ss:Width="180"/><Column ss:Width="180"/><Column ss:Width="180"/><Column ss:Width="180"/>
+      ${matrixRowsXml}
+    </Table>
+  </Worksheet>
+
+  <Worksheet ss:Name="Vessels">
+    <Table>
+      <Column ss:Width="160"/><Column ss:Width="160"/><Column ss:Width="60"/>
+      <Column ss:Width="70"/><Column ss:Width="70"/><Column ss:Width="90"/>
+      <Column ss:Width="80"/><Column ss:Width="240"/><Column ss:Width="140"/><Column ss:Width="380"/>
+      ${vesselsRowsXml}
+    </Table>
+  </Worksheet>
+
+</Workbook>`;
+
+      function rowXml(cells, treatLastAsNotes=false) {
+        const xmlCells = cells.map((c, idx) => {
+          const style = c.style ? ` ss:StyleID="${c.style}"` : '';
+          const merge = (typeof c.mergeAcross === 'number') ? ` ss:MergeAcross="${c.mergeAcross}"` : '';
+          const isNotes = (treatLastAsNotes && idx === cells.length - 1 && c.style === 'wrap');
+          const val = isNotes ? excelLineBreaks(c.v) : xmlEscape(c.v);
+          return `<Cell${style}${merge}><Data ss:Type="String">${val}</Data></Cell>`;
+        }).join('');
+        return `<Row>${xmlCells}</Row>`;
+      }
+
+      const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `maritime_risikomatrix_report_${today}.xml`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    // ==========
+    // Snapshot / Print view (matrix + list + full notes)
+    // ==========
+    function openSnapshotPrintView(){
+      if (allShips.length === 0) { alert('Keine Schiffe erfasst!'); return; }
+
+      const w = window.open('', '_blank');
+      if (!w) { alert('Popup blockiert. Bitte Popups für Snapshot-/Druckansicht erlauben.'); return; }
+
+      const reportTitle = `Maritime Risikomatrix für Hybride Aktivitäten – Snapshot (${new Date().toLocaleString('de-DE')})`;
+
+      const matrixGrid = {};
+      for (const ship of allShips){
+        const key = `${ship.structure}_${ship.probabilityMatrix}`;
+        matrixGrid[key] = matrixGrid[key] || [];
+        matrixGrid[key].push(ship.name);
+      }
+
+      const tableRows = [1,2,3,4,5].map(s => `
+        <tr>
+          <th style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);">
+            L${s}
+          </th>
+          ${[0,1,2,3,4].map(p => {
+            const names = (matrixGrid[`${s}_${p}`] || []).map(escapeHtml).join(', ');
+            return `<td style="vertical-align:top;">${names}</td>`;
+          }).join('')}
+        </tr>
+      `).join('');
+
+      const listRows = allShips.map(s => `
+        <tr>
+          <td>${escapeHtml(s.name)}</td>
+          <td>${escapeHtml(s.type)}</td>
+          <td>L${s.structure}</td>
+          <td>X${s.probabilityRaw}</td>
+          <td>${s.probabilityMatrix}</td>
+          <td>${escapeHtml(s.riskLevel)}</td>
+          <td>${Number(s.confidence ?? 0.6).toFixed(1)}</td>
+          <td>${escapeHtml((s.reasons ?? []).join(' · '))}</td>
+          <td>${escapeHtml(s.timestamp)}</td>
+          <td>${notesToHtml(s.notes)}</td>
+        </tr>
+      `).join('');
+
+      w.document.open();
+      w.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>${escapeHtml(reportTitle)}</title>
+          <style>
+            body{ font-family:Segoe UI, Arial, sans-serif; padding:18px; }
+            h2{ margin:0 0 6px 0; }
+            .small{ color:#666; font-size:12px; margin-bottom:14px; }
+            table{ border-collapse:collapse; width:100%; }
+            th,td{ border:1px solid #999; padding:8px; font-size:12px; }
+            th{ background:#667eea; color:#fff; }
+            .subhead{ background:#764ba2 !important; }
+            @media print{ button{ display:none; } }
+          </style>
+        </head>
+        <body>
+          <button onclick="window.print()" style="padding:10px 14px; font-weight:700;">Drucken / Als PDF speichern</button>
+          <h2>Maritime Risikomatrix für Hybride Aktivitäten</h2>
+          <div class="small">${escapeHtml(new Date().toLocaleString('de-DE'))}</div>
+
+          <h3>Matrix</h3>
+          <table>
+            <tr>
+              <th colspan="6">Operative Indikatoren (X-Achse)</th>
+            </tr>
+            <tr>
+              <th>Struktur \\ Indikatoren</th>
+              <th>0 - Keine</th>
+              <th>1 - Gering</th>
+              <th>2 - Moderat</th>
+              <th>3 - Relevant</th>
+              <th>4/5 - Kritisch</th>
+            </tr>
+            ${tableRows}
+          </table>
+
+          <h3 style="margin-top:18px;">Erfasste Schiffe (inkl. Notizen)</h3>
+          <table>
+            <tr>
+              <th class="subhead" colspan="10">Erfasste Schiffe</th>
+            </tr>
+            <tr style="background:#f0f0f0;color:#000;">
+              <td><b>Name</b></td><td><b>Typ</b></td><td><b>Y</b></td><td><b>X raw</b></td><td><b>X matrix</b></td>
+              <td><b>Risiko</b></td><td><b>Confidence</b></td><td><b>Top-Gründe</b></td><td><b>Zeitstempel</b></td><td><b>Notiz</b></td>
+            </tr>
+            ${listRows}
+          </table>
+        </body>
+        </html>
+      `);
+      w.document.close();
+    }
+
+    // ==========
+    // Form reset
+    // ==========
+    function resetForm() {
+      document.getElementById('assessmentForm').reset();
+      syncFlagCheckboxesFromSelect();
+
+      // Clear edit mode
+      editingShipId = null;
+      updateAddShipButton();
+
+      const nd = document.getElementById('shipNotesDraft');
+      if(nd) nd.value = '';
+    }
+
+
+    // ==========
+    // OSINT Prompt (from current form inputs)
+    // ==========
+    function buildOsintPrompt(){
+      const shipName = (document.getElementById('shipName')?.value ?? '').trim();
+      const imo = digitsOnlyMax8(document.getElementById('shipIMO')?.value);
+      const c1 = digitsOnlyMax8(document.getElementById('companyIMO1')?.value);
+      const c2 = digitsOnlyMax8(document.getElementById('companyIMO2')?.value);
+      const c3 = digitsOnlyMax8(document.getElementById('companyIMO3')?.value);
+      const companyImos = [c1,c2,c3].filter(Boolean);
+
+      const shipType = document.getElementById('shipType')?.options?.[document.getElementById('shipType')?.selectedIndex]?.text ?? '';
+      const notes = (document.getElementById('shipNotesDraft')?.value ?? '').trim();
+
+      const idLine = [
+        shipName ? `Schiffsname: ${shipName}` : `Schiffsname: (bitte eintragen)`,
+        shipType ? `Typ: ${shipType}` : null,
+        imo ? `IMO: ${imo}` : `IMO: (unbekannt)`,
+        companyImos.length ? `Company-IMOs: ${companyImos.join(', ')}` : `Company-IMOs: (unbekannt)`
+      ].filter(Boolean).join('\\n');
+
+      return `Du bist ein OSINT-Analyst für maritime hybride Bedrohungen. Führe eine tiefe Recherche im aktuellen Web UND im Archiv (falls möglich) durch. Gib Ergebnisse mit DATUM, KURZER BEWERTUNG und QUELLENLINKS in Textform an. Wenn etwas unklar ist, sag es explizit und formuliere Hypothesen als Hypothesen (keine Fakten erfinden).
+
+${idLine}
+
+Kontext / zusätzliche Hinweise (optional):
+${notes ? notes : '(keine)'}
+
+Ziele der Recherche (bitte strukturiert ausgeben):
+
+1) Identität & Betreiberstruktur (vessel + Firmen):
+- IMO-/Registerdaten prüfen; aktuelle & historische Namen, Flagge, MMSI, Rufzeichen, Eigentümer/Owner, Betreiber/Operator, Manager, ISM-Company/DOC-Holder, RO/Class, P&I/Versicherung.
+- Company-IMOs auflösen: Firmenprofile, Adressen, Direktoren, UBO/beneficial owner (soweit öffentlich), Wechselhistorie (owner/manager churn), Briefkastenmuster.
+- Crewing / Manning: Crewing Agencies, Personalvermittler, Management-Firmen; Auffälligkeiten (Kaliningrad, „high-risk crewing“ o. Ä.) und personelle Verknüpfungen.
+- Finanz-/Handelsbezüge: Charterer, Trader, Broker, Zahlungs-/Finanzierungsstruktur (Banken, Leasing, SPVs), wirtschaftliche Netzwerke/Cluster.
+
+2) Sanktionen & Umgehung (Shadow Fleet / sanctions evasion):
+- Direkte Listungen: EU, OFAC/US, UK, UN (vessel, owner, manager, charterer, related entities).
+- Indirekte Muster: häufige Flaggen-/Namenswechsel, IMO-/Identitätsirregularitäten, AIS-Manipulation/Blackouts, „dark activity“, P&I/RO-Irregularitäten, „ageing tanker“ / „shadow fleet“ Indikatoren.
+- STS / Rendezvous / Umwegmuster: bekannte STS-Hotspots, Offshore-Rendezvous, Transfers (Öl/Produkte/andere Ladung), Loitering vor Küsten/Ankerplätzen, „last known port“/trade route anomalies.
+- Ladung & Trade: sanktionierte Güter (z. B. Öl/Produkte, Dual-Use), Trade-Tracks, Häfen/Terminals, Auffälligkeiten bei Bills of Lading (wenn öffentlich).
+
+3) Hybride Bedrohungen & kritische Infrastruktur (Seekabel/Pipelines/Windparks/Ports):
+- Verhalten nahe CI-Korridoren: Loitering, wiederholtes Driften/Ankern, „survey/grid patterns“, Routen, die sich mit Kabel-/Pipelinekorridoren schneiden.
+- Verdächtige Aktivitäten: mögliche Vermessung/Erkundung, Drohnen-/UAS-Bezüge, Bordausrüstung (Krane, ROV/AUV, Tauch-/Survey-Equipment), ungewöhnliche Besatzung/„uniformed personnel“/PMC-Indizien.
+- Verknüpfungen zu Vorfällen: Sabotage-/Beschädigungsereignisse, staatliche Warnmeldungen, Ermittlungen, Hafen-/Behördenberichte.
+
+4) Incidents, Compliance, Recht:
+- Unfälle/Beinaheunfälle, Kollisionen, Grundberührungen, Brände, Maschinen-/Ruderprobleme.
+- Port State Control: Detentions/Deficiencies (Paris MoU, USCG, etc.), MLC/ISM/MARPOL, Umweltverstöße.
+- Rechtsfälle: Bußgelder, Ermittlungen, Gerichtsverfahren, Hafenverbote, Fälschungen/Irregularitäten.
+
+5) Geopolitische / staatliche Bezüge:
+- Bezüge zu Russland oder anderen „high-risk states“ (z. B. Iran, Nordkorea, Syrien): Häfen, Firmen, Personen, Charterer, Lieferketten.
+- Hinweise auf staatliche Nutzung / Dual-Use / militärische Nähe (z. B. regelmäßige Aufenthalte nahe Militärbasen, Forschungsschiff-Schnittstellen, „state-owned“ Strukturen).
+
+Output-Format:
+- Kurze Executive Summary (3–7 Bulletpoints)
+- Danach pro Ziel (1–5): Findings als Bulletpoints mit Datum + Quelle(n)
+- Zum Schluss: Offene Fragen / What-to-check-next (konkret)`;
+    }
+
+    function openOsintPromptModal(){
+      const prompt = buildOsintPrompt();
+      document.getElementById('promptText').value = prompt;
+
+      const backdrop = document.getElementById('promptModalBackdrop');
+      backdrop.classList.add('show');
+      backdrop.setAttribute('aria-hidden','false');
+
+      setTimeout(() => document.getElementById('promptText').focus(), 50);
+    }
+
+    function closeOsintPromptModal(){
+      const backdrop = document.getElementById('promptModalBackdrop');
+      backdrop.classList.remove('show');
+      backdrop.setAttribute('aria-hidden','true');
+    }
+
+    function copyPromptToClipboard(){
+      const t = document.getElementById('promptText');
+      if (!t) return;
+      t.select();
+      t.setSelectionRange(0, 999999);
+      try{
+        document.execCommand('copy');
+        alert('Prompt kopiert.');
+      }catch(e){
+        navigator.clipboard?.writeText?.(t.value);
+        alert('Prompt kopiert.');
+      }
+      window.getSelection()?.removeAllRanges?.();
+    }
+
+
+    // ==========
+    // Modal logic (editable notes)
+    // ==========
+    function openShipModal(shipId) {
+      const ship = allShips.find(s => s.id === shipId);
+      if (!ship) return;
+
+      currentShipId = shipId;
+
+      document.getElementById('m_name').textContent = ship.name;
+      document.getElementById('m_type').textContent = ship.type;
+      document.getElementById('m_imo').textContent = (ship.imo && String(ship.imo).trim()) ? ship.imo : '—';
+      const cimos = (ship.companyImos ?? []).filter(x => String(x).trim().length>0);
+      document.getElementById('m_cimos').textContent = cimos.length ? cimos.join(', ') : '—';
+      document.getElementById('m_y').textContent = 'L' + ship.structure;
+      document.getElementById('m_x').textContent = `X${ship.probabilityRaw} (Matrix: ${ship.probabilityMatrix})`;
+      document.getElementById('m_risk').textContent = ship.riskLevel;
+      document.getElementById('m_conf').textContent = Number(ship.confidence ?? 0.6).toFixed(1);
+      document.getElementById('m_reasons').textContent = (ship.reasons ?? []).join(' · ');
+      document.getElementById('m_notes').value = ship.notes ?? '';
+
+      const backdrop = document.getElementById('shipModalBackdrop');
+      backdrop.classList.add('show');
+      backdrop.setAttribute('aria-hidden','false');
+
+      setTimeout(() => document.getElementById('m_notes').focus(), 50);
+    }
+
+    function closeShipModal() {
+      const backdrop = document.getElementById('shipModalBackdrop');
+      backdrop.classList.remove('show');
+      backdrop.setAttribute('aria-hidden','true');
+      currentShipId = null;
+    }
+
+    function saveShipNotes() {
+      if (!currentShipId) return;
+      const ship = allShips.find(s => s.id === currentShipId);
+      if (!ship) return;
+      ship.notes = document.getElementById('m_notes').value ?? '';
+      updateShipsList();
+    }
+
+    function removeCurrentShip() {
+      if (!currentShipId) return;
+      const idx = allShips.findIndex(s => s.id === currentShipId);
+      if (idx === -1) return;
+      allShips.splice(idx, 1);
+      closeShipModal();
+      updateMatrix();
+      updateShipsList();
+      if (allShips.length === 0){
+        document.getElementById('exportBtn').style.display = 'none';
+        document.getElementById('exportExcelBtn').style.display = 'none';
+        document.getElementById('snapshotBtn').style.display = 'none';
+      }
+    }
+
+    document.getElementById('shipModalBackdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'shipModalBackdrop') closeShipModal();
+    });
+
+
+    document.getElementById('promptModalBackdrop')?.addEventListener('click', (e) => {
+      if (e.target.id === 'promptModalBackdrop') closeOsintPromptModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const p = document.getElementById('promptModalBackdrop');
+        if (p && p.classList.contains('show')) { closeOsintPromptModal(); return; }
+
+        const backdrop = document.getElementById('shipModalBackdrop');
+        if (backdrop && backdrop.classList.contains('show')) closeShipModal();
+      }
+    });
+
+    document.getElementById('shipFlag').addEventListener('change', syncFlagCheckboxesFromSelect);
+    syncFlagCheckboxesFromSelect();
+  </script>
+</body>
+</html>

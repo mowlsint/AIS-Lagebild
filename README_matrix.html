@@ -28,18 +28,29 @@
 
 <pre>## Kurzanleitung &amp; Erläuterung
 
+## Kurzanleitung & Erläuterung (aktualisiert)
+
 **Worum geht’s hier?**
-Diese Risikomatrix ist ein Arbeitswerkzeug zur **strukturieren Erstbewertung** von Schiffen im Kontext maritimer **Hybridbedrohungen** (z. B. Shadow-Fleet-typische Muster, Verschleierung, Infrastruktur-Nähe, Manipulationsindikatoren). Sie ersetzt **keine** Lageanalyse, Beweissicherung oder rechtliche Würdigung, hilft aber dabei, Hinweise konsistent zu gewichten und mehrere Schiffe vergleichbar zu machen.
+Diese Risikomatrix ist ein Arbeitswerkzeug zur **strukturierten Erstbewertung** von Schiffen im Kontext maritimer **Hybridbedrohungen** (z. B. Shadow-Fleet-Muster, Verschleierung, Infrastruktur-Nähe, Manipulationsindikatoren). Sie ersetzt **keine** Lageanalyse, Beweissicherung oder rechtliche Würdigung – hilft aber, Hinweise konsistent zu gewichten und mehrere Schiffe vergleichbar zu machen.
+
+**Wichtig (neu):**
+
+* Es werden **nur Schiffe mit gültiger IMO** berücksichtigt (IMO = **7 Ziffern**).
+* Du kannst zusätzlich **Company-IMOs (bis zu 3, je max. 8 Ziffern)** erfassen.
+
+---
 
 ### 1) Grundprinzip der Matrix (Y × X)
 
 Die Bewertung besteht aus zwei Achsen:
 
 **Y-Achse: Struktur (L1–L5)**
-Beschreibt, wie „auffällig“ ein Schiff bereits **strukturell** ist – also unabhängig vom aktuellen Verhalten. Beispiele: Flaggenprofil (Grey/Black/Unknown), häufige Identitätswechsel, opake Eigentums-/Managementkette, auffällige Versicherung/Class, Sanktionsbezug.
+Beschreibt, wie „auffällig“ ein Schiff bereits **strukturell** ist – unabhängig vom aktuellen Verhalten. Beispiele: Flaggenprofil (Grey/Black/Unknown), häufige Identitätswechsel, opake Eigentums-/Managementkette, auffällige Versicherung/Class, Sanktionsbezug.
+Die Y-Achse kann durch Recherchen in Equasis, EMSA/SEG, Versicherungsseiten, kommerziellen Trackern und aus Kontrollberichten gefüllt werden.
 
-**X-Achse: Operative Indikatoren (X0–X5, in der Matrix als X0–X4 dargestellt)**
-Beschreibt, wie stark die **operative Evidenz** ist – also was das Schiff **tatsächlich tut** oder welche Vorfallnähe/Anomalien vorliegen (AIS-Blackout, GNSS/AIS-Spoofing, loitering an Kabeln, STS, „dark activity“, Survey-Pattern, Nähe zu Militär etc.).
+**X-Achse: Operative Indikatoren (X0–X5, in der Matrix als X0–X4/5 dargestellt)**
+Beschreibt, wie stark die **operative Evidenz** ist – also was das Schiff **tatsächlich tut** oder welche Vorfallnähe/Anomalien vorliegen (AIS-Blackout, GNSS/AIS-Spoofing, Loitering an Kabeln/Pipelines, STS/Rendezvous, „dark activity“, Survey-Pattern, Nähe zu Militär/Übungsgebieten etc.).
+Hier ist Recherche in EMSA/SEG bezüglich des Fahrtverlaufs sinnvoll. Das Wissen um die Nähe zu Seekabeln/Pipelines ist von Vorteil.
 
 **Wichtig:** In der Tabelle gibt es rechts nur eine Spalte **„4/5 – Kritisch“**.
 Das bedeutet: X=4 oder X=5 wird in der Darstellung **beide** in diese letzte Spalte einsortiert. Intern bleibt die feinere Abstufung (raw) erhalten (z. B. X5), die Matrix zeigt aber zusammengefasst (X4/5).
@@ -48,75 +59,217 @@ Das bedeutet: X=4 oder X=5 wird in der Darstellung **beide** in diese letzte Spa
 
 ### 2) Datenqualität / Confidence (warum das Feld wichtig ist)
 
-AIS und GNSS können gestört, manipuliert oder unvollständig sein. Daher gibt es die Auswahl **Datenqualität / Confidence**:
+AIS und GNSS können gestört, manipuliert oder unvollständig sein. Daher gibt es **Datenqualität / Confidence**:
 
-* **hoch (0.9):** AIS plus zusätzliche Quelle(n) bestätigt (z. B. Bild, Hafenmeldung, Dokumente, OSINT-Verifikation).
-* **mittel (0.6):** AIS plausibel, teilweise bestätigt oder stimmig im Kontext.
+* **hoch (0.9):** AIS + zusätzliche Quelle(n) bestätigt (z. B. Bild, Hafenmeldung, Dokumente, OSINT-Verifikation).
+* **mittel (0.6):** AIS plausibel, teilweise bestätigt oder stimmig im Kontext (**Standard**).
 * **niedrig (0.3):** nur AIS / unsicher / starke Unschärfe.
 
 Die Confidence wirkt sich **auf die X-Achse** aus:
-Bei geringer Confidence werden operative Hinweise vorsichtiger eingeordnet, um Fehlalarme zu reduzieren. (Ein „nur AIS“-Muster soll nicht automatisch so hoch gewertet werden wie ein bestätigter Vorfall.)
+Bei geringer Confidence werden operative Hinweise vorsichtiger eingeordnet, um Fehlalarme zu reduzieren.
 
 ---
 
 ### 3) Schritt-für-Schritt: So nutzt du das Tool
 
 **Schritt 1 – Basisdaten:**
-Trage Schiffsname, Typ und Flaggenstaat ein.
-Die Flagge setzt automatisch (als Anzeige) Grey/Black-Status.
+Trage **Schiffsname**, **IMO**, optional **Company-IMO 1–3**, Typ und Flaggenstaat ein.
+Die Flagge setzt automatisch (als Anzeige) Grey/Black-Status. Alle anderen Flaggen können als Sonstige eingepflegt werden.
 
 **Schritt 2 – Struktur (Y):**
 Setze strukturelle Hinweise.
-Faustregel: Alles, was längerfristig zum „Profil“ gehört (Ownership, Flaggenwechsel, Sanktionen, Class/Insurance/Identity-Churn), gehört nach Y.
+Faustregel: Alles, was längerfristig zum „Profil“ gehört (Ownership, Flaggenwechsel, Sanktionen, Class/Insurance, Identity-Churn), gehört nach Y.
 
 **Schritt 3 – Operative Indikatoren (X):**
 Setze operative Hinweise.
-Faustregel: Alles, was sich auf aktuelles Verhalten, Routen, Muster, Vorfälle und Infrastrukturbezug bezieht, gehört nach X.
+Faustregel: Alles, was sich auf aktuelles Verhalten, Routen, Muster, Vorfälle und Infrastrukturbezug (Kabel/Pipelines/CI), STS/Rendezvous, Survey-Pattern, Forschungsschiff-Profile etc. bezieht, gehört nach X.
 
 **Schritt 4 – Schiff hinzufügen:**
-Klick auf **„Schiff hinzufügen“**.
-Das Schiff erscheint:
+Klick auf **„Schiff hinzufügen“**. Das Schiff erscheint:
 
-* als **Badge in der Matrix-Zelle** (Lx / X-Spalte)
-* zusätzlich in der Liste „Erfasste Schiffe“ darunter (mit Risiko, X raw/Matrix, Confidence, Top-Gründe)
+* als **Badge in der Matrix-Zelle**
+* zusätzlich in der Liste „Erfasste Schiffe“ darunter (Risiko, X raw/Matrix, Confidence, Top-Gründe)
 
-**Schritt 5 – Details &amp; Freitextnotiz:**
-Klick auf das Badge (oder in der Schiffsliste auf den Eintrag), um das **Details-Fenster** zu öffnen.
+**Schritt 5 – Details & Notizen:**
+Klick auf ein Badge (oder in der Schiffsliste auf den Eintrag), um das **Details-Fenster** zu öffnen.
 Dort kannst du eine **Freitextnotiz** speichern (z. B. Quellenlage, Maßnahmen, Bewertung, offene Fragen).
-Die Notiz bleibt pro Schiff erhalten und kann jederzeit überschrieben werden.
+Die Notiz bleibt pro Schiff erhalten und kann überschrieben werden.
 
-**Schritt 6 – Export:**
-Mit **„Alle als CSV“** exportierst du die erfassten Schiffe als Datei zur Weiterverarbeitung.
-
----
-
-### 4) Wie du Ergebnisse interpretierst (ohne dich reinzureden)
-
-* **Niedrig / Mittel** heißt nicht „harmlos“, sondern: *aktuell keine starke Evidenz oder strukturell unauffällig.*
-* **Hoch / Sehr hoch** heißt: *relevante Hinweise in Struktur und/oder operativer Evidenz — Priorisierung für vertiefte Prüfung.*
-* Eine **hohe Struktur (L4/L5)** ohne operative Kreuze kann sinnvoll sein (z. B. stark verschleiertes Profil).
-* Eine **hohe X-Bewertung** sollte idealerweise durch **gute Confidence** gestützt werden, sonst ist das Ergebnis eher ein „Arbeitsverdacht“.
+**Neu: Endbearbeitung per Formular („✏️ In Formular“)**
+In der Schiffsliste gibt es pro Eintrag einen Button **„✏️ In Formular“**.
+Damit lädst du das Schiff zurück in die Eingabefelder und kannst es **gezielt nachbearbeiten** (z. B. Notes ergänzen, Company-IMOs korrigieren, Y/X anpassen). Anschließend wieder speichern/aktualisieren.
 
 ---
 
-### 5) Typische Denkfehler, die die Matrix bewusst verhindert
+### 4) CSV-Import/Export (neu & erweitert)
+
+#### A) Eigene CSV (Roundtrip: Export → Import → Matrix wieder voll)
+
+* Exportierte CSVs können wieder importiert werden und **füllen Matrix + Liste**.
+
+#### B) EMSA-/Port-CSV Import (z. B. „Vessels in port“)
+
+* Importiert gängige EMSA/Port-Exporte, sofern eine **gültige IMO** vorhanden ist.
+* Spalten, die nicht direkt auf Standardfelder gemappt werden (z. B. ETA/ETD, Port, Terminal, Call Sign, MMSI, Agent, Berth etc.), werden **automatisch in den Notizenblock geschrieben**, damit nichts verloren geht.
+
+#### C) Regeln beim Import (wichtig!)
+
+* **Nur IMO-Schiffe** werden übernommen (IMO muss als 7-stellige Zahl erkennbar sein).
+* **Mehrfachimporte & Dubletten:** Wenn du eine weitere CSV lädst (EMSA oder eigene), werden Dubletten **nach IMO** zusammengeführt:
+
+  * Es bleibt **der Datensatz mit den meisten Informationen** (höhere „Vollständigkeit“).
+  * Notizen und Company-IMOs werden **zusammengeführt**, statt überschrieben (sofern sinnvoll/neu).
+
+#### D) Export
+
+* **Alle als CSV**: Export der Schiffsdaten zur Weiterverarbeitung / späterem Re-Import.
+* **Matrix + Liste exportieren**: Exceldatei mit zwei Tabellen (Matrix + Schiffsdaten).
+* **Snapshot**: Druckansicht für 1-seitiges PDF/Print inkl. Headerzeile (MOwlSINT-Branding).
+
+---
+
+### 5) Sortierung & Priorisierung (neu)
+
+Die Liste „Erfasste Schiffe“ ist **nach Priorität absteigend** sortiert:
+**Sehr hoch → Hoch → Mittel → Niedrig** (und innerhalb gleicher Stufe nach den stärkeren Struktur-/X-Ausprägungen).
+Damit stehen die „heißen“ Kandidaten oben, ohne dass du scrollen musst.
+
+---
+
+### 6) OSINT-Prompt (neu)
+
+Unter dem Freitext/Notizbereich gibt es den Button **„OSINT-Prompt“**.
+Er öffnet ein Pop-up mit einem fertigen KI-Prompt, der automatisch einsetzt:
+
+* **Schiffsname**
+* **IMO**
+* **Company-IMO 1–3**
+* (optional) Typ/Flagge/Notizen als Kontext
+
+Der Prompt fordert eine **tiefe Suche** nach:
+
+* **Schattenflotte/Sanktionsumgehung** (Vessel/Owner/Operator/Manager/ISM/DOC Holder, Alias/Name-Change, Flag-hopping)
+* **wirtschaftlichen Verknüpfungen** (Beneficial ownership, Holdings, Broker, Versicherer, Class, Banken/Finanzierung, Charter-Ketten)
+* **Crewing Agencies / Manning** und personelle Muster
+* **Bezügen zu Russland/anderen Schurkenstaaten**, Dual-Use-Kontext, Militärnähe
+* **Incidents & Compliance** (PSC/Detentions, MARPOL/ISM/MLC, Unfälle, technische Ausfälle)
+* **hybriden Aktivitäten**: AIS/GNSS-Manipulation, Loitering, **STS/Rendezvous**, auffällige Muster nahe **Seekabeln/Pipelines/Offshore-CI**, Survey-/Forschungsschiff-Indikatoren
+
+---
+
+### 7) Branding/Kontakt (neu)
+
+* Klick auf das **MOwlSINT-Logo** öffnet eine Mail an: **[mowlsint@gmail.com](mailto:mowlsint@gmail.com)**
+* In der **Snapshot-/Druckansicht** steht im Header:
+  **“MOwlSINT - blue crime analyzes on the lower part of the iceberg - [mowlsint@gmail.com](mailto:mowlsint@gmail.com)”**
+
+---
+
+### 8) Typische Denkfehler, die die Matrix bewusst verhindert
 
 * **„AIS sagt’s, also stimmt’s.“** → Confidence zwingt zur Quellen-Disziplin.
-* **„Ein Hinweis = sicher.“** → X berücksichtigt Stärke und Kombinationen, nicht nur Anzahl.
-* **„Flagge allein entscheidet alles.“** → Flagge beeinflusst Y, aber operative Evidenz bleibt separat.
-* **„Viele Schiffe, kein Überblick.“** → Matrix + Liste schaffen Vergleichbarkeit und Sichtbarkeit.
+* **„Ein Hinweis = sicher.“** → X berücksichtigt Stärke/Kombinationen, nicht nur Anzahl.
+* **„Flagge allein entscheidet alles.“** → Flagge beeinflusst Y, operative Evidenz bleibt separat.
+* **„Viele Schiffe, kein Überblick.“** → Matrix + priorisierte Liste schaffen Vergleichbarkeit.
 
 ---
 
-### 6) Kurz-Haftnotiz für den Einsatz
+### 9) Kurz-Haftnotiz für den Einsatz
 
 **Wenn du nur 20 Sekunden hast:**
 
-1. Flagge + Strukturhinweise setzen (Y).
-2. Operative Anomalien setzen (X).
-3. Confidence realistisch wählen.
-4. „Schiff hinzufügen“.
-5. Notiz im Pop-up: Quelle + nächste Maßnahme + offene Frage.
+1. Schiffsname + **IMO** + (optional) Company-IMOs eintragen.
+2. Strukturhinweise (Y) setzen.
+3. Operative Anomalien (X) setzen.
+4. Confidence realistisch wählen.
+5. „Schiff hinzufügen“.
+6. Notiz: Quelle + nächste Maßnahme + offene Frage.
+
+### 10) CSV-Felder & Mapping (EMSA SEG – „Ports / Vessels in Port“)
+
+Die **CSV-Exporte aus dem EMSA SEG Ports-Modul** (typisch: „Vessels in port“, „Port calls“, „Arrivals/Departures“) sind je nach Ansicht/Filter leicht unterschiedlich, aber die Logik im Tool ist so aufgebaut:
+
+#### A) Mindestanforderung (damit ein Datensatz überhaupt übernommen wird)
+
+* **IMO** muss vorhanden und plausibel sein (**7 Ziffern**).
+  Ohne IMO wird die Zeile **ignoriert** (auch wenn Name/MMSI drin steht).
+
+#### B) Erkanntes Standard-Mapping (EMSA → Matrix-Felder)
+
+**1) Identität**
+
+* **Schiffsname** ← typischerweise `Vessel`, `Vessel Name`, `Ship`, `Name`
+* **IMO** ← `IMO`, `IMO No`, `IMO Number`
+* (Optional, wird nicht als eigenes Feld gespeichert, aber landet in Notizen, falls vorhanden)
+
+  * `MMSI`
+  * `Call Sign` / `Callsign`
+
+**2) Typ / Kategorie**
+
+* **Typ** ← `Type`, `Vessel Type`, `Ship Type`, `Category`
+
+  * Hinweis: EMSA-Typen sind oft feiner/anders als deine Dropdown-Typen. Wenn das Tool keinen 1:1-Typ trifft, wird der EMSA-String **trotzdem in Notizen** gesichert.
+
+**3) Flagge**
+
+* **Flaggenstaat** ← `Flag`, `Flag State`, `FlagCountry`
+
+  * Wenn EMSA hier ISO-Codes nutzt (z. B. “DEU”), bleibt der Code erhalten bzw. wird als Text geführt; Grey/Black-Status folgt deiner internen Flaggenlogik.
+
+**4) Hafen-/Portcall-Kontext (landet automatisch in Notizen)**
+Diese Felder werden **nicht** als eigene Formfelder gemappt (weil dein Formular auf Hybrid-Risiko zielt), aber sie werden strukturiert in **Notizen** abgelegt, damit du Kontext nicht verlierst:
+
+* `Port`, `Port Name`
+* `Terminal`, `Berth`, `Quay`
+* `ETA`, `ETD` (oder `Arrival`, `Departure`)
+* `Arrival Time`, `Departure Time`, `ATA`, `ATD` (falls enthalten)
+* `Last Port`, `Previous Port`, `Next Port`, `Port of Origin`, `Port of Destination`
+* `Agent`, `Shipping Agent`, `Handling Agent`
+* `Status` (in port / expected / arrived / departed etc.)
+* ggf. `Draught`, `GT`, `DWT`, `Length`, `Breadth` (werden als technische Zusatzinfos notiert)
+
+**Merksatz:** Alles, was nicht sauber auf **Name/IMO/Flag/Type** passt, wandert in die **Notizen**.
+
+#### C) Was genau in die Notizen geschrieben wird (Format)
+
+Beim EMSA-Import ergänzt das Tool im Notizenblock pro Schiff einen Abschnitt, sinngemäß:
+
+* `[EMSA SEG | Ports Import]`
+
+  * Port/Terminal/Berth
+  * ETA/ETD/ATA/ATD
+  * Agent/Status
+  * und dann **alle übrigen Spalten**, die nicht gemappt wurden
+
+So kannst du später im Detail-Popup sofort sehen: „Warum tauchte das Schiff auf? Wo liegt es? Welche Zeiten?“
+
+#### D) Dubletten-Regel (IMO-basiert) bei mehreren Imports
+
+Wenn du **noch eine CSV importierst** (egal ob EMSA oder eigene Roundtrip-CSV):
+
+1. Es gibt pro IMO am Ende **genau einen Datensatz**.
+2. Bei Doppelungen gewinnt der Datensatz mit **mehr Informationsgehalt**.
+   „Mehr Informationsgehalt“ heißt praktisch: mehr gefüllte Kernfelder + längere/inhaltlichere Notizen + vorhandene Company-IMOs.
+3. **Notizen** werden **zusammengeführt**, nicht blind überschrieben (damit EMSA-Portcall-Kontext nicht verloren geht).
+
+#### E) Typische Stolpersteine (damit Import nicht „scheinbar leer“ läuft)
+
+* **Trennzeichen:** EMSA-Exporte sind je nach System/Locale manchmal `;` statt `,`.
+  Das Tool versucht beides zu erkennen; wenn du merkst, es werden keine Felder erkannt, ist das der erste Verdacht.
+* **Encoding:** Umlaute/sonderbare Zeichen → am besten als UTF-8 speichern (Excel kann da zickig sein).
+* **IMO mit Leerzeichen/Prefix:** `IMO: 1234567` oder `1234567 ` ist ok, weil das Tool auf **Ziffern reduziert**.
+
+#### F) Optional: schnelle EMSA-Qualitätserhöhung (Workflow-Tipp)
+
+Wenn du EMSA „Vessels in port“ importierst, ist das strukturell oft **Y niedrig**, operativ **X niedrig**, weil Portcall erstmal nur Kontext ist. Sinnvoll ist dann:
+
+* per „✏️ In Formular“ das Schiff laden,
+* strukturelle Hinweise (Y) + operative Indikatoren (X) setzen,
+* und ggf. den **OSINT-Prompt** nutzen, um Owner/ISM/Sanktionen/STS/CI-Nähe schnell zu prüfen.
+
+
+
 </pre>
 
 </body>
